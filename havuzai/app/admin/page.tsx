@@ -5,18 +5,35 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [clientId, setClientId] = useState("havuzyaptir");
-  const [secret, setSecret]     = useState("");
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientId) {
-      setError("Firma ID boş olamaz.");
-      return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        router.push(`/admin/${data.clientId}`);
+      } else {
+        setError(data.error || "Giriş başarısız");
+      }
+    } catch {
+      setError("Bağlantı hatası");
+    } finally {
+      setLoading(false);
     }
-    // Basit client-side koruma — gerçek auth Supabase RLS ile sağlanır
-    router.push(`/admin/${clientId}`);
   };
 
   return (
@@ -30,13 +47,14 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Firma ID
+              Email
             </label>
             <input
-              type="text"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              placeholder="havuzyaptir"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="firma@email.com"
+              required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl
                          focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -48,9 +66,10 @@ export default function AdminLoginPage() {
             </label>
             <input
               type="password"
-              value={secret}
-              onChange={(e) => setSecret(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl
                          focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -62,10 +81,11 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 bg-blue-600 text-white rounded-xl
-                       font-bold hover:bg-blue-700 transition-colors"
+                       font-bold hover:bg-blue-700 transition-colors disabled:opacity-60"
           >
-            Giriş Yap →
+            {loading ? "Giriş yapılıyor..." : "Giriş Yap →"}
           </button>
         </form>
       </div>

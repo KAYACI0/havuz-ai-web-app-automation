@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import HowToUse from "@/components/HowToUse";
 
 const ADMIN_GUIDE = [
@@ -63,13 +64,35 @@ const NEXT: Record<string, { status: string; label: string }> = {
 const FILTERS = ["all", "new", "contacted", "offered", "completed"] as const;
 
 export default function AdminPanel({ params }: { params: Promise<{ clientId: string }> }) {
+  const router = useRouter();
   const [clientId, setClientId] = useState("");
   const [orders, setOrders]     = useState<Order[]>([]);
   const [filter, setFilter]     = useState<string>("all");
   const [selected, setSelected] = useState<Order | null>(null);
   const [loading, setLoading]   = useState(true);
 
+  // Resolve params
   useEffect(() => { params.then(p => setClientId(p.clientId)); }, [params]);
+
+  // Auth check
+  useEffect(() => {
+    if (!clientId) return;
+    const checkAuth = async () => {
+      const res  = await fetch("/api/auth/verify");
+      const data = await res.json();
+
+      if (!data.valid) {
+        router.push("/admin");
+        return;
+      }
+
+      if (data.clientId !== clientId) {
+        router.push("/admin");
+        return;
+      }
+    };
+    checkAuth();
+  }, [clientId, router]);
 
   const load = async () => {
     if (!clientId) return;
@@ -90,6 +113,11 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
     });
     setSelected(null);
     load();
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/admin");
   };
 
   const newCount = orders.filter(o => o.status === "new").length;
@@ -151,9 +179,18 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
           })}
         </nav>
 
-        {/* Footer */}
+        {/* Footer + Logout */}
         <div className="px-6 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{clientId}</p>
+          <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>{clientId}</p>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 rounded-lg text-sm font-semibold transition-all"
+            style={{ background: "rgba(239,68,68,0.15)", color: "#FCA5A5" }}
+            onMouseEnter={e => (e.currentTarget.style.background = "rgba(239,68,68,0.25)")}
+            onMouseLeave={e => (e.currentTarget.style.background = "rgba(239,68,68,0.15)")}
+          >
+            Çıkış Yap
+          </button>
         </div>
       </aside>
 
