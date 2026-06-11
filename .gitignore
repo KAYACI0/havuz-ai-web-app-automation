@@ -1,0 +1,6 @@
+.claude/
+havuzai/node_modules/
+havuzai/.next/
+havuzai/.env*
+havuzai/*.tsbuildinfo
+havuzai/next-env.d.ts

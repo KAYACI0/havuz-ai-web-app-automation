@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  --navy:        #0C1F3F;
+  --navy-mid:    #1A3560;
+  --navy-light:  #2C5282;
+  --gold:        #B8935A;
+  --gold-light:  #D4AF7A;
+  --gold-pale:   #F0E4CE;
+  --pool:        #1D7BBF;
+  --pool-light:  #EBF5FB;
+  --sand:        #F5EFE6;
+  --sand-dark:   #EDE4D7;
+  --surface:     #FAFAF8;
+  --white:       #FFFFFF;
+  --text:        #111827;
+  --text-muted:  #6B7280;
+  --text-faint:  #9CA3AF;
+  --border:      #E5DDD0;
+  --border-soft: #F0EBE3;
+  --success:     #059669;
+  --error:       #DC2626;
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces);
+  --font-body:    var(--font-jakarta);
+}
+
+/* ─── Base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-font-smoothing: antialiased; }
+
+body {
+  background: var(--sand);
+  color: var(--text);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ─── Typography ─────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-fraunces), 'Fraunces', Georgia, serif;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 99px; }
+
+/* ─── Selection ──────────────────────────────────────────── */
+::selection { background: var(--gold-pale); color: var(--navy); }
+
+/* ─── Animations ─────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes poolWave {
+  0%, 100% { transform: scaleX(1) scaleY(1); }
+  50%       { transform: scaleX(1.03) scaleY(0.97); }
+}
+@keyframes ripple {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fadeUp   { animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fadeIn   { animation: fadeIn 0.3s ease both; }
+.animate-float    { animation: float 3s ease-in-out infinite; }
+.animate-spin-slow{ animation: spin 1.4s linear infinite; }
+
+/* ─── Input Base ─────────────────────────────────────────── */
+.input-base {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-base:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(12,31,63,0.08);
+}
+.input-base::placeholder { color: var(--text-faint); }
+
+/* ─── Select Card ─────────────────────────────────────────── */
+.select-card {
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+}
+.select-card:hover {
+  border-color: var(--navy-light);
+  box-shadow: 0 4px 20px rgba(12,31,63,0.1);
+  transform: translateY(-1px);
+}
+.select-card.selected {
+  border-color: var(--navy);
+  background: #F0F4FA;
+  box-shadow: 0 0 0 3px rgba(12,31,63,0.1), 0 4px 20px rgba(12,31,63,0.12);
+}
+
+/* ─── Button Primary ─────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(12,31,63,0.3); }
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: var(--white);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--navy); color: var(--navy); background: var(--pool-light); }
+
+/* ─── Gold Accent Button ─────────────────────────────────── */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(184,147,90,0.4);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,147,90,0.5); }
