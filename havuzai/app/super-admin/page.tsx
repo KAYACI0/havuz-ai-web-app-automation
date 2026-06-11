@@ -14,7 +14,7 @@ type Client = {
   last_login: string | null;
 };
 
-type Tab = "create" | "list";
+type Tab = "create" | "list" | "hash";
 
 const PLANS = ["basic", "pro", "enterprise"];
 
@@ -325,6 +325,11 @@ export default function SuperAdminPage() {
   const [authed, setAuthed]       = useState(false);
   const [tab, setTab]             = useState<Tab>("create");
 
+  /* hash generator */
+  const [hashInput, setHashInput]   = useState("");
+  const [hashResult, setHashResult] = useState("");
+  const [hashLoading, setHashLoading] = useState(false);
+
   /* create form */
   const [name, setName]         = useState("");
   const [clientId, setClientId] = useState("");
@@ -430,7 +435,7 @@ export default function SuperAdminPage() {
 
       {/* Tabs */}
       <div className="px-6 pt-5 flex gap-2">
-        {(["create", "list"] as Tab[]).map((t) => (
+        {(["create", "list", "hash"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -440,7 +445,7 @@ export default function SuperAdminPage() {
                 : "bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700"
             }`}
           >
-            {t === "create" ? "➕ Yeni Mağaza" : `🏢 Firmalar${clients.length > 0 ? ` (${clients.length})` : ""}`}
+            {t === "create" ? "➕ Yeni Mağaza" : t === "list" ? `🏢 Firmalar${clients.length > 0 ? ` (${clients.length})` : ""}` : "🔑 Hash Üret"}
           </button>
         ))}
       </div>
@@ -596,6 +601,63 @@ export default function SuperAdminPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* ── HASH TAB ── */}
+        {tab === "hash" && (
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+            <h2 className="text-white font-bold text-lg mb-1">🔑 Bcrypt Hash Üret</h2>
+            <p className="text-gray-500 text-sm mb-5">
+              Mevcut bir client için şifre hash'i üretin ve Supabase SQL Editor'da kullanın.
+            </p>
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={hashInput}
+                onChange={(e) => setHashInput(e.target.value)}
+                placeholder="Şifre girin"
+                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 text-white
+                           rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              />
+              <button
+                onClick={async () => {
+                  if (!hashInput.trim()) return;
+                  setHashLoading(true);
+                  setHashResult("");
+                  const res = await fetch("/api/super-admin/hash", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ password: hashInput, adminPassword: adminPass }),
+                  });
+                  const data = await res.json();
+                  setHashLoading(false);
+                  if (data.hash) setHashResult(data.hash);
+                }}
+                disabled={hashLoading || !hashInput.trim()}
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-colors whitespace-nowrap"
+              >
+                {hashLoading ? "Üretiliyor..." : "Hash Üret →"}
+              </button>
+            </div>
+            {hashResult && (
+              <div className="bg-gray-800 rounded-xl p-4">
+                <p className="text-gray-400 text-xs mb-2">Hash (kopyalayıp SQL'e yapıştır):</p>
+                <code className="text-green-300 text-xs break-all leading-relaxed block mb-3">
+                  {hashResult}
+                </code>
+                <button
+                  onClick={() => navigator.clipboard.writeText(hashResult)}
+                  className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition-colors"
+                >
+                  📋 Kopyala
+                </button>
+                <p className="text-gray-600 text-xs mt-4">SQL örneği:</p>
+                <code className="text-gray-500 text-xs break-all leading-relaxed block mt-1">
+                  {`UPDATE clients SET password_hash = '${hashResult}' WHERE id = 'client_id_buraya';`}
+                </code>
+              </div>
+            )}
+          </div>
         )}
 
         {/* ── LIST TAB ── */}

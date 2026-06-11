@@ -65,34 +65,31 @@ const FILTERS = ["all", "new", "contacted", "offered", "completed"] as const;
 
 export default function AdminPanel({ params }: { params: Promise<{ clientId: string }> }) {
   const router = useRouter();
-  const [clientId, setClientId] = useState("");
-  const [orders, setOrders]     = useState<Order[]>([]);
-  const [filter, setFilter]     = useState<string>("all");
-  const [selected, setSelected] = useState<Order | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const [clientId, setClientId]   = useState("");
+  const [authOk, setAuthOk]       = useState(false);
+  const [orders, setOrders]       = useState<Order[]>([]);
+  const [filter, setFilter]       = useState<string>("all");
+  const [selected, setSelected]   = useState<Order | null>(null);
+  const [loading, setLoading]     = useState(true);
 
-  // Resolve params
-  useEffect(() => { params.then(p => setClientId(p.clientId)); }, [params]);
-
-  // Auth check
+  // Resolve params then immediately verify auth — nothing renders until both done
   useEffect(() => {
-    if (!clientId) return;
-    const checkAuth = async () => {
-      const res  = await fetch("/api/auth/verify");
-      const data = await res.json();
-
-      if (!data.valid) {
-        router.push("/admin");
-        return;
+    params.then(async (p) => {
+      const id = p.clientId;
+      setClientId(id);
+      try {
+        const res  = await fetch("/api/auth/verify");
+        const data = await res.json();
+        if (!data.valid || data.clientId !== id) {
+          router.replace("/admin");
+        } else {
+          setAuthOk(true);
+        }
+      } catch {
+        router.replace("/admin");
       }
-
-      if (data.clientId !== clientId) {
-        router.push("/admin");
-        return;
-      }
-    };
-    checkAuth();
-  }, [clientId, router]);
+    });
+  }, [params, router]);
 
   const load = async () => {
     if (!clientId) return;
@@ -103,7 +100,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [clientId, filter]);
+  useEffect(() => { if (authOk) load(); }, [authOk, clientId, filter]);
 
   const advance = async (orderId: string, status: string) => {
     await fetch(`/api/orders/${orderId}`, {
@@ -122,6 +119,16 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
 
   const newCount = orders.filter(o => o.status === "new").length;
   const s = (key: string) => STATUS[key as keyof typeof STATUS] ?? STATUS.new;
+
+  // Auth henüz doğrulanmadıysa boş ekran göster (redirect bekleniyor)
+  if (!authOk) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--sand)" }}>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+          style={{ borderColor: "var(--navy)", borderTopColor: "transparent" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex" style={{ background: "var(--sand)", fontFamily: "var(--font-jakarta), sans-serif" }}>
