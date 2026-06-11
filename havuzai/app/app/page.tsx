@@ -221,7 +221,7 @@ function MobileProgress({ step }: { step: number }) {
 function AppForm({ clientId: propClientId, isEmbed }: Props) {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const clientId     = propClientId || searchParams.get("client") || "default";
+  const clientId     = propClientId || searchParams.get("client") || "";
 
   const [step, setStep]       = useState(1);
   const [loading, setLoading] = useState(false);

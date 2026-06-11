@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     });
 
     const missing = [
+      !clientId      && "clientId",
       !photo         && "photo",
       !poolModel     && "poolModel",
       !poolSize      && "poolSize",
@@ -78,13 +79,26 @@ export async function POST(request: Request) {
 
     // 4. Supabase'e kaydet
     if (!supabaseAdmin) {
-      log("info", `[${requestId}] 5-DB`, "Supabase yok — demo ID dönülüyor");
-      return Response.json({
-        success: true,
-        orderId: "demo-" + Date.now(),
-        aiPhoto: aiPhotoUrl,
-        original: originalPhotoUrl,
-      });
+      log("error", `[${requestId}] 5-DB`, "Supabase bağlantısı yok — SUPABASE_URL veya SUPABASE_SERVICE_KEY eksik");
+      return Response.json(
+        { success: false, error: "Veritabanı bağlantısı kurulamadı" },
+        { status: 500 }
+      );
+    }
+
+    // clientId geçerli mi kontrol et
+    const { data: clientRow, error: clientError } = await supabaseAdmin
+      .from("clients")
+      .select("id")
+      .eq("id", clientId)
+      .single();
+
+    if (clientError || !clientRow) {
+      log("error", `[${requestId}] 5-DB`, "Geçersiz clientId — clients tablosunda bulunamadı", { clientId, msg: clientError?.message });
+      return Response.json(
+        { success: false, error: `Geçersiz firma kimliği: ${clientId}` },
+        { status: 400 }
+      );
     }
 
     log("info", `[${requestId}] 5-DB`, "Sipariş veritabanına kaydediliyor...");
@@ -108,13 +122,16 @@ export async function POST(request: Request) {
       .single();
 
     if (orderError) {
-      log("info", `[${requestId}] 5-DB`, "DB kayıt hatası — demo ID dönülüyor", { msg: orderError.message });
-      return Response.json({
-        success: true,
-        orderId: "demo-" + Date.now(),
-        aiPhoto: aiPhotoUrl,
-        original: originalPhotoUrl,
+      log("error", `[${requestId}] 5-DB`, "DB kayıt hatası", {
+        msg:  orderError.message,
+        code: orderError.code,
+        details: orderError.details,
+        hint: orderError.hint,
       });
+      return Response.json(
+        { success: false, error: `Sipariş kaydedilemedi: ${orderError.message}` },
+        { status: 500 }
+      );
     }
     log("success", `[${requestId}] 5-DB`, "Sipariş kaydedildi", { orderId: order.id });
 
