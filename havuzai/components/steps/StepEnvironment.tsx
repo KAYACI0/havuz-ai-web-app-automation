@@ -116,6 +116,7 @@ export default function StepEnvironment({ form, update }: Props) {
           EKSTRA ÖZELLİKLER
         </div>
 
+        {/* Şelale toggle */}
         <button
           onClick={() => update({ hasWaterfall: !form.hasWaterfall })}
           className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all"
@@ -138,7 +139,6 @@ export default function StepEnvironment({ form, update }: Props) {
               </div>
             </div>
           </div>
-          {/* Toggle */}
           <div
             className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
             style={{ background: form.hasWaterfall ? "#3B82F6" : "#D1D5DB" }}
@@ -146,6 +146,40 @@ export default function StepEnvironment({ form, update }: Props) {
             <div
               className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
               style={{ transform: form.hasWaterfall ? "translateX(20px)" : "translateX(2px)" }}
+            />
+          </div>
+        </button>
+
+        {/* Merdiven toggle */}
+        <button
+          onClick={() => update({ hasStairs: !form.hasStairs })}
+          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all"
+          style={{
+            borderColor: form.hasStairs ? "#3B82F6" : "#E5E7EB",
+            background: form.hasStairs ? "#EFF6FF" : "#F9FAFB",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🪜</span>
+            <div className="text-left">
+              <div
+                className="text-sm font-semibold"
+                style={{ color: form.hasStairs ? "#1D7BBF" : "#374151" }}
+              >
+                Havuz Merdiveni
+              </div>
+              <div className="text-[11px]" style={{ color: "#9CA3AF" }}>
+                Paslanmaz çelik giriş merdiveni eklenir
+              </div>
+            </div>
+          </div>
+          <div
+            className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
+            style={{ background: form.hasStairs ? "#3B82F6" : "#D1D5DB" }}
+          >
+            <div
+              className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+              style={{ transform: form.hasStairs ? "translateX(20px)" : "translateX(2px)" }}
             />
           </div>
         </button>

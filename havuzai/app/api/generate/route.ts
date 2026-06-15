@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const customerCity  = formData.get("customerCity") as string;
     const source        = (formData.get("source") as string) || "direct";
     const hasWaterfall  = formData.get("hasWaterfall") === "true";
+    const hasStairs     = formData.get("hasStairs") === "true";
     const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
     const prompt = buildPoolPrompt({
       model: poolModel, size: poolSize,
       deck: deckType, ceramic: ceramicType,
-      hasWaterfall, stairType,
+      hasWaterfall, hasStairs, stairType,
     });
     log("info", `[${requestId}] 3-PROMPT`, "Prompt hazır", { prompt });
 

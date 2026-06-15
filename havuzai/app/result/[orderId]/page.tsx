@@ -49,6 +49,7 @@ interface Order {
   ceramic_type:   string;
   stair_type:     string;
   has_waterfall:  boolean;
+  has_stairs:     boolean;
   original_photo: string;
   ai_photo:       string;
   client_id:      string;
@@ -62,7 +63,7 @@ function ResultContent({ orderId }: { orderId: string }) {
   const origParam = searchParams.get("orig");
 
   useEffect(() => {
-    const blank: Order = { pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", stair_type:"corner", has_waterfall: false, original_photo: origParam ?? "", ai_photo: aiParam ?? "", client_id:"" };
+    const blank: Order = { pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", stair_type:"corner", has_waterfall: false, has_stairs: false, original_photo: origParam ?? "", ai_photo: aiParam ?? "", client_id:"" };
     if (orderId.startsWith("demo-")) {
       if (aiParam && origParam) setOrder(blank);
       return;
@@ -209,7 +210,7 @@ function ResultContent({ orderId }: { orderId: string }) {
                 { label: "Ölçü",    value: order.pool_size  || "—" },
                 { label: "Deck",    value: order.deck_type  || "Yok" },
                 { label: "Seramik", value: order.ceramic_type || "Yok" },
-                { label: "Merdiven", value: order.stair_type === "wide" ? "Geniş" : "Köşe" },
+                { label: "Merdiven", value: order.has_stairs ? "✅ Var" : "❌ Yok" },
                 { label: "Şelale",  value: order.has_waterfall ? "✅ Var" : "❌ Yok" },
               ].map((s) => (
                 <div key={s.label}

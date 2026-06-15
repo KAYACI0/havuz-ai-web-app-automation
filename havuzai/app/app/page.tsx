@@ -49,6 +49,7 @@ export interface FormData {
   customerPhone:   string;
   customerAddress: string;
   hasWaterfall:    boolean;
+  hasStairs:       boolean;
   stairType:       "corner" | "wide";
 }
 
@@ -231,7 +232,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     photo: null, poolModel: "", poolSize: "",
     deckType: "", ceramicType: "",
     customerName: "", customerPhone: "", customerAddress: "",
-    hasWaterfall: false, stairType: "corner",
+    hasWaterfall: false, hasStairs: false, stairType: "corner",
   });
 
   const updateForm = (data: Partial<FormData>) =>
@@ -255,6 +256,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("customerPhone",   form.customerPhone);
       fd.append("customerAddress", form.customerAddress);
       fd.append("hasWaterfall",    String(form.hasWaterfall));
+      fd.append("hasStairs",       String(form.hasStairs));
       fd.append("stairType",       form.stairType);
       fd.append("source",          isEmbed ? "widget" : "direct");
 
