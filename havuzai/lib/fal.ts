@@ -21,7 +21,7 @@ export async function generatePoolImage(
   imageUrl: string,
   prompt: string
 ): Promise<string> {
-  const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
+  const result = await fal.subscribe("fal-ai/flux-pro/kontext", {
     input: {
       prompt,
       image_url:      imageUrl,
