@@ -95,7 +95,35 @@ export function buildPoolPrompt(
     ? `- Entry stairs: full-width integrated stairs spanning entire short end, 3 wide steps`
     : `- Entry stairs: corner integrated staircase, 3 steps in one corner, handrail optional`;
 
+  const deckColorLabel = deckDesc
+    ? deckDesc.split("\n")[0].trim()
+    : "natural";
+
+  const shapeRule = model.toUpperCase() === "ROMA"
+    ? "torpedo/oval shaped, elongated oval from above, NO circular/round shape"
+    : "strictly rectangular, NO round shape";
+
   return `
+CRITICAL RULES - MUST FOLLOW ALL:
+
+1. POOL SHAPE: The pool must be ${shapeRule}.
+
+2. POOL INSTALLATION: The pool must be IN-GROUND or flush with ground level.
+   NOT above ground. NOT raised on a platform.
+   NOT sitting on top of the ground like a container.
+
+3. DECK COLOR: The deck/surround color is ${deckColorLabel}. Use EXACTLY this color for
+   the wooden boards around the pool.
+   NOT brick. NOT tile. NOT stone texture.
+   WOODEN BOARDS in ${deckColorLabel} color.
+
+4. POOL TYPE: This is a prefabricated fiberglass pool, smooth walls,
+   NOT an above-ground pool,
+   NOT a round hot tub,
+   NOT a jacuzzi.
+
+---
+
 Add a prefabricated fiberglass swimming pool to the open ground or grass area visible in this image.
 
 POOL SPECIFICATIONS:
