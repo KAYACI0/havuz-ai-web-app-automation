@@ -21,13 +21,13 @@ export async function generatePoolImage(
   customerPhotoUrl: string,
   prompt: string
 ): Promise<string> {
-  const result = await fal.subscribe("fal-ai/flux-kontext/pro", {
+  const result = await fal.subscribe("fal-ai/flux-pro/kontext", {
     input: {
       prompt,
-      image_url:           customerPhotoUrl,
-      guidance_scale:      3.5,
-      num_inference_steps: 28,
-      strength:            0.75,
+      image_url:      customerPhotoUrl,
+      guidance_scale: 3.5,
+      output_format:  "jpeg",
+      num_images:     1,
     },
   }) as unknown as FalResponse;
 
