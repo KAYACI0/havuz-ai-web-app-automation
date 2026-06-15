@@ -71,7 +71,11 @@ export async function POST(request: Request) {
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
     // 2. Prompt oluştur
-    const prompt = buildPoolPrompt(poolModel, poolSize, deckType, ceramicType, hasWaterfall, stairType);
+    const prompt = buildPoolPrompt({
+      model: poolModel, size: poolSize,
+      deck: deckType, ceramic: ceramicType,
+      hasWaterfall, stairType,
+    });
     log("info", `[${requestId}] 3-PROMPT`, "Prompt hazır", { prompt });
 
     // 3. fal.ai görsel üret

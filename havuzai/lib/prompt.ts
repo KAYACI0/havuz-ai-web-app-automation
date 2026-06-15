@@ -2,18 +2,17 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   RELAX: `strictly rectangular fiberglass pool,
   perfectly straight parallel long sides,
   90-degree corners slightly softened,
-  integrated corner staircase entry
-  with 3 visible steps in one corner,
   horizontal ribbing texture on interior walls,
   clean boxy rectangular silhouette from above`,
 
-  ROMA: `torpedo-shaped oval fiberglass pool,
-  both short ends fully rounded and curved,
-  no straight edges anywhere,
-  elongated oval/stadium silhouette from above,
-  integrated curved staircase entry blending
-  into one rounded end with 3 visible steps,
-  horizontal ribbing texture on interior walls`,
+  ROMA: `TORPEDO SHAPED pool - NOT circular, NOT round.
+  Elongated oval like a stadium or a rugby ball shape.
+  Much longer than it is wide (length is 2x the width).
+  Both short ends are rounded/curved.
+  Long sides are nearly straight and parallel.
+  From above it looks like an elongated oval/stadium.
+  DO NOT make it circular or kidney shaped.
+  Horizontal ribbing texture on interior walls.`,
 };
 
 const DECK_MATERIAL_DESCRIPTIONS: Record<string, string> = {
@@ -75,35 +74,41 @@ const CERAMIC_COLOR_DESCRIPTIONS: Record<string, string> = {
   krem:    "warm cream ivory ceramic tiles",
 };
 
-export function buildPoolPrompt(
-  model: string,
-  size: string,
-  deck: string,
-  ceramic: string,
-  hasWaterfall = false,
-  stairType: "corner" | "wide" = "corner"
-): string {
-  const shapeDesc  = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const deckDesc   = deck   ? DECK_MATERIAL_DESCRIPTIONS[deck]   || `${deck} colored deck` : null;
+export interface PoolConfig {
+  model:        string;
+  size:         string;
+  deck:         string;
+  ceramic:      string;
+  hasWaterfall: boolean;
+  stairType:    "corner" | "wide";
+}
+
+export function buildPoolPrompt(config: PoolConfig): string {
+  const { model, size, deck, ceramic, hasWaterfall, stairType } = config;
+
+  const shapeDesc   = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
+  const deckDesc    = deck    ? DECK_MATERIAL_DESCRIPTIONS[deck]    || `${deck} colored deck`    : null;
   const ceramicDesc = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored ceramic` : null;
 
-  const waterfallSection = hasWaterfall
-    ? `- Water feature: elegant pool waterfall/cascade on one short end wall, water flowing smoothly into pool, natural stone or matching coping material`
-    : "";
-
-  const stairSection = stairType === "wide"
-    ? `- Entry stairs: full-width integrated stairs spanning entire short end, 3 wide steps`
-    : `- Entry stairs: corner integrated staircase, 3 steps in one corner, handrail optional`;
-
-  const deckColorLabel = deckDesc
-    ? deckDesc.split("\n")[0].trim()
-    : "natural";
-
+  const deckColorLabel = deckDesc ? deckDesc.split("\n")[0].trim() : "natural";
   const shapeRule = model.toUpperCase() === "ROMA"
     ? "torpedo/oval shaped, elongated oval from above, NO circular/round shape"
     : "strictly rectangular, NO round shape";
 
+  const waterfallRule = hasWaterfall ? `
+‼️ MANDATORY FEATURE - CANNOT BE SKIPPED:
+A WATER WATERFALL/CASCADE must be clearly visible in this image.
+- A water blade or sheet waterfall on one short end wall of the pool
+- Water visibly flowing/falling into the pool
+- This is NOT optional. If you don't add the waterfall this generation fails.
+` : "";
+
+  const stairRule = stairType === "wide"
+    ? `POOL ENTRY: Full-width stairs spanning the entire short end, 3 wide steps visible.`
+    : `POOL ENTRY: Corner staircase in one corner, 3 steps visible.`;
+
   return `
+${waterfallRule}
 CRITICAL RULES - MUST FOLLOW ALL:
 
 1. POOL SHAPE: The pool must be ${shapeRule}.
@@ -124,7 +129,8 @@ CRITICAL RULES - MUST FOLLOW ALL:
 
 ---
 
-Add a prefabricated fiberglass swimming pool to the open ground or grass area visible in this image.
+EDIT INSTRUCTION:
+Seamlessly integrate a prefabricated fiberglass swimming pool into the open ground or grass area visible in this image.
 
 POOL SPECIFICATIONS:
 - Shape: ${shapeDesc}
@@ -134,14 +140,12 @@ ${deckDesc ? `
 DECK/SURROUND — COLOR IS CRITICAL:
 ${deckDesc}
 Width: 1.2-1.5 meters on all sides.
-IMPORTANT: The deck color described above
-must be clearly visible in the output.
+IMPORTANT: The deck color described above must be clearly visible in the output.
 Do not use white or grey if not specified.
 ` : ""}
-${stairSection}
-${waterfallSection}
+${stairRule}
 
-CRITICAL RULES:
+REALISM RULES:
 - The pool must look completely realistic and naturally integrated into the existing outdoor space.
 - Keep every existing element in the scene exactly as-is — do not add, remove, or modify any structures, buildings, trees, fences, or landscaping that are already present.
 - Only insert the pool into an available open area.
