@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import HowToUse from "@/components/HowToUse";
 
 async function downloadImage(url: string, filename: string) {
@@ -47,32 +47,34 @@ interface Order {
   pool_size:      string;
   deck_type:      string;
   ceramic_type:   string;
+  stair_type:     string;
+  has_waterfall:  boolean;
   original_photo: string;
   ai_photo:       string;
+  client_id:      string;
 }
 
 function ResultContent({ orderId }: { orderId: string }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const aiParam   = searchParams.get("ai");
   const origParam = searchParams.get("orig");
 
   useEffect(() => {
+    const blank: Order = { pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", stair_type:"corner", has_waterfall: false, original_photo: origParam ?? "", ai_photo: aiParam ?? "", client_id:"" };
     if (orderId.startsWith("demo-")) {
-      if (aiParam && origParam)
-        setOrder({ pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", original_photo: origParam, ai_photo: aiParam });
+      if (aiParam && origParam) setOrder(blank);
       return;
     }
     fetch(`/api/orders/${orderId}`)
       .then(r => r.json())
       .then(d => {
         if (d.order) setOrder(d.order);
-        else if (aiParam && origParam)
-          setOrder({ pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", original_photo: origParam, ai_photo: aiParam });
+        else if (aiParam && origParam) setOrder(blank);
       })
       .catch(() => {
-        if (aiParam && origParam)
-          setOrder({ pool_model:"", pool_size:"", deck_type:"", ceramic_type:"", original_photo: origParam, ai_photo: aiParam });
+        if (aiParam && origParam) setOrder(blank);
       });
   }, [orderId, aiParam, origParam]);
 
@@ -86,13 +88,6 @@ function ResultContent({ orderId }: { orderId: string }) {
       </div>
     </div>
   );
-
-  const specs = [
-    order.pool_model && { label: "Model",   value: order.pool_model },
-    order.pool_size  && { label: "Ölçü",    value: order.pool_size  },
-    order.deck_type  && { label: "Deck",    value: order.deck_type  },
-    order.ceramic_type && { label: "Seramik", value: order.ceramic_type },
-  ].filter(Boolean) as { label: string; value: string }[];
 
   return (
     <div className="min-h-screen" style={{ background: "var(--sand)" }}>
@@ -117,11 +112,12 @@ function ResultContent({ orderId }: { orderId: string }) {
             style={{ color: "var(--pool)", border: "1.5px solid var(--pool)", background: "var(--pool-light)" }}>
             ⬇ İndir
           </button>
-          <a href="/app"
+          <button
+            onClick={() => router.push(order?.client_id ? `/app?client=${order.client_id}` : "/app")}
             className="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             style={{ color: "var(--navy)", border: "1.5px solid var(--border)" }}>
             Yeni Görsel →
-          </a>
+          </button>
         </div>
       </div>
 
@@ -202,25 +198,44 @@ function ResultContent({ orderId }: { orderId: string }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeUp"
           style={{ animationDelay: "0.2s" }}>
 
-          {specs.length > 0 && (
-            <div className="rounded-2xl p-6"
-              style={{
-                background: "var(--white)",
-                border: "1px solid var(--border-soft)",
-              }}>
-              <h3 className="font-semibold text-sm mb-4" style={{ color: "var(--navy)" }}>
-                📋 Seçimleriniz
-              </h3>
-              <div className="flex flex-col gap-3">
-                {specs.map((s) => (
-                  <div key={s.label} className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: "var(--text-muted)" }}>{s.label}</span>
-                    <span className="text-sm font-semibold" style={{ color: "var(--navy)" }}>{s.value}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="rounded-2xl p-6"
+            style={{ background: "var(--white)", border: "1px solid var(--border-soft)" }}>
+            <h3 className="font-semibold text-sm mb-4" style={{ color: "var(--navy)" }}>
+              📋 Seçimleriniz
+            </h3>
+            <div className="grid grid-cols-2 gap-x-4">
+              {[
+                { label: "Model",    value: order.pool_model || "—" },
+                { label: "Ölçü",    value: order.pool_size  || "—" },
+                { label: "Deck",    value: order.deck_type  || "Yok" },
+                { label: "Seramik", value: order.ceramic_type || "Yok" },
+                { label: "Merdiven", value: order.stair_type === "wide" ? "Geniş" : "Köşe" },
+                { label: "Şelale",  value: order.has_waterfall ? "✅ Var" : "❌ Yok" },
+              ].map((s) => (
+                <div key={s.label}
+                  className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{s.label}</span>
+                  <span className="text-xs font-semibold" style={{ color: "var(--navy)" }}>{s.value}</span>
+                </div>
+              ))}
             </div>
-          )}
+
+            {/* Butonlar */}
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => router.push(order.client_id ? `/app?client=${order.client_id}` : "/app")}
+                className="flex-1 text-sm font-bold py-3 rounded-xl text-white transition-colors"
+                style={{ background: "#2563EB" }}>
+                🔄 Yeni Görsel
+              </button>
+              <button
+                onClick={() => downloadImage(order.ai_photo, "havuzai-gorsel.jpg")}
+                className="flex-1 text-sm font-bold py-3 rounded-xl text-white transition-colors"
+                style={{ background: "#1F2937" }}>
+                ⬇️ İndir
+              </button>
+            </div>
+          </div>
 
           <div className="rounded-2xl p-6 flex flex-col justify-between"
             style={{

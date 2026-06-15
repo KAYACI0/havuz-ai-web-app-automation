@@ -108,6 +108,8 @@ export async function POST(request: Request) {
         pool_size:        poolSize,
         deck_type:        deckType || null,
         ceramic_type:     ceramicType || null,
+        stair_type:       stairType,
+        has_waterfall:    hasWaterfall,
         original_photo:   originalPhotoUrl,
         ai_photo:         aiPhotoUrl,
         source,
