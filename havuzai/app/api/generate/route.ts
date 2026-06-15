@@ -80,13 +80,17 @@ export async function POST(request: Request) {
     log("info", `[${requestId}] 3-PROMPT`, "Prompt hazır", { prompt });
 
     // 3. fal.ai görsel üret (1 retry)
-    log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
+    const referenceUrl = poolModel.toUpperCase() === "ROMA"
+      ? process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL!
+      : process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL!;
+
+    log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...", { referenceUrl });
     let aiPhotoUrl: string;
     try {
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, referenceUrl, prompt);
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, referenceUrl, prompt);
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
