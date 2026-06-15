@@ -144,29 +144,20 @@ CRITICAL RULES - MUST FOLLOW ALL:
 
 1. POOL SHAPE: The pool must be ${shapeRule}
 
-2. POOL INSTALLATION — ‼️ CRITICAL:
-   The pool is DUG INTO the ground. The earth has been excavated and the pool sits inside the hole.
-   The pool rim/coping is AT GROUND LEVEL — perfectly flush with the surrounding terrain.
-   The pool walls are UNDERGROUND — completely hidden below the surface, you cannot see the outside of the pool walls.
-   NO gap between the pool edge and the ground. NO visible pool exterior walls above ground.
-   NOT above ground. NOT raised on a platform. NOT sitting on top of the soil like a box.
-   The ground seamlessly meets the pool coping at the same height.
+2. POOL INSTALLATION: The pool must be IN-GROUND or flush with ground level.
+   NOT above ground. NOT raised on a platform.
+   NOT sitting on top of the ground like a container.
 
 3. DECK COLOR: ${deckColorLabel}. Use EXACTLY this color for the deck/surround.
    THIN precision-cut composite planks. NOT chunky wood. NOT brick. NOT stone.
 
-4. POOL TYPE: Prefabricated fiberglass pool, smooth interior walls.
-   NOT a hot tub. NOT a jacuzzi. NOT an above-ground pool. NOT a container pool.
-   The pool exterior is buried underground — invisible. Only the interior and coping are visible.
+4. POOL TYPE: Prefabricated fiberglass pool, smooth walls.
+   NOT a hot tub. NOT a jacuzzi. NOT an above-ground pool.
 
 ---
 
 EDIT INSTRUCTION:
-Image 1 (main scene): The outdoor space where the pool will be placed.
-Image 2 (pool reference): This is EXACTLY what the pool must look like — use this exact shape, profile, and proportions.
-
-Task: Seamlessly integrate the pool shown in Image 2 into the open ground area of Image 1.
-Match the pool's shape EXACTLY as shown in Image 2 — do not invent or modify the shape.
+Seamlessly integrate a prefabricated fiberglass swimming pool into the open ground or grass area visible in this image.
 
 POOL SPECIFICATIONS:
 - Shape: ${shapeDesc}
@@ -182,8 +173,6 @@ ${stairRule}
 
 REALISM RULES:
 - The pool must look completely realistic and naturally integrated into the existing outdoor space.
-- The pool is excavated INTO the ground — the rim is flush with the surrounding soil/grass/paving. No walls visible above ground.
-- The deck/surround transitions smoothly from the existing ground level into the pool coping with no step up or raised edge.
 - Keep every existing element in the scene exactly as-is — do not add, remove, or modify any structures, buildings, trees, fences, or landscaping.
 - Only insert the pool into an available open area.
 - Professional photography, natural daylight, photorealistic quality.
