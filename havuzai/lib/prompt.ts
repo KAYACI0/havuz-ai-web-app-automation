@@ -18,55 +18,70 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   Horizontal ribbing texture on interior walls.`,
 };
 
-const DECK_MATERIAL_DESCRIPTIONS: Record<string, string> = {
-  ceviz: `WARM BROWN colored deck.
+const DECK_MATERIALS: Record<string, { label: string; desc: string }> = {
+  ceviz: {
+    label: "WARM BROWN",
+    desc: `WARM BROWN colored deck.
     Color: warm chestnut brown, like walnut wood.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     warm medium-brown tone, natural wood grain texture.
     THE DECK COLOR MUST BE BROWN.`,
-
-  antrasit04: `DARK GREY colored deck.
+  },
+  antrasit04: {
+    label: "DARK GREY",
+    desc: `DARK GREY colored deck.
     Color: very dark charcoal grey, almost black.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     dark anthracite charcoal tone, matte finish.
     THE DECK COLOR MUST BE DARK GREY.`,
-
-  "koyu-kahve": `DARK BROWN colored deck.
+  },
+  "koyu-kahve": {
+    label: "DARK BROWN",
+    desc: `DARK BROWN colored deck.
     Color: deep espresso dark brown, very dark.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     deep dark brown tone, rich walnut texture.
     THE DECK COLOR MUST BE DARK BROWN.`,
-
-  yesil: `GREEN colored deck.
+  },
+  yesil: {
+    label: "GREEN",
+    desc: `GREEN colored deck.
     Color: forest green, saturated medium green.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     vivid forest green tone, matte finish.
     THE DECK COLOR MUST BE GREEN, not white, not grey.`,
-
-  kirmizi: `RED colored deck.
+  },
+  kirmizi: {
+    label: "RED",
+    desc: `RED colored deck.
     Color: deep burgundy red, terracotta red.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     deep red burgundy tone, matte finish.
     THE DECK COLOR MUST BE RED.`,
-
-  "gunes-sarisi": `GOLDEN YELLOW colored deck.
+  },
+  "gunes-sarisi": {
+    label: "GOLDEN YELLOW",
+    desc: `GOLDEN YELLOW colored deck.
     Color: warm golden sandy yellow.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     warm sandy golden tone, matte finish.
     THE DECK COLOR MUST BE GOLDEN YELLOW.`,
-
-  bej: `BEIGE colored deck.
+  },
+  bej: {
+    label: "BEIGE",
+    desc: `BEIGE colored deck.
     Color: warm sandy beige, light cream tone.
     Material: thin modern composite decking boards,
     2-3cm thick planks tightly spaced,
     warm beige cream tone, matte finish.
     THE DECK COLOR MUST BE BEIGE.`,
+  },
 };
 
 const CERAMIC_COLOR_DESCRIPTIONS: Record<string, string> = {
@@ -89,11 +104,11 @@ export interface PoolConfig {
 export function buildPoolPrompt(config: PoolConfig): string {
   const { model, size, deck, ceramic, hasWaterfall, stairType } = config;
 
-  const shapeDesc   = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const deckDesc    = deck    ? DECK_MATERIAL_DESCRIPTIONS[deck]    || `${deck} colored deck`    : null;
-  const ceramicDesc = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored ceramic` : null;
-
-  const deckColorLabel = deckDesc ? deckDesc.split("\n")[0].trim() : "natural";
+  const shapeDesc      = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
+  const mat            = deck ? DECK_MATERIALS[deck] : null;
+  const deckColorLabel = mat?.label ?? "natural";
+  const deckDesc       = mat?.desc  ?? null;
+  const ceramicDesc    = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored ceramic` : null;
   const shapeRule = model.toUpperCase() === "ROMA"
     ? "torpedo/oval shaped, elongated oval from above, NO circular/round shape"
     : "strictly rectangular, NO round shape";

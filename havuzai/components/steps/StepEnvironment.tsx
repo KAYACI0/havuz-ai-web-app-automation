@@ -22,31 +22,6 @@ const CERAMICS = [
   { id: "krem",    label: "Krem",    gradient: "linear-gradient(135deg, #FEF3C7, #D4A853)" },
 ];
 
-const STAIR_OPTIONS = [
-  {
-    id: "corner" as const,
-    label: "Köşe Merdiven",
-    desc: "Havuzun köşesine entegre",
-    icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
-        <rect x="4" y="4" width="32" height="32" rx="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <path d="M4 28 L12 28 L12 20 L20 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: "wide" as const,
-    label: "Geniş Merdiven",
-    desc: "Kısa kenara yayılmış",
-    icon: (
-      <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8">
-        <rect x="4" y="4" width="32" height="32" rx="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <path d="M8 36 L32 36 L32 30 L8 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M10 30 L30 30 L30 24 L10 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-];
 
 export default function StepEnvironment({ form, update }: Props) {
   return (
@@ -126,44 +101,6 @@ export default function StepEnvironment({ form, update }: Props) {
                 <p className="text-xs text-center mt-1" style={{ color: sel ? "#1D7BBF" : "#374151" }}>
                   {c.label}
                 </p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MERDİVEN TİPİ */}
-      <div>
-        <div
-          className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3"
-          style={{ background: "#1a1a2e", color: "#ffffff", display: "inline-block" }}
-        >
-          MERDİVEN TİPİ
-        </div>
-
-        <div className="flex gap-3">
-          {STAIR_OPTIONS.map((s) => {
-            const sel = form.stairType === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => update({ stairType: s.id })}
-                className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 transition-all flex-1"
-                style={{
-                  borderColor: sel ? "#3B82F6" : "#E5E7EB",
-                  background: sel ? "#EFF6FF" : "#F9FAFB",
-                }}
-              >
-                <div style={{ color: sel ? "#1D7BBF" : "#6B7280" }}>{s.icon}</div>
-                <span
-                  className="text-xs font-semibold"
-                  style={{ color: sel ? "#1D7BBF" : "#374151" }}
-                >
-                  {s.label}
-                </span>
-                <span className="text-[10px]" style={{ color: "#9CA3AF" }}>
-                  {s.desc}
-                </span>
               </button>
             );
           })}
