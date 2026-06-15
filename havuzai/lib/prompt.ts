@@ -5,13 +5,16 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   horizontal ribbing texture on interior walls,
   clean boxy rectangular silhouette from above`,
 
-  ROMA: `TORPEDO SHAPED pool - NOT circular, NOT round.
-  Elongated oval like a stadium or a rugby ball shape.
-  Much longer than it is wide (length is 2x the width).
-  Both short ends are rounded/curved.
-  Long sides are nearly straight and parallel.
-  From above it looks like an elongated oval/stadium.
-  DO NOT make it circular or kidney shaped.
+  ROMA: `Prefabricated fiberglass pool with
+  asymmetric leaf/teardrop shape from above.
+  One short end is wider and rounded.
+  Other short end is narrower and pointed.
+  Like a rounded rectangle that tapers toward one end.
+  Long sides curve slightly inward.
+  NOT circular. NOT symmetric oval.
+  NOT torpedo shaped.
+  The wide rounded end is the entry side.
+  The narrow tapered end is the far end.
   Horizontal ribbing texture on interior walls.`,
 };
 
@@ -96,16 +99,19 @@ export function buildPoolPrompt(config: PoolConfig): string {
     : "strictly rectangular, NO round shape";
 
   const waterfallRule = hasWaterfall ? `
-‼️ MANDATORY FEATURE - CANNOT BE SKIPPED:
-A WATER WATERFALL/CASCADE must be clearly visible in this image.
-- A water blade or sheet waterfall on one short end wall of the pool
-- Water visibly flowing/falling into the pool
-- This is NOT optional. If you don't add the waterfall this generation fails.
+‼️ MANDATORY: POOL WALL WATERFALL
+A water blade waterfall mounted ON the pool's short end wall/coping.
+Water flows FROM the pool wall edge, falling only 20-30cm into the pool water.
+Like a thin sheet of water coming out from a slot in the pool wall.
+NOT a natural waterfall. NOT water falling from the sky. NOT a fountain shooting up.
+The water source is the pool wall itself, mounted flush with the coping.
 ` : "";
 
-  const stairRule = stairType === "wide"
-    ? `POOL ENTRY: Full-width stairs spanning the entire short end, 3 wide steps visible.`
-    : `POOL ENTRY: Corner staircase in one corner, 3 steps visible.`;
+  const stairRule = `POOL ENTRY STAIRS:
+External clip-on pool ladder/stairs hanging over the pool edge.
+NOT built into the pool walls. NOT integrated steps inside the pool.
+A removable A-frame or straight ladder with 3-4 steps, hanging on the pool rim,
+made of stainless steel or white plastic.`;
 
   return `
 ${waterfallRule}
