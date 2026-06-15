@@ -1,5 +1,4 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   const { password, clientData } = await request.json();
@@ -18,23 +17,38 @@ export async function POST(request: Request) {
     return Response.json({ error: "Tüm zorunlu alanları doldurun." }, { status: 400 });
   }
 
-  const password_hash = await bcrypt.hash(plain_password, 10);
+  // 1. Supabase Auth kullanıcısı oluştur
+  const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password: plain_password,
+    email_confirm: true,
+  });
 
-  const { error } = await supabaseAdmin
+  if (authError || !authUser.user) {
+    return Response.json(
+      { error: `Auth kullanıcısı oluşturulamadı: ${authError?.message}` },
+      { status: 500 }
+    );
+  }
+
+  // 2. Clients tablosuna kaydet (auth_user_id ile)
+  const { error: dbError } = await supabaseAdmin
     .from("clients")
     .insert({
       id,
       name,
       email,
       phone,
-      plan:        plan || "basic",
-      monthly_fee: monthly_fee || 0,
-      password_hash,
-      is_active:   true,
+      plan:         plan || "basic",
+      monthly_fee:  monthly_fee || 0,
+      is_active:    true,
+      auth_user_id: authUser.user.id,
     });
 
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  if (dbError) {
+    // Rollback: auth kullanıcısını sil
+    await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+    return Response.json({ error: dbError.message }, { status: 500 });
   }
 
   return Response.json({ success: true });

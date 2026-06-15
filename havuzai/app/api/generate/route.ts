@@ -42,31 +42,31 @@ export async function POST(request: Request) {
     }
 
     // 1. Fotoğrafı yükle
-    let originalPhotoUrl = "";
     const photoBuffer = await photo.arrayBuffer();
 
-    if (supabaseAdmin) {
-      log("info", `[${requestId}] 2-UPLOAD`, "Supabase Storage'a yükleniyor...");
-      const fileName = `${clientId}/${Date.now()}-original.jpg`;
-
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("photos")
-        .upload(fileName, photoBuffer, { contentType: photo.type || "image/jpeg" });
-
-      if (uploadError) {
-        log("info", `[${requestId}] 2-UPLOAD`, "Storage hatası, base64 kullanılıyor", { msg: uploadError.message });
-      } else {
-        const { data: urlData } = supabaseAdmin.storage.from("photos").getPublicUrl(fileName);
-        originalPhotoUrl = urlData.publicUrl;
-        log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
-      }
+    if (!supabaseAdmin) {
+      log("error", `[${requestId}] 2-UPLOAD`, "Supabase bağlantısı yok — SUPABASE_URL veya SUPABASE_SERVICE_KEY eksik");
+      return Response.json({ success: false, error: "Veritabanı bağlantısı kurulamadı" }, { status: 500 });
     }
 
-    if (!originalPhotoUrl) {
-      log("info", `[${requestId}] 2-UPLOAD`, "fal.storage'a yükleniyor...");
-      originalPhotoUrl = await uploadPhotoToFal(photoBuffer, photo.type || "image/jpeg");
-      log("success", `[${requestId}] 2-UPLOAD`, "fal.storage yükleme tamam", { url: originalPhotoUrl });
+    log("info", `[${requestId}] 2-UPLOAD`, "Supabase Storage'a yükleniyor...");
+    const fileName = `${clientId}/${Date.now()}-original.jpg`;
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("photos")
+      .upload(fileName, photoBuffer, { contentType: photo.type || "image/jpeg" });
+
+    if (uploadError) {
+      log("error", `[${requestId}] 2-UPLOAD`, "Storage yükleme hatası", { msg: uploadError.message });
+      return Response.json(
+        { success: false, error: "Fotoğraf yüklenemedi: " + uploadError.message },
+        { status: 500 }
+      );
     }
+
+    const { data: urlData } = supabaseAdmin.storage.from("photos").getPublicUrl(fileName);
+    const originalPhotoUrl = urlData.publicUrl;
+    log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
     // 2. Prompt oluştur
     const prompt = buildPoolPrompt(poolModel, poolSize, deckType, ceramicType);
@@ -78,14 +78,6 @@ export async function POST(request: Request) {
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
     // 4. Supabase'e kaydet
-    if (!supabaseAdmin) {
-      log("error", `[${requestId}] 5-DB`, "Supabase bağlantısı yok — SUPABASE_URL veya SUPABASE_SERVICE_KEY eksik");
-      return Response.json(
-        { success: false, error: "Veritabanı bağlantısı kurulamadı" },
-        { status: 500 }
-      );
-    }
-
     // clientId geçerli mi kontrol et
     const { data: clientRow, error: clientError } = await supabaseAdmin
       .from("clients")

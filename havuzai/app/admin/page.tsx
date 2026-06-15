@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,25 +16,31 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ email, password }),
-      });
+    const { data, error: authError } = await supabaseBrowser.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      const data = await res.json();
-
-      if (data.success) {
-        router.push(`/admin/${data.clientId}`);
-      } else {
-        setError(data.error || "Giriş başarısız");
-      }
-    } catch {
-      setError("Bağlantı hatası");
-    } finally {
+    if (authError || !data.user) {
+      setError("Email veya şifre hatalı");
       setLoading(false);
+      return;
     }
+
+    const { data: client, error: clientError } = await supabaseBrowser
+      .from("clients")
+      .select("id, name")
+      .eq("auth_user_id", data.user.id)
+      .single();
+
+    if (clientError || !client) {
+      setError("Hesap bulunamadı. Lütfen yönetici ile iletişime geçin.");
+      await supabaseBrowser.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    router.push(`/admin/${client.id}`);
   };
 
   return (

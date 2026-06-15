@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import HowToUse from "@/components/HowToUse";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const ADMIN_GUIDE = [
   {
@@ -78,9 +79,17 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
       const id = p.clientId;
       setClientId(id);
       try {
-        const res  = await fetch("/api/auth/verify");
-        const data = await res.json();
-        if (!data.valid || data.clientId !== id) {
+        const { data: { session } } = await supabaseBrowser.auth.getSession();
+        if (!session) {
+          router.replace("/admin");
+          return;
+        }
+        const { data: client } = await supabaseBrowser
+          .from("clients")
+          .select("id")
+          .eq("auth_user_id", session.user.id)
+          .single();
+        if (!client || client.id !== id) {
           router.replace("/admin");
         } else {
           setAuthOk(true);
@@ -113,7 +122,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await supabaseBrowser.auth.signOut();
     router.push("/admin");
   };
 

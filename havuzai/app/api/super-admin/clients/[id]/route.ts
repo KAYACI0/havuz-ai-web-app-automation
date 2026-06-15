@@ -1,5 +1,4 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import bcrypt from "bcryptjs";
 
 function checkAuth(request: Request) {
   const auth = request.headers.get("x-super-admin-password");
@@ -28,16 +27,38 @@ export async function PATCH(
   if (plan        !== undefined) updates.plan        = plan;
   if (monthly_fee !== undefined) updates.monthly_fee = monthly_fee;
   if (is_active   !== undefined) updates.is_active   = is_active;
+
+  // Şifre güncelleme: Supabase Auth üzerinden
   if (plain_password) {
-    updates.password_hash = await bcrypt.hash(plain_password, 10);
+    const { data: clientRow } = await supabaseAdmin
+      .from("clients")
+      .select("auth_user_id")
+      .eq("id", id)
+      .single();
+
+    if (clientRow?.auth_user_id) {
+      const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+        clientRow.auth_user_id,
+        { password: plain_password }
+      );
+      if (authUpdateError) {
+        return Response.json(
+          { error: `Şifre güncellenemedi: ${authUpdateError.message}` },
+          { status: 500 }
+        );
+      }
+    }
   }
 
-  const { error } = await supabaseAdmin
-    .from("clients")
-    .update(updates)
-    .eq("id", id);
+  if (Object.keys(updates).length > 0) {
+    const { error } = await supabaseAdmin
+      .from("clients")
+      .update(updates)
+      .eq("id", id);
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+  }
+
   return Response.json({ success: true });
 }
 
@@ -53,6 +74,17 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  // Auth kullanıcısını da sil
+  const { data: clientRow } = await supabaseAdmin
+    .from("clients")
+    .select("auth_user_id")
+    .eq("id", id)
+    .single();
+
+  if (clientRow?.auth_user_id) {
+    await supabaseAdmin.auth.admin.deleteUser(clientRow.auth_user_id);
+  }
 
   const { error } = await supabaseAdmin
     .from("clients")
