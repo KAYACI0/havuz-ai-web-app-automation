@@ -15,9 +15,9 @@ const DECKS = [
 ];
 
 const CERAMICS = [
-  { id: "seramik-1", label: "Seramik 1", src: "/ceramics/seramik-1.png", placeholder: "#7EC8E3" },
-  { id: "seramik-2", label: "Seramik 2", src: "/ceramics/seramik-2.png", placeholder: "#00B4D8" },
-  { id: "seramik-3", label: "Seramik 3", src: "/ceramics/seramik-3.png", placeholder: "#B0C4D8" },
+  { id: "turkuaz", label: "Turkuaz", gradient: "linear-gradient(135deg, #0EA5E9, #06B6D4)" },
+  { id: "mavi",    label: "Mavi",    gradient: "linear-gradient(135deg, #3B82F6, #1D4ED8)" },
+  { id: "beyaz",   label: "Beyaz",   gradient: "linear-gradient(135deg, #E0F2FE, #BAE6FD)" },
 ];
 
 export default function StepEnvironment({ form, update }: Props) {
@@ -88,25 +88,14 @@ export default function StepEnvironment({ form, update }: Props) {
                 className="flex flex-col items-center gap-1"
               >
                 <div
-                  className="w-16 h-16 rounded-lg overflow-hidden"
+                  className="w-16 h-16 rounded-lg"
                   style={{
+                    background: c.gradient,
                     outline: sel ? "3px solid #1D7BBF" : "3px solid transparent",
                     outlineOffset: "2px",
                     transition: "outline 0.15s",
                   }}
-                >
-                  <img
-                    src={c.src}
-                    alt={c.label}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const el = e.currentTarget;
-                      el.style.display = "none";
-                      const parent = el.parentElement;
-                      if (parent) parent.style.background = c.placeholder;
-                    }}
-                  />
-                </div>
+                />
                 <span
                   className="text-[11px] font-medium"
                   style={{ color: sel ? "#1D7BBF" : "#374151" }}
