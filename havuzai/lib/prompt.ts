@@ -17,18 +17,54 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const DECK_MATERIAL_DESCRIPTIONS: Record<string, string> = {
-  ceviz:        "thin modern composite decking boards 2-3cm thick, tightly spaced, warm medium-brown, contemporary slim-profile design",
-  antrasit04:   "thin modern composite decking boards 2-3cm thick, tightly spaced, dark charcoal anthracite, luxury slim-profile design",
-  "koyu-kahve": "thin modern composite decking boards 2-3cm thick, tightly spaced, deep dark-brown, contemporary slim-profile design",
-  yesil:        "thin modern composite decking boards 2-3cm thick, tightly spaced, earthy green tone, natural slim-profile design",
-  kirmizi:      "thin modern composite decking boards 2-3cm thick, tightly spaced, warm terracotta red, bold slim-profile design",
-  "gunes-sarisi":"thin modern composite decking boards 2-3cm thick, tightly spaced, warm golden-yellow, vibrant slim-profile design",
-  bej:          "thin modern composite decking boards 2-3cm thick, tightly spaced, sandy beige, minimalist slim-profile design",
-  kahve:        "thin modern composite decking boards 2-3cm thick, tightly spaced, warm medium-brown, contemporary slim-profile design",
-  gri:          "thin modern composite decking boards 2-3cm thick, tightly spaced, cool light-grey, Scandinavian slim-profile design",
-  antrasit:     "thin modern composite decking boards 2-3cm thick, tightly spaced, dark charcoal anthracite, luxury slim-profile design",
-  teak:         "thin modern teak decking boards 2-3cm thick, tightly spaced, golden-honey natural grain, premium slim-profile design",
-  acik_gri:     "thin modern composite decking boards 2-3cm thick, tightly spaced, light silver-grey driftwood, coastal slim-profile design",
+  ceviz: `WARM BROWN colored deck.
+    Color: warm chestnut brown, like walnut wood.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    warm medium-brown tone, natural wood grain texture.
+    THE DECK COLOR MUST BE BROWN.`,
+
+  antrasit04: `DARK GREY colored deck.
+    Color: very dark charcoal grey, almost black.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    dark anthracite charcoal tone, matte finish.
+    THE DECK COLOR MUST BE DARK GREY.`,
+
+  "koyu-kahve": `DARK BROWN colored deck.
+    Color: deep espresso dark brown, very dark.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    deep dark brown tone, rich walnut texture.
+    THE DECK COLOR MUST BE DARK BROWN.`,
+
+  yesil: `GREEN colored deck.
+    Color: forest green, saturated medium green.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    vivid forest green tone, matte finish.
+    THE DECK COLOR MUST BE GREEN, not white, not grey.`,
+
+  kirmizi: `RED colored deck.
+    Color: deep burgundy red, terracotta red.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    deep red burgundy tone, matte finish.
+    THE DECK COLOR MUST BE RED.`,
+
+  "gunes-sarisi": `GOLDEN YELLOW colored deck.
+    Color: warm golden sandy yellow.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    warm sandy golden tone, matte finish.
+    THE DECK COLOR MUST BE GOLDEN YELLOW.`,
+
+  bej: `BEIGE colored deck.
+    Color: warm sandy beige, light cream tone.
+    Material: thin modern composite decking boards,
+    2-3cm thick planks tightly spaced,
+    warm beige cream tone, matte finish.
+    THE DECK COLOR MUST BE BEIGE.`,
 };
 
 const CERAMIC_COLOR_DESCRIPTIONS: Record<string, string> = {
@@ -66,7 +102,14 @@ POOL SPECIFICATIONS:
 - Shape: ${shapeDesc}
 - Size: ${size} meters
 ${ceramicDesc ? `- Interior: ${ceramicDesc}` : ""}
-${deckDesc    ? `- Surrounding deck: ${deckDesc}` : ""}
+${deckDesc ? `
+DECK/SURROUND — COLOR IS CRITICAL:
+${deckDesc}
+Width: 1.2-1.5 meters on all sides.
+IMPORTANT: The deck color described above
+must be clearly visible in the output.
+Do not use white or grey if not specified.
+` : ""}
 ${stairSection}
 ${waterfallSection}
 
