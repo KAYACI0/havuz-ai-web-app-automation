@@ -48,6 +48,8 @@ export interface FormData {
   customerName:    string;
   customerPhone:   string;
   customerAddress: string;
+  hasWaterfall:    boolean;
+  stairType:       "corner" | "wide";
 }
 
 const STEPS = [
@@ -229,6 +231,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     photo: null, poolModel: "", poolSize: "",
     deckType: "", ceramicType: "",
     customerName: "", customerPhone: "", customerAddress: "",
+    hasWaterfall: false, stairType: "corner",
   });
 
   const updateForm = (data: Partial<FormData>) =>
@@ -251,6 +254,8 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("customerName",    form.customerName);
       fd.append("customerPhone",   form.customerPhone);
       fd.append("customerAddress", form.customerAddress);
+      fd.append("hasWaterfall",    String(form.hasWaterfall));
+      fd.append("stairType",       form.stairType);
       fd.append("source",          isEmbed ? "widget" : "direct");
 
       const res  = await fetch("/api/generate", { method: "POST", body: fd });

@@ -21,6 +21,8 @@ export async function POST(request: Request) {
     const customerAddr  = formData.get("customerAddress") as string;
     const customerCity  = formData.get("customerCity") as string;
     const source        = (formData.get("source") as string) || "direct";
+    const hasWaterfall  = formData.get("hasWaterfall") === "true";
+    const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
       clientId, poolModel, poolSize, deckType, ceramicType,
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
     // 2. Prompt oluştur
-    const prompt = buildPoolPrompt(poolModel, poolSize, deckType, ceramicType);
+    const prompt = buildPoolPrompt(poolModel, poolSize, deckType, ceramicType, hasWaterfall, stairType);
     log("info", `[${requestId}] 3-PROMPT`, "Prompt hazır", { prompt });
 
     // 3. fal.ai görsel üret
