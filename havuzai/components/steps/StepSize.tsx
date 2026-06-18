@@ -1,18 +1,60 @@
 "use client";
 
+import { useEffect } from "react";
 import type { FormData } from "@/app/app/page";
 
 interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
 
-const SIZES = [
-  "2.25x4.45x1.5",
-  "3x5x1.5",
-  "3x6x1.5",
-  "3x7x1.5",
-  "3x8x1.5",
-];
+const SIZES_BY_MODEL: Record<string, string[]> = {
+  RELAX: [
+    "2.25x4.45x1.5",
+    "3x5x1.5",
+    "3x6x1.5",
+    "3x7x1.5",
+    "3x8x1.5",
+  ],
+  ROMA: [
+    "3x6x1.5",
+  ],
+};
+
+const DEFAULT_SIZES = SIZES_BY_MODEL.RELAX;
 
 export default function StepSize({ form, update }: Props) {
+  const isRoma = form.poolModel === "ROMA";
+  const sizes = SIZES_BY_MODEL[form.poolModel ?? ""] ?? DEFAULT_SIZES;
+
+  useEffect(() => {
+    if (isRoma) {
+      update({ poolSize: "3x6x1.5" });
+    } else if (!sizes.includes(form.poolSize ?? "")) {
+      update({ poolSize: undefined });
+    }
+  }, [form.poolModel]);
+
+  if (isRoma) {
+    return (
+      <div>
+        <h2
+          className="text-sm font-bold uppercase tracking-widest mb-4"
+          style={{ color: "var(--navy)" }}
+        >
+          HAVUZ ÖLÇÜSÜ
+        </h2>
+        <div
+          className="py-3 px-4 rounded-xl font-bold text-sm text-center"
+          style={{
+            background: "#1D7BBF",
+            color: "#ffffff",
+            border: "1.5px solid #1D7BBF",
+          }}
+        >
+          3x6x1.5 (Tek Ölçü)
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2
@@ -23,7 +65,7 @@ export default function StepSize({ form, update }: Props) {
       </h2>
 
       <div className="grid grid-cols-3 gap-3">
-        {SIZES.map((size) => {
+        {sizes.map((size) => {
           const sel = form.poolSize === size;
           return (
             <button
