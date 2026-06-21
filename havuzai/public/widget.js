@@ -113,7 +113,7 @@
 
   var iframe = document.createElement("iframe");
   iframe.id    = "havuzai-iframe";
-  iframe.src   = "https://havuzai.com.tr/embed?client=" + clientId;
+  iframe.src   = "https://havuz-ai-web-app-automation.vercel.app/embed?client=" + clientId;
   iframe.title = "HavuzAI";
 
   var closeBtn = document.createElement("button");

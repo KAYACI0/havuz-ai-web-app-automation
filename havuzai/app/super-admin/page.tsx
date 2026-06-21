@@ -402,10 +402,10 @@ export default function SuperAdminPage() {
     if (!res.ok) { setError(data.error || "Bir hata oluştu."); return; }
 
     setResult({
-      adminUrl: "https://havuzai.com.tr/admin",
+      adminUrl: "https://havuz-ai-web-app-automation.vercel.app/admin",
       email,
       password,
-      widgetScript: `<script src="https://havuzai.com.tr/widget.js" data-client="${clientId}" defer></script>`,
+      widgetScript: `<script src="https://havuz-ai-web-app-automation.vercel.app/widget.js" data-client="${clientId}" defer></script>`,
     });
     setName(""); setClientId(""); setEmail(""); setPhone("");
     setPlan("basic"); setFee(""); setPassword("");

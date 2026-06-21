@@ -125,7 +125,7 @@ function BrandPanel({ step }: { step: number }) {
           />
         </div>
         <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px" }}>
-          havuzai.com.tr
+          havuz-ai-web-app-automation.vercel.app
         </p>
       </div>
 
