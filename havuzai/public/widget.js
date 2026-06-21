@@ -20,7 +20,7 @@
       "color:white;border:none;padding:14px 22px;",
       "border-radius:50px;font-size:15px;font-weight:700;",
       "cursor:pointer;box-shadow:0 4px 20px rgba(0,102,204,0.4);",
-      "z-index:999998;font-family:sans-serif;"
+      "z-index:1000001;font-family:sans-serif;"
     ].join("");
 
     var overlay = document.createElement("div");
