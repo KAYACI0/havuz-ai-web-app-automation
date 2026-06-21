@@ -20,7 +20,7 @@ export async function sendOrderNotification(
   if (!resend) return;
 
   await resend.emails.send({
-    from: "HavuzAI <bildirim@havuzai.com.tr>",
+    from: "HavuzAI <bildirim@havuz-ai-web-app-automation.vercel.app>",
     to,
     subject: "🏊 Yeni Havuz Talebi Geldi!",
     html: `

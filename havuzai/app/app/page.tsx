@@ -222,9 +222,14 @@ function MobileProgress({ step }: { step: number }) {
 }
 
 function AppForm({ clientId: propClientId, isEmbed }: Props) {
-  const router       = useRouter();
-  const searchParams = useSearchParams();
-  const clientId     = propClientId || searchParams.get("client") || "";
+  const router        = useRouter();
+  const searchParams  = useSearchParams();
+  const urlClientId   = searchParams.get("client");
+  const clientId      = propClientId || urlClientId || null;
+
+  console.log("APP PAGE - propClientId:", propClientId);
+  console.log("APP PAGE - urlClientId:", urlClientId);
+  console.log("APP PAGE - final clientId:", clientId);
 
   const [step, setStep]       = useState(1);
   const [loading, setLoading] = useState(false);
@@ -246,7 +251,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     setLoading(true);
     try {
       const fd = new FormData();
-      fd.append("clientId",        clientId);
+      fd.append("clientId",        clientId!);
       fd.append("photo",           form.photo!);
       fd.append("poolModel",       form.poolModel);
       fd.append("poolSize",        form.poolSize);
@@ -277,6 +282,15 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       setLoading(false);
     }
   };
+
+  if (!clientId) {
+    return (
+      <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
+        <h2 style={{ color: "#cc0000" }}>Geçersiz bağlantı</h2>
+        <p>Bu sayfaya doğrudan erişilemez. Lütfen yetkili bir bayi bağlantısından giriş yapın.</p>
+      </div>
+    );
+  }
 
   if (loading) return <LoadingScreen />;
 
