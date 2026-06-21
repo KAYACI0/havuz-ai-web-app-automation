@@ -5,11 +5,30 @@
   if (window.__havuzaiLoaded) return;
   window.__havuzaiLoaded = true;
 
-  var scripts = document.getElementsByTagName("script");
-  var thisScript = scripts[scripts.length - 1];
-  var clientId = thisScript.getAttribute("data-client") || "default";
+  function getClientId() {
+    if (document.currentScript) {
+      var cid = document.currentScript.getAttribute("data-client");
+      if (cid) return cid;
+    }
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.includes("widget.js")) {
+        var cid = scripts[i].getAttribute("data-client");
+        if (cid) return cid;
+      }
+    }
+    return null;
+  }
+
+  var clientId = getClientId();
+
+  if (!clientId) {
+    console.error("HavuzAI: data-client attribute bulunamadı!");
+    return;
+  }
 
   function init() {
+    if (!clientId) return;
     // Buton oluştur
     var btn = document.createElement("button");
     btn.id = "havuzai-btn";

@@ -111,7 +111,7 @@ export interface PoolConfig {
 }
 
 export function buildPoolPrompt(config: PoolConfig): string {
-  const { model, size, deck, ceramic, hasWaterfall, hasStairs } = config;
+  const { model, size, deck, ceramic, hasWaterfall, hasStairs, stairType } = config;
 
   const shapeDesc      = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
   const mat            = deck ? DECK_MATERIALS[deck] : null;
@@ -124,37 +124,86 @@ export function buildPoolPrompt(config: PoolConfig): string {
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
-  const waterfallRule = hasWaterfall ? `
-‼️ MANDATORY: POOL WALL WATERFALL
-A water blade waterfall mounted ON the pool's short end wall/coping.
-Water flows FROM the pool wall edge, falling only 20-30cm into the pool water.
-Like a thin sheet of water coming out from a slot in the pool wall.
-NOT a natural waterfall. NOT water falling from the sky. NOT a fountain shooting up.
-The water source is the pool wall itself, mounted flush with the coping.
-` : "";
+  const criticalRules = `
+═══════════════════════════════════════
+NON-NEGOTIABLE RULES — VIOLATING ANY OF
+THESE MAKES THE OUTPUT INVALID:
+═══════════════════════════════════════
 
-  const stairRule = hasStairs ? `POOL ENTRY STAIRS:
-Stainless steel clip-on pool ladder hanging over the wide end of the pool rim.
-3-4 polished stainless steel steps, clearly visible inside the pool.
-Ladder hangs from the pool edge, NOT built into the pool walls.` : "";
+RULE 1 — IN-GROUND INSTALLATION ONLY
+The pool MUST be installed flush with or
+below the surrounding ground level.
+NEVER show the pool raised above ground.
+NEVER show it sitting on top of a platform
+like a container or above-ground pool.
+The water surface should be at approximately
+ground level, with only the coping/edge
+(15-20cm) visible above grass/deck level.
+This is a permanent in-ground installation,
+like a real swimming pool, NOT a portable
+above-ground pool.
+
+RULE 2 — EXACT POOL SHAPE PRESERVATION
+${isRoma ? `
+The pool shape is an ASYMMETRIC LEAF/TEARDROP.
+One short end is wider and rounded (entry side).
+The other short end is narrower, more pointed.
+Long sides curve gently inward toward the
+narrow end. NOT a circle. NOT a symmetric oval.
+NOT a torpedo. This is a one-directional
+tapering organic shape.
+` : `
+The pool shape is STRICTLY RECTANGULAR.
+Straight parallel long sides. Straight short
+ends with only slightly softened corners.
+NO oval, NO curves on the long sides,
+NO tapering. A clean geometric rectangle
+viewed from above.
+`}
+Fixed size: ${size} meters. This is the
+ONLY available size for this model — render
+proportions accurately matching this exact ratio.
+${hasStairs ? `
+RULE 3 — VISIBLE STAIRCASE (MANDATORY)
+A clip-on external pool ladder/staircase MUST
+be clearly visible in the final image, hanging
+over the pool edge into the water.
+${stairType === "wide"
+  ? "Wide ladder spanning most of one short end, 3-4 steps."
+  : "Compact corner ladder, stainless steel or white plastic, 3-4 steps, mounted at one corner of the pool."}
+This ladder must be visibly present — do not
+omit it under any circumstance when this
+feature is requested.
+` : ""}
+${hasWaterfall ? `
+RULE 4 — POOL WATERFALL FEATURE (MANDATORY)
+Add a stainless steel curved waterfall blade
+mounted on the pool's edge/coping, exactly like
+this reference description:
+- A polished stainless steel curved panel,
+  shaped like a smooth "C" curve or gentle arc
+- Mounted directly on the pool coping/edge,
+  extending from just below the water surface
+  up to about 40-50cm above the water line
+- Water flows over the curved metal surface
+  in a smooth continuous sheet, cascading down
+  into the pool with visible splashing texture
+- The metal surface has a brushed/polished
+  chrome-like reflective finish
+- Positioned on one side of the pool (not the
+  short ends, on a long side), as a freestanding
+  accent feature, not spanning the full width
+- This is a small-to-medium decorative water
+  feature, NOT a natural rock waterfall, NOT
+  spanning the entire pool wall
+This feature must be visibly present — do not
+omit it under any circumstance when requested.
+` : ""}
+═══════════════════════════════════════
+`;
 
   return `
-${waterfallRule}
-CRITICAL RULES - MUST FOLLOW ALL:
-
-1. POOL SHAPE: The pool must be ${shapeRule}
-
-2. POOL INSTALLATION: The pool must be IN-GROUND or flush with ground level.
-   NOT above ground. NOT raised on a platform.
-   NOT sitting on top of the ground like a container.
-
-3. DECK COLOR: ${deckColorLabel}. Use EXACTLY this color for the deck/surround.
-   THIN precision-cut composite planks. NOT chunky wood. NOT brick. NOT stone.
-
-4. POOL TYPE: Prefabricated fiberglass pool, smooth walls.
-   NOT a hot tub. NOT a jacuzzi. NOT an above-ground pool.
-
----
+${criticalRules}
 
 EDIT INSTRUCTION:
 Seamlessly integrate a prefabricated fiberglass swimming pool into the open ground or grass area visible in this image.
@@ -162,6 +211,8 @@ Seamlessly integrate a prefabricated fiberglass swimming pool into the open grou
 POOL SPECIFICATIONS:
 - Shape: ${shapeDesc}
 - Size: ${size} meters
+- Pool type: ${shapeRule}
+- Installation: IN-GROUND, flush with or below ground level
 ${ceramicDesc ? `- Interior color: ${ceramicDesc}` : ""}
 ${deckDesc ? `
 DECK/SURROUND — COLOR IS CRITICAL:
@@ -169,7 +220,6 @@ ${deckDesc}
 Width: 1.0-1.5 meters on all sides. Sleek and modern appearance.
 IMPORTANT: The deck color must be clearly visible. Do not use white or grey if not specified.
 ` : ""}
-${stairRule}
 
 REALISM RULES:
 - The pool must look completely realistic and naturally integrated into the existing outdoor space.
