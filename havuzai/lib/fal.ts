@@ -35,8 +35,7 @@ export async function generatePoolImage(
   const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
     input: {
       prompt,
-      image_url:      imageUrls.length === 1 ? imageUrls[0] : undefined,
-      image_urls:     imageUrls.length > 1 ? imageUrls : undefined,
+      image_urls: imageUrls,
       guidance_scale: 10,
       output_format:  "jpeg",
       num_images:     1,
