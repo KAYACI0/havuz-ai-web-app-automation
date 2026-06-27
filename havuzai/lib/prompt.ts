@@ -24,43 +24,50 @@ const DECK_MATERIALS: Record<string, { label: string; desc: string }> = {
     label: "WARM BROWN",
     desc: `Composite deck color: #8B6347 warm chestnut brown like walnut wood. NOT white. NOT grey.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #8B6347 WARM BROWN. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #8B6347 WARM BROWN. WHITE = INVALID.
+    Pool coping and edge must also be #8B6347 — NO white border around the pool.`,
   },
   antrasit04: {
     label: "DARK GREY",
     desc: `Composite deck color: #4A4A4A very dark charcoal grey, almost black. NOT white. NOT brown.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #4A4A4A DARK GREY. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #4A4A4A DARK GREY. WHITE = INVALID.
+    Pool coping and edge must also be #4A4A4A — NO white border around the pool.`,
   },
   "koyu-kahve": {
     label: "DARK BROWN",
     desc: `Composite deck color: #3D2B1F deep espresso dark brown. NOT white. NOT grey.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #3D2B1F DARK BROWN. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #3D2B1F DARK BROWN. WHITE = INVALID.
+    Pool coping and edge must also be #3D2B1F — NO white border around the pool.`,
   },
   yesil: {
     label: "GREEN",
     desc: `Composite deck color: #5C7A3E forest green, saturated medium green. NOT white. NOT grey.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #5C7A3E GREEN. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #5C7A3E GREEN. WHITE = INVALID.
+    Pool coping and edge must also be #5C7A3E — NO white border around the pool.`,
   },
   kirmizi: {
     label: "RED",
     desc: `Composite deck color: #8B3A3A deep dark burgundy red. NOT white. NOT grey. NOT brown.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #8B3A3A DARK RED / BURGUNDY. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #8B3A3A DARK RED / BURGUNDY. WHITE = INVALID.
+    Pool coping and edge must also be #8B3A3A — NO white border around the pool.`,
   },
   "gunes-sarisi": {
     label: "GOLDEN YELLOW",
     desc: `Composite deck color: #C8A45A warm golden sandy yellow. NOT white. NOT grey.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #C8A45A GOLDEN YELLOW. WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #C8A45A GOLDEN YELLOW. WHITE = INVALID.
+    Pool coping and edge must also be #C8A45A — NO white border around the pool.`,
   },
   bej: {
     label: "BEIGE",
     desc: `Composite deck color: #C4A882 warm sandy beige, light cream. NOT pure white. NOT grey.
     Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
-    THE DECK MUST BE HEX COLOR #C4A882 BEIGE. PURE WHITE = INVALID.`,
+    THE DECK MUST BE HEX COLOR #C4A882 BEIGE. PURE WHITE = INVALID.
+    Pool coping and edge must also be #C4A882 — NO white border around the pool.`,
   },
 };
 
