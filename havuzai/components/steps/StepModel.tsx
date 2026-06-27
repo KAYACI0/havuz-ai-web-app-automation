@@ -10,7 +10,7 @@ const MODELS = [
     id:    "RELAX",
     name:  "RELAX",
     sub:   "Organik & Aile",
-    desc:  "yumuşak yapısıyla işlevsel ve sade bir tasarım sunan, her bahçeye kolaylıkla uyum sağlayan havuz modelidir.",
+    desc:  "dikdörtgen yapısıyla işlevsel ve sade bir tasarım sunan, her bahçeye kolaylıkla uyum sağlayan havuz modelidir.",
     tag:   "En Popüler",
     img:   "/pools/pool-relax.png",
   },
