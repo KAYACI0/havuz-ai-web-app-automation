@@ -48,7 +48,7 @@ export default function StepEnvironment({ form, update }: Props) {
             return (
               <button
                 key={d.id}
-                onClick={() => update({ deckType: d.id })}
+               onClick={() => update({ deckType: d.id, ceramicType: "" })}
                 className="flex flex-col items-center gap-1"
               >
                 <div
@@ -87,7 +87,7 @@ export default function StepEnvironment({ form, update }: Props) {
             return (
               <button
                 key={c.id}
-                onClick={() => update({ ceramicType: c.id })}
+                onClick={() => update({ ceramicType: c.id, deckType: "" })}
                 className="flex flex-col items-center gap-1"
               >
                 <div
