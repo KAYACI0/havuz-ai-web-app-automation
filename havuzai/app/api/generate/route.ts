@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const customerCity  = formData.get("customerCity") as string;
     const source        = (formData.get("source") as string) || "direct";
     const hasWaterfall  = formData.get("hasWaterfall") === "true";
-    const hasStairs     = formData.get("hasStairs") === "true";
+    const hasStairs = formData.get("hasStairs") === "true";
     const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
