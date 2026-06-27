@@ -22,73 +22,45 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
 const DECK_MATERIALS: Record<string, { label: string; desc: string }> = {
   ceviz: {
     label: "WARM BROWN",
-    desc: `WARM BROWN precision-cut composite deck.
-    Color: warm chestnut brown, like walnut wood.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    warm medium-brown tone, subtle wood grain texture.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE WARM BROWN.`,
+    desc: `Composite deck color: #8B6347 warm chestnut brown like walnut wood. NOT white. NOT grey.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #8B6347 WARM BROWN. WHITE = INVALID.`,
   },
   antrasit04: {
     label: "DARK GREY",
-    desc: `DARK GREY precision-cut composite deck.
-    Color: very dark charcoal grey, almost black.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    dark anthracite charcoal tone, matte surface.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE DARK GREY.`,
+    desc: `Composite deck color: #4A4A4A very dark charcoal grey, almost black. NOT white. NOT brown.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #4A4A4A DARK GREY. WHITE = INVALID.`,
   },
   "koyu-kahve": {
     label: "DARK BROWN",
-    desc: `DARK BROWN precision-cut composite deck.
-    Color: deep espresso dark brown, very dark.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    deep dark brown tone, rich texture.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE DARK BROWN.`,
+    desc: `Composite deck color: #3D2B1F deep espresso dark brown. NOT white. NOT grey.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #3D2B1F DARK BROWN. WHITE = INVALID.`,
   },
   yesil: {
     label: "GREEN",
-    desc: `GREEN precision-cut composite deck.
-    Color: forest green, saturated medium green.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    vivid forest green tone, matte surface.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE GREEN, not white, not grey.`,
+    desc: `Composite deck color: #5C7A3E forest green, saturated medium green. NOT white. NOT grey.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #5C7A3E GREEN. WHITE = INVALID.`,
   },
   kirmizi: {
     label: "RED",
-    desc: `RED precision-cut composite deck.
-    Color: deep burgundy red, terracotta red.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    deep red burgundy tone, matte surface.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE RED.`,
+    desc: `Composite deck color: #8B3A3A deep dark burgundy red. NOT white. NOT grey. NOT brown.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #8B3A3A DARK RED / BURGUNDY. WHITE = INVALID.`,
   },
   "gunes-sarisi": {
     label: "GOLDEN YELLOW",
-    desc: `GOLDEN YELLOW precision-cut composite deck.
-    Color: warm golden sandy yellow.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    warm sandy golden tone, matte surface.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE GOLDEN YELLOW.`,
+    desc: `Composite deck color: #C8A45A warm golden sandy yellow. NOT white. NOT grey.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #C8A45A GOLDEN YELLOW. WHITE = INVALID.`,
   },
   bej: {
     label: "BEIGE",
-    desc: `BEIGE precision-cut composite deck.
-    Color: warm sandy beige, light cream tone.
-    Material: narrow precision-cut composite decking planks,
-    1-2cm thin boards with tight gaps, modern and sleek finish,
-    warm beige cream tone, matte surface.
-    NOT chunky timber. THIN modern precision planks.
-    THE DECK COLOR MUST BE BEIGE.`,
+    desc: `Composite deck color: #C4A882 warm sandy beige, light cream. NOT pure white. NOT grey.
+    Panel: 4cm wide x 3cm high x 300cm long, parallel to pool edge.
+    THE DECK MUST BE HEX COLOR #C4A882 BEIGE. PURE WHITE = INVALID.`,
   },
 };
 
