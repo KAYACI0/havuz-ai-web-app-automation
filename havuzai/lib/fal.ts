@@ -19,12 +19,24 @@ export async function uploadPhotoToFal(
 
 export async function generatePoolImage(
   customerPhotoUrl: string,
-  prompt: string
+  prompt: string,
+  hasWaterfall?: boolean,
+  hasStairs?: boolean,
 ): Promise<string> {
+  const imageUrls = [customerPhotoUrl];
+
+  if (hasWaterfall) {
+    imageUrls.push("https://havuzyaptir.com/pools/kobra-tip-selale.png");
+  }
+  if (hasStairs) {
+    imageUrls.push("https://havuzyaptir.com/pools/muro-havuz-merdiveni.png");
+  }
+
   const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
     input: {
       prompt,
-      image_url:      customerPhotoUrl,
+      image_url:      imageUrls.length === 1 ? imageUrls[0] : undefined,
+      image_urls:     imageUrls.length > 1 ? imageUrls : undefined,
       guidance_scale: 10,
       output_format:  "jpeg",
       num_images:     1,
