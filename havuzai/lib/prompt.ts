@@ -20,55 +20,62 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   THIS POOL IS OVAL. CURVED SIDES. NOT RECTANGULAR. NOT A ROUND CIRCLE.`,
 };
 
-const DECK_MATERIALS: Record<string, { label: string; desc: string; colorRepeat: string }> = {
+const DECK_MATERIALS: Record<string, { label: string; desc: string }> = {
   ceviz: {
     label: "WARM BROWN",
-    colorRepeat: "WARM BROWN — like walnut wood. NOT white. NOT grey. NOT beige. NOT cream. BROWN.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: WARM CHESTNUT BROWN like walnut wood.
-    THE DECK MUST BE WARM BROWN. IF IT IS WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `WARM BROWN composite deck — like walnut wood. NOT white. NOT grey. NOT beige.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Warm chestnut brown tone with subtle wood grain texture.
+    THE DECK MUST BE WARM BROWN. WHITE OR GREY OUTPUT = INVALID.`,
   },
   antrasit04: {
     label: "DARK GREY",
-    colorRepeat: "DARK GREY — charcoal, almost black. NOT white. NOT brown. NOT beige. DARK GREY.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: VERY DARK CHARCOAL GREY, almost black.
-    THE DECK MUST BE DARK GREY / CHARCOAL. IF IT IS WHITE OR BEIGE, THE OUTPUT IS WRONG.`,
+    desc: `DARK GREY composite deck — charcoal, almost black. NOT white. NOT brown.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Very dark anthracite charcoal tone, matte surface.
+    THE DECK MUST BE DARK GREY. WHITE OR BEIGE OUTPUT = INVALID.`,
   },
   "koyu-kahve": {
     label: "DARK BROWN",
-    colorRepeat: "DARK BROWN — deep espresso. NOT white. NOT grey. NOT light brown. DARK BROWN.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: DEEP ESPRESSO DARK BROWN.
-    THE DECK MUST BE DARK BROWN. IF IT IS WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `DARK BROWN composite deck — deep espresso brown. NOT white. NOT grey. NOT light brown.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Deep dark espresso brown tone.
+    THE DECK MUST BE DARK BROWN. WHITE OR GREY OUTPUT = INVALID.`,
   },
   yesil: {
     label: "GREEN",
-    colorRepeat: "GREEN — forest green, saturated. NOT white. NOT grey. NOT brown. GREEN.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: FOREST GREEN, saturated medium green.
-    THE DECK MUST BE GREEN. IF IT IS WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `GREEN composite deck — forest green, saturated. NOT white. NOT grey. NOT brown.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Vivid forest green matte surface.
+    THE DECK MUST BE GREEN. WHITE OR GREY OUTPUT = INVALID.`,
   },
   kirmizi: {
     label: "RED",
-    colorRepeat: "RED — deep burgundy red / terracotta. NOT white. NOT grey. NOT brown. RED.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: DEEP BURGUNDY RED / TERRACOTTA RED.
-    THE DECK MUST BE RED / BURGUNDY. IF IT IS WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `RED composite deck — deep burgundy red / terracotta. NOT white. NOT grey. NOT brown.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Deep burgundy red / terracotta tone, matte surface.
+    THE DECK MUST BE RED / BURGUNDY. WHITE OR GREY OUTPUT = INVALID.`,
   },
   "gunes-sarisi": {
     label: "GOLDEN YELLOW",
-    colorRepeat: "GOLDEN YELLOW — warm sandy yellow. NOT white. NOT grey. NOT orange. GOLDEN YELLOW.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: WARM GOLDEN SANDY YELLOW.
-    THE DECK MUST BE GOLDEN YELLOW. IF IT IS WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `GOLDEN YELLOW composite deck — warm sandy yellow. NOT white. NOT grey. NOT orange.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Warm golden sandy yellow matte surface.
+    THE DECK MUST BE GOLDEN YELLOW. WHITE OR GREY OUTPUT = INVALID.`,
   },
   bej: {
     label: "BEIGE",
-    colorRepeat: "BEIGE — warm sandy beige, light cream. NOT white. NOT grey. NOT brown. BEIGE.",
-    desc: `Composite deck planks, 4cm wide x 3cm high x 300cm long, laid parallel to pool edge.
-    COLOR: WARM SANDY BEIGE / LIGHT CREAM.
-    THE DECK MUST BE BEIGE / CREAM. IF IT IS PURE WHITE OR GREY, THE OUTPUT IS WRONG.`,
+    desc: `BEIGE composite deck — warm sandy beige / light cream. NOT pure white. NOT grey.
+    Panel size: 4cm wide x 3cm high x 300cm long.
+    Panels laid parallel to pool edge, uniform tight spacing.
+    Warm sandy beige cream tone.
+    THE DECK MUST BE BEIGE / CREAM. PURE WHITE OR GREY OUTPUT = INVALID.`,
   },
 };
 
@@ -99,111 +106,136 @@ export function buildPoolPrompt(config: PoolConfig): string {
   const isRoma      = model.toUpperCase() === "ROMA";
 
   return `
-You are generating a photorealistic architectural visualization. A swimming pool must be seamlessly integrated into the provided outdoor photo. The final image must look like a real photograph taken after the pool was built — NOT a render, NOT a 3D model, NOT a cartoon or illustration.
+GOAL: Seamlessly integrate the selected swimming pool model into the uploaded garden, villa, or land photo. The result must be a photorealistic visualization showing the completed pool installation — NOT a render, NOT a cartoon, NOT an illustration. Must look like a real photograph.
 
-RULE 1: PRESERVE ALL EXISTING ELEMENTS
-Keep every existing element in the photo EXACTLY as it is:
-- Buildings, houses, villas: DO NOT change architecture, color, size, or position
-- Trees, bushes, hedges: DO NOT remove or alter
-- Fences, walls, paths: DO NOT remove or alter
-- Place the pool ONLY in the available open ground/grass area
-- The pool must NOT block the view of the main building
+---
 
-RULE 2: IN-GROUND POOL — THIS IS THE MOST CRITICAL RULE
-THE POOL MUST BE DUG INTO THE GROUND. THIS IS AN IN-GROUND SWIMMING POOL.
+RULE 1 — PRESERVE ALL EXISTING ELEMENTS
+The most prominent structure in the photo (house, villa, building) must remain EXACTLY as it is.
+Do NOT change the architecture, color, size, or position of any building.
+Do NOT remove or alter trees, walls, fences, hedges, or any existing landscaping.
+Place the pool ONLY in an available empty open ground area.
+The pool must NOT block the view of the main building.
+Priority order: 1) Existing building → 2) Surrounding landscape → 3) Pool placement
+If multiple open areas exist, choose the most aesthetically logical position near the building.
 
-CORRECT: The pool sits below ground level. The water surface is flush with the surrounding lawn or deck. You can see the pool going DOWN into the earth. Only the thin coping rim (10-15cm) is at ground level.
+---
 
-WRONG — THESE WILL MAKE THE OUTPUT INVALID:
-- Pool sitting ON TOP of the ground like a box
-- Pool walls visible above the ground
-- Pool elevated above the surrounding grass
-- Pool looking like it was placed on the lawn without any excavation
+RULE 2 — IN-GROUND INSTALLATION (MOST CRITICAL RULE)
+The pool MUST be installed IN-GROUND — dug into the earth.
 
-Picture this: A hole was dug in the ground. The fiberglass pool shell was lowered in. The water surface is now at the same level as the surrounding grass or deck. Only the thin coping edge is visible above.
+CORRECT: A hole has been excavated in the ground. The fiberglass pool shell sits inside the hole. The water surface is at the same level as the surrounding lawn or deck surface. Only the thin coping edge (10-15cm) is visible above ground.
 
-IN-GROUND. BELOW GROUND LEVEL. DUG INTO THE EARTH. NOT ON TOP OF THE GROUND.
+WRONG — these make the output invalid:
+- Pool sitting ON TOP of the ground like a box or container
+- Pool walls rising above the ground surface
+- Pool appearing to float above or rest on the lawn without excavation
+- Any gap visible between the pool exterior and the surrounding ground
 
-RULE 3: POOL SHAPE
+THE POOL MUST BE IN-GROUND. WATER SURFACE = GROUND LEVEL.
+
+---
+
+RULE 3 — POOL MODEL AND SHAPE
 Model: ${model.toUpperCase()}
+Size: ${size} meters — render proportions accurately matching this exact dimension ratio.
 ${shapeDesc}
-${isRoma
-  ? `SHAPE RULE: OVAL/TEARDROP ONLY. One end wide/rounded, other end narrow/tapered. Curved sides. NOT rectangular. NOT a circle.`
-  : `SHAPE RULE: RECTANGLE ONLY. Straight parallel sides. 90-degree corners. NOT oval. NOT curved sides.`
-}
-Size: ${size} meters. Render exact proportions.
 
-RULE 4: POOL INTERIOR
+${isRoma
+  ? `SHAPE ENFORCEMENT: OVAL / TEARDROP ONLY.
+One short end wide and rounded. Other short end narrow and tapered.
+Long sides gently curved inward. NO straight sides at all.
+NOT rectangular. NOT a perfect circle. OVAL/TEARDROP shape only.`
+  : `SHAPE ENFORCEMENT: RECTANGLE ONLY.
+Straight parallel long sides. 90-degree corners (very slightly softened only).
+NOT oval. NOT curved sides. NOT rounded ends. RECTANGLE only.`
+}
+
+---
+
+RULE 4 — POOL INTERIOR COLOR
 ${ceramicDesc ?? "Standard blue fiberglass interior. Water appears bright blue."}
-Water must look realistic with natural depth and light reflections.
+Water must look realistic: natural depth, light reflections, and color gradients.
+
+---
 
 ${mat ? `
-RULE 5: DECK COLOR — CRITICAL — READ THIS CAREFULLY
-THE DECK COLOR IS: ${mat.colorRepeat}
-
+RULE 5 — DECK SURROUND COLOR (CRITICAL)
+Selected deck color: ${mat.label}
 ${mat.desc}
-
-Deck width: exactly 1 meter around all sides of the pool.
-Planks run parallel to the nearest pool edge.
-
-REPEAT: THE DECK COLOR IS ${mat.label}.
-DO NOT USE WHITE. DO NOT USE GREY UNLESS SPECIFIED.
-THE COLOR ${mat.label} MUST BE CLEARLY VISIBLE IN THE OUTPUT.
-A WHITE OR GREY DECK WHEN ${mat.label} WAS SPECIFIED = INVALID OUTPUT.
+Deck width: exactly 1 meter on all sides around the pool.
+Panels run parallel to the nearest pool edge.
+Composite or wood grain texture must be clearly visible.
+THE COLOR ${mat.label} MUST BE CLEARLY VISIBLE. ANY OTHER COLOR = INVALID OUTPUT.
 ` : ""}
 
 ${!mat && ceramicDesc ? `
-RULE 5: CERAMIC TILE SURROUND
-- 1 meter wide ceramic tile walkway around all pool sides
-- Tile size: 33cm x 66cm rectangular
-- Regular grid pattern with visible grout lines (2-3mm)
-- Neutral color ceramic (light grey or cream)
-- Clean professional finish
+RULE 5 — CERAMIC TILE SURROUND
+1 meter wide ceramic tile walkway around all sides of the pool.
+Tile size: 33cm x 66cm rectangular format.
+Tiles laid in a regular grid pattern with visible grout lines (2-3mm wide).
+Neutral color ceramic (light grey or cream stone look).
+Clean, realistic, professional finish. Grout lines must be visible.
 ` : ""}
 
-${hasStairs ? `
-RULE 6: POOL LADDER — MANDATORY
-A POOL LADDER MUST BE VISIBLE IN THE FINAL IMAGE. DO NOT OMIT THIS.
+---
 
+${hasStairs ? `
+RULE 6 — POOL LADDER (MANDATORY — MUST APPEAR IN IMAGE)
+A stainless steel pool ladder MUST be clearly visible in the final image.
+DO NOT omit this. DO NOT skip this. THE LADDER MUST BE IN THE IMAGE.
+
+Specifications:
 - Type: External clip-on stainless steel pool ladder
 - Steps: 3 steps hanging over the pool edge into the water
-- Material: Polished stainless steel, shiny chrome-like finish
+- Material: Polished stainless steel — shiny, chrome-like, reflective surface
 - ${stairType === "wide"
-    ? "Wide ladder type: spans most of one short end of the pool, 3-4 broad steps."
-    : "Corner ladder type: compact, mounted at one corner of the pool."}
+    ? "Style: Wide ladder spanning most of one short end of the pool, 3-4 broad steps."
+    : "Style: Compact corner ladder mounted at one corner of the pool."}
 
-THE LADDER MUST BE IN THE IMAGE. OMITTING THE LADDER = INVALID OUTPUT.
+OMITTING THE LADDER = INVALID OUTPUT.
 ` : ""}
 
 ${hasWaterfall ? `
-RULE 7: WATERFALL BLADE — MANDATORY
-A STAINLESS STEEL WATERFALL BLADE MUST BE VISIBLE IN THE FINAL IMAGE. DO NOT OMIT THIS.
+RULE 7 — WATERFALL BLADE (MANDATORY — MUST APPEAR IN IMAGE)
+A stainless steel waterfall blade MUST be clearly visible in the final image.
+DO NOT omit this. DO NOT skip this. THE WATERFALL MUST BE IN THE IMAGE.
 
-- Width: 35cm only — this is a SMALL compact accent feature
+Specifications:
+- Width: EXACTLY 35cm — this is a small compact decorative accent, NOT a large waterfall
 - Height: 40cm
-- Material: Polished brushed stainless steel with chrome-like finish
-- Position: Mounted on pool coping on one of the LONG sides
-- Effect: Smooth thin sheet of water flowing over the metal surface into pool
-- This is NOT a large waterfall. It is a small 35cm decorative blade only.
+- Material: Polished brushed stainless steel, chrome-like reflective finish
+- Position: Mounted on the pool coping on one of the LONG sides of the pool
+- Water effect: Smooth thin sheet of water flowing continuously over the metal blade into the pool
+- This is a small 35cm decorative feature — NOT a rock waterfall, NOT spanning the full wall
 
-THE WATERFALL BLADE MUST BE IN THE IMAGE. OMITTING IT = INVALID OUTPUT.
-A WATERFALL LARGER THAN 35cm WIDE = INVALID OUTPUT.
+OMITTING THE WATERFALL = INVALID OUTPUT.
+WATERFALL WIDER THAN 35cm = INVALID OUTPUT.
 ` : ""}
 
-FINAL QUALITY RULES:
-- Output must look like a real professional photograph — not a render or illustration
-- Pool perspective must exactly match the camera angle of the original photo
-- Lighting and shadows must match the existing photo naturally
-- Pool must look fully integrated, like it was actually built there
-- Professional architectural visualization quality
+---
 
-DO NOT:
-- Show the pool above ground level
-- Use the wrong deck color
-- Change the pool shape
-- Omit mandatory features (ladder/waterfall)
-- Make the waterfall wider than 35cm
-- Alter existing buildings or structures
-- Produce cartoon or illustration style
+RULE 8 — VISUAL QUALITY
+Output must look like a real professional photograph — photorealistic quality.
+Pool perspective must exactly match the camera angle of the original photo.
+Lighting, shadows, and reflections must naturally match the original photo.
+Pool water must have realistic reflections, depth, and color.
+Pool must look fully integrated — like it was actually built there, not composited.
+Pool characteristic details and product features must be clearly visible.
+All selected features (deck/ceramic, ladder, waterfall) must be clearly recognizable.
+
+---
+
+ABSOLUTE PROHIBITIONS:
+- Do NOT change existing building architecture
+- Do NOT alter the pool shape (${isRoma ? "must stay OVAL/TEARDROP" : "must stay RECTANGLE"})
+- Do NOT place the pool above ground level
+- Do NOT use wrong deck color${mat ? ` (must be ${mat.label})` : ""}
+- Do NOT omit the ladder${hasStairs ? " (MANDATORY)" : ""}
+- Do NOT omit the waterfall${hasWaterfall ? " (MANDATORY)" : ""}
+- Do NOT make the waterfall wider than 35cm
+- Do NOT ignore ceramic or deck panel dimensions
+- Do NOT produce cartoon, illustration, or 3D render style output
+- Result MUST look like a real photograph
   `.trim();
 }
