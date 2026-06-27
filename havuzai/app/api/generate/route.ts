@@ -121,6 +121,7 @@ export async function POST(request: Request) {
         ceramic_type:     ceramicType || null,
         stair_type:       stairType,
         has_waterfall:    hasWaterfall,
+        has_stairs: hasStairs,
         original_photo:   originalPhotoUrl,
         ai_photo:         aiPhotoUrl,
         source,
