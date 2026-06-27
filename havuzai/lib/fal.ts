@@ -21,7 +21,7 @@ export async function generatePoolImage(
   customerPhotoUrl: string,
   prompt: string
 ): Promise<string> {
-  const result = await fal.subscribe("fal-ai/flux-pro/kontext", {
+  const result = await fal.subscribe("fal-ai/flux-pro/v1/redux", {
     input: {
       prompt,
       image_url:      customerPhotoUrl,
