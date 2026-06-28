@@ -91,7 +91,9 @@ DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
 DO NOT add any walkway or border around the pool.
 The original ground material continues right up to the pool water edge.
 DO NOT add any white border, coping, or rim around the pool.
-
+The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
+The fiberglass pool body must NOT be visible above ground level.
+Only the water surface and thin rim are visible — everything else is underground. 
 ---
 
 RULE 5 — PHOTOREALISTIC QUALITY
