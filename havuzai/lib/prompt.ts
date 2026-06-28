@@ -110,6 +110,13 @@ export function buildPoolPrompt(config: PoolConfig): string {
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   return `
+${hasWaterfall || hasStairs ? `
+⚠️ CRITICAL FEATURES THAT MUST APPEAR IN THIS IMAGE:
+${hasWaterfall ? "- A stainless steel cobra waterfall blade ON the pool edge (35cm wide) — MANDATORY" : ""}
+${hasStairs ? "- A stainless steel 3-step pool ladder ON the pool edge — MANDATORY" : ""}
+These features MUST be visible. Missing any of them = completely wrong output.
+---` : ""}
+
 You are a professional architectural visualization AI. Your task is to place a luxury villa swimming pool into the provided outdoor photo. The result must look exactly like a real photograph of a completed high-end pool installation — the kind you would see in a luxury villa garden in Turkey or Southern Europe.
 
 Think of this as a real pool that was professionally built and installed. The photo should look like it was taken AFTER the pool was finished and ready to use.
@@ -231,7 +238,7 @@ RULE 7 — PHOTOREALISTIC QUALITY
 
 ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
-❌ Pool walls or sides visible above the surrounding surface  
+❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong deck color${mat ? ` — must be ${mat.label}` : ""}
 ❌ Ceramic tiles when deck is selected
 ❌ Deck panels when ceramic is selected
