@@ -74,12 +74,10 @@ RULE 2 — POOL SHAPE: ${model.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
-The pool size must be PROPORTIONAL to the existing buildings and garden in the photo.
-The pool should look realistically sized — a typical residential pool is much smaller than the house.
-A standard pool occupies roughly 10-15% of the visible garden area — NOT more.
-Do NOT make the pool dominate the scene or appear larger than the building.
-Scale the pool to fit naturally within the available open space.
-
+The pool must be PROPORTIONAL to the garden and building in the photo.
+A realistic residential pool occupies roughly 10-15% of the visible garden area — NOT more.
+The pool must NOT appear larger than the house or dominate the entire garden.
+Leave visible grass on all sides between the pool and the garden boundaries.
 ---
 
 RULE 3 — POOL WATER
