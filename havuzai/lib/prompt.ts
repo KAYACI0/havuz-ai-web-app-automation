@@ -7,14 +7,14 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
   THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
 
-  ROMA: `ORGANIC kidney-shaped fiberglass pool — NOT a perfect oval, NOT rectangular, NOT teardrop.
-  The shape is similar to a kidney or figure-8 — organic and natural looking.
-  Both short ends are rounded and similar in width — NOT one wide and one narrow.
-  The long sides have gentle inward curves creating a waist in the middle.
-  Subtle indentations on the sides give it an organic, natural pool shape.
-  This is NOT a perfect oval. This is NOT a rectangle. This has organic curved sides.
-  Horizontal ribbing texture on interior walls.
-  THIS POOL IS KIDNEY/ORGANIC SHAPED. BOTH ENDS ROUNDED. GENTLE CURVES ON SIDES.`,  
+  ROMA: `ROUNDED RECTANGULAR fiberglass pool with soft organic curves.
+  The overall shape is like a rectangle with fully rounded short ends (half-circle ends).
+  Long sides have very slight inward curves — almost straight but gently bowed inward.
+  All four corners have smooth rounded cutouts/indentations.
+  The shape is SYMMETRICAL — both short ends are equal in width and roundness.
+  This is NOT a perfect oval. NOT a kidney. NOT a teardrop.
+  It looks like a rectangle where all corners and sides are softened into gentle curves.
+  Horizontal ribbing texture on interior walls.`,  
 };
 
 export interface PoolConfig {
