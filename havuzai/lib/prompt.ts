@@ -7,13 +7,13 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
   THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
 
-  ROMA: `RECTANGULAR pool with heavily rounded corners — like a rectangle where all four corners are large smooth arcs.
-  The shape viewed from above: straight long sides, straight short sides, but ALL four corners are large rounded arcs.
-  The corners are so rounded that the short ends appear almost like half-circles.
-  Long sides are STRAIGHT — not curved inward, not bowed.
-  Short ends are STRAIGHT but with large rounded corners connecting to the long sides.
-  This creates a "stadium" or "discorectangle" shape — like a running track outline.
-  NOT a kidney. NOT an oval. NOT a teardrop. NOT organic curves on the sides.
+  ROMA: `Fiberglass pool shaped like a ROUNDED RECTANGLE — also called a "squircle rectangle" or "pill shape".
+  Two long sides that are straight and parallel.
+  Two short ends that are large semicircles — fully rounded, like half circles.
+  The width is about half the length.
+  All transitions between straight sides and rounded ends are smooth.
+  This shape is like a standard swimming pool — rectangular body with two rounded ends.
+  NOT eye-shaped. NOT pointed ends. NOT kidney. NOT oval with pointed sides.
   Horizontal ribbing texture on interior walls.`,
 };
 
