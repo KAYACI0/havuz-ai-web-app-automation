@@ -123,7 +123,7 @@ These features MUST be visible. Missing any of them = completely wrong output.
 
 You are a professional architectural visualization AI. Your task is to place a luxury villa swimming pool into the provided outdoor photo. The result must look exactly like a real photograph of a completed high-end pool installation — the kind you would see in a luxury villa garden in Turkey or Southern Europe.
 
-Think of this as a real pool that was professionally built and installed. The photo should look like it was taken AFTER the pool was finished and ready to use.
+Think of this as a real   pool that was professionally built and installed. The photo should look like it was taken AFTER the pool was finished and ready to use.
 
 ---
 
@@ -219,13 +219,13 @@ A professional stainless steel waterfall blade MUST appear in the final image.
 - Type: cobra-style curved stainless steel waterfall blade
 - Size: small and elegant — 35cm wide x 40cm tall MAXIMUM
 - Material: brushed polished stainless steel with chrome-like finish
-- Position: mounted DIRECTLY ON THE POOL COPING on one LONG side of the pool
-- The base of the waterfall sits ON the pool edge — NOT on the deck, NOT floating
-- Water flows in a smooth, thin, elegant sheet from the blade DOWN INTO the pool
-- The waterfall is a small decorative accent — elegant and proportional, NOT dominant
-- It must look like a real premium pool accessory, naturally integrated
+- Position: mounted DIRECTLY ON TOP OF THE POOL COPING EDGE — the blade sits ON the pool rim, OUTSIDE the water, on one LONG side of the pool
+- The waterfall blade is ABOVE the water surface, sitting on the pool edge from OUTSIDE
+- Water flows FROM the blade DOWN INTO the pool — the blade is NOT submerged
+- The blade must be clearly visible sticking out ABOVE the pool rim from outside
+- Must look like a real premium pool accessory mounted on the exterior pool edge
 MISSING WATERFALL = INVALID OUTPUT.
-OVERSIZED WATERFALL (wider than 35cm) = INVALID OUTPUT.
+WATERFALL INSIDE THE POOL OR SUBMERGED = INVALID OUTPUT.
 ` : ""}
 
 ---
@@ -253,5 +253,5 @@ ABSOLUTE PROHIBITIONS:
 ❌ Waterfall or ladder not on the pool edge
 ❌ White border or coping that doesn't match the deck color
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-  `.trim();
+  `.trim()
 }
