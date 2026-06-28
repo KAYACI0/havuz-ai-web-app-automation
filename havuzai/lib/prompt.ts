@@ -86,10 +86,11 @@ The pool interior goes visibly deep into the ground.
 ---
 
 RULE 4 — POOL SURROUND
-Natural grass or existing ground material meets the pool edge cleanly.
-Simple clean coping/rim around the pool edge at ground level.
-No added deck, no ceramic tiles, no special surround material.
-Just the pool naturally integrated into the existing ground.
+The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
+DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
+DO NOT add any walkway or border around the pool.
+The original ground material continues right up to the pool edge.
+Only a thin pool coping/rim (5-10cm) is visible at the pool edge.
 
 ---
 
