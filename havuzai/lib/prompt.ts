@@ -7,13 +7,13 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
   THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
 
-  ROMA: `ROUNDED RECTANGULAR fiberglass pool with soft organic curves.
-  The overall shape is like a rectangle with fully rounded short ends (half-circle ends).
-  Long sides have very slight inward curves — almost straight but gently bowed inward.
-  All four corners have smooth rounded cutouts/indentations.
-  The shape is SYMMETRICAL — both short ends are equal in width and roundness.
-  This is NOT a perfect oval. NOT a kidney. NOT a teardrop. NOT a flower shape.
-  It looks like a rectangle where all corners and sides are softened into gentle curves.
+  ROMA: `RECTANGULAR pool with heavily rounded corners — like a rectangle where all four corners are large smooth arcs.
+  The shape viewed from above: straight long sides, straight short sides, but ALL four corners are large rounded arcs.
+  The corners are so rounded that the short ends appear almost like half-circles.
+  Long sides are STRAIGHT — not curved inward, not bowed.
+  Short ends are STRAIGHT but with large rounded corners connecting to the long sides.
+  This creates a "stadium" or "discorectangle" shape — like a running track outline.
+  NOT a kidney. NOT an oval. NOT a teardrop. NOT organic curves on the sides.
   Horizontal ribbing texture on interior walls.`,
 };
 
