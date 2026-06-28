@@ -81,12 +81,23 @@ export async function POST(request: Request) {
 
     // 3. fal.ai görsel üret (1 retry)
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
+    const DECK_HEX: Record<string, string> = {
+      ceviz: "#8B6347",
+      antrasit04: "#4A4A4A",
+      "koyu-kahve": "#3D2B1F",
+      yesil: "#5C7A3E",
+      kirmizi: "#8B3A3A",
+      "gunes-sarisi": "#C8A45A",
+      bej: "#C4A882",
+    };
+    const deckHex = deckType ? DECK_HEX[deckType] : undefined;
+
     let aiPhotoUrl: string;
     try {
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckType || undefined);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex);
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckType || undefined);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex);
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
