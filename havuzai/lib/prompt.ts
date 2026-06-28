@@ -7,15 +7,14 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
   THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
 
-  ROMA: `OVAL / TEARDROP shaped fiberglass pool — NOT rectangular, NOT square.
-  Asymmetric teardrop/leaf shape when viewed from above.
-  One short end is WIDER and fully rounded like a half-circle.
-  The other short end is NARROWER and gently tapered/pointed.
-  Both long sides curve smoothly inward toward the narrow end.
-  The pool is clearly oval/organic — NO straight sides at all.
-  Width at widest point is about half the total length.
+  ROMA: `ORGANIC kidney-shaped fiberglass pool — NOT a perfect oval, NOT rectangular, NOT teardrop.
+  The shape is similar to a kidney or figure-8 — organic and natural looking.
+  Both short ends are rounded and similar in width — NOT one wide and one narrow.
+  The long sides have gentle inward curves creating a waist in the middle.
+  Subtle indentations on the sides give it an organic, natural pool shape.
+  This is NOT a perfect oval. This is NOT a rectangle. This has organic curved sides.
   Horizontal ribbing texture on interior walls.
-  THIS POOL IS OVAL. CURVED SIDES. NOT RECTANGULAR. NOT A ROUND CIRCLE.`,
+  THIS POOL IS KIDNEY/ORGANIC SHAPED. BOTH ENDS ROUNDED. GENTLE CURVES ON SIDES.`,
 };
 
 export interface PoolConfig {
