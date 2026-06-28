@@ -112,6 +112,10 @@ export function buildPoolPrompt(config: PoolConfig): string {
   return `
 ${hasWaterfall || hasStairs ? `
 ⚠️ CRITICAL FEATURES THAT MUST APPEAR IN THIS IMAGE:
+${hasWaterfall ? `
+🚨 #1 PRIORITY: ADD A STAINLESS STEEL COBRA WATERFALL BLADE ON THE POOL EDGE.
+THIS IS THE MOST IMPORTANT ELEMENT. DO NOT SKIP THIS.
+` : ""}
 ${hasWaterfall ? "- A stainless steel cobra waterfall blade ON the pool edge (35cm wide) — MANDATORY" : ""}
 ${hasStairs ? "- A stainless steel 3-step pool ladder ON the pool edge — MANDATORY" : ""}
 These features MUST be visible. Missing any of them = completely wrong output.
