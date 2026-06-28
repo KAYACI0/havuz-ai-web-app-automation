@@ -89,10 +89,8 @@ RULE 4 — POOL SURROUND
 The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
 DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
 DO NOT add any walkway or border around the pool.
-The original ground material continues right up to the pool edge.
-Only a thin pool coping/rim (5-10cm) is visible at the pool edge.
-The pool coping/rim must be extremely thin — as close to 0 as possible, maximum 3cm.
-The grass must come right up to the pool water edge.
+The original ground material continues right up to the pool water edge.
+DO NOT add any white border, coping, or rim around the pool.
 
 ---
 
