@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { generatePoolImage, uploadPhotoToFal } from "@/lib/fal";
+import { generatePoolImage,  } from "@/lib/fal";
 import { buildPoolPrompt } from "@/lib/prompt";
 import { sendOrderNotification } from "@/lib/email";
 import { log } from "@/lib/logger";
@@ -94,10 +94,10 @@ export async function POST(request: Request) {
 
     let aiPhotoUrl: string;
     try {
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex, poolModel);
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex, poolModel);
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 

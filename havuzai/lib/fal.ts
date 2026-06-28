@@ -9,18 +9,14 @@ interface FalResponse {
   requestId: string;
 }
 
-export async function uploadPhotoToFal(
-  buffer: ArrayBuffer,
-  mimeType: string
-): Promise<string> {
-  const blob = new Blob([buffer], { type: mimeType });
-  return fal.storage.upload(blob);
-}
+
+
 
 export async function generatePoolImage(
   customerPhotoUrl: string,
   prompt: string,
   deckHex?: string,
+  poolModel?: string,
 ): Promise<string> {
   const input: Record<string, unknown> = {
     prompt,
@@ -34,6 +30,12 @@ export async function generatePoolImage(
     input.color_palette = {
       members: [{ color: deckHex, weight: 0.4 }]
     };
+  }
+
+  if (poolModel?.toUpperCase() === "ROMA") {
+    input.style_reference_images = [
+      "https://havuzyaptir.com/pools/roma.png"
+    ];
   }
 
   const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
