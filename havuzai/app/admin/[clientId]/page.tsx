@@ -38,15 +38,34 @@ interface Order {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
+  customer_city: string;
   pool_model: string;
   pool_size: string;
   deck_type: string;
   ceramic_type: string;
+  has_waterfall: boolean;
+  has_stairs: boolean;
+  stair_type: string;
   original_photo: string;
   ai_photo: string;
+  source: string;
   status: string;
   created_at: string;
 }
+
+// Müşterinin seçtiği değerlerin (id) okunabilir Türkçe karşılıkları
+const DECK_LABELS: Record<string, string> = {
+  ceviz: "Ceviz", antrasit04: "Antrasit 04", "koyu-kahve": "Koyu Kahve",
+  yesil: "Yeşil", kirmizi: "Kırmızı", "gunes-sarisi": "Güneş Sarısı", bej: "Bej",
+};
+const CERAMIC_LABELS: Record<string, string> = {
+  turkuaz: "Turkuaz", mavi: "Mavi", beyaz: "Beyaz", gri: "Gri", krem: "Krem",
+};
+const STAIR_LABELS: Record<string, string> = {
+  corner: "Köşe merdiven", wide: "Geniş merdiven",
+};
+const deckLabel    = (v?: string) => (v ? DECK_LABELS[v] ?? v : null);
+const ceramicLabel = (v?: string) => (v ? CERAMIC_LABELS[v] ?? v : null);
 
 const STATUS = {
   new:       { label: "Yeni",           bg: "#EFF6FF", text: "#1D4ED8", dot: "#3B82F6" },
@@ -286,13 +305,29 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                       <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                         📞 {order.customer_phone}
                       </p>
-                      <div className="flex gap-3 mt-1">
+                      <div className="flex gap-3 mt-1 flex-wrap">
                         <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                           🏊 {order.pool_model}
                         </span>
                         <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                           📐 {order.pool_size}
                         </span>
+                        {deckLabel(order.deck_type) && (
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>
+                            🎨 {deckLabel(order.deck_type)}
+                          </span>
+                        )}
+                        {ceramicLabel(order.ceramic_type) && (
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>
+                            💧 {ceramicLabel(order.ceramic_type)}
+                          </span>
+                        )}
+                        {order.has_waterfall && (
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>🌊 Şelale</span>
+                        )}
+                        {order.has_stairs && (
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>🪜 Merdiven</span>
+                        )}
                         <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                           {new Date(order.created_at).toLocaleDateString("tr-TR")}
                         </span>
@@ -350,15 +385,25 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                 className="w-full object-cover" style={{ aspectRatio: "4/3" }} />
             </div>
 
-            {/* Details */}
+            {/* Details — müşterinin tüm seçimleri */}
             <div className="px-6 py-4 grid grid-cols-2 gap-3 text-sm"
               style={{ borderBottom: "1px solid var(--border-soft)" }}>
-              {[
-                { label: "Telefon",  value: selected.customer_phone },
-                { label: "Adres",    value: selected.customer_address },
-                { label: "Model",    value: `${selected.pool_model} — ${selected.pool_size}` },
-                { label: "Durum",    value: s(selected.status).label },
-              ].map(({ label, value }) => (
+              {([
+                { label: "Telefon",      value: selected.customer_phone },
+                { label: "Adres",        value: selected.customer_address },
+                selected.customer_city ? { label: "Şehir", value: selected.customer_city } : null,
+                { label: "Havuz Modeli", value: selected.pool_model },
+                { label: "Ölçü",         value: selected.pool_size },
+                deckLabel(selected.deck_type)       ? { label: "Deck (Çevre Rengi)", value: deckLabel(selected.deck_type)! } : null,
+                ceramicLabel(selected.ceramic_type) ? { label: "Seramik Rengi",      value: ceramicLabel(selected.ceramic_type)! } : null,
+                { label: "Havuz Şelalesi", value: selected.has_waterfall ? "🌊 Var" : "Yok" },
+                { label: "Havuz Merdiveni", value: selected.has_stairs
+                    ? `🪜 Var${selected.stair_type ? ` (${STAIR_LABELS[selected.stair_type] ?? selected.stair_type})` : ""}`
+                    : "Yok" },
+                selected.source ? { label: "Kaynak", value: selected.source === "widget" ? "Widget (iframe)" : "Doğrudan" } : null,
+                { label: "Tarih",  value: new Date(selected.created_at).toLocaleString("tr-TR") },
+                { label: "Durum",  value: s(selected.status).label },
+              ].filter(Boolean) as { label: string; value: string }[]).map(({ label, value }) => (
                 <div key={label}>
                   <p className="text-xs mb-0.5" style={{ color: "var(--text-faint)" }}>{label}</p>
                   <p className="font-medium" style={{ color: "var(--navy)" }}>{value}</p>
