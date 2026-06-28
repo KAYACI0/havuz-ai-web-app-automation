@@ -1,12 +1,13 @@
 const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
-  RELAX: `strictly rectangular fiberglass pool.
+  RELAX: `STRICTLY RECTANGULAR fiberglass pool.
   Perfectly straight parallel long sides.
-  Sharp 90-degree corners (slightly softened radius).
+  Sharp 90-degree corners (very slightly softened radius only).
   Clean boxy rectangular silhouette from above.
   Horizontal ribbing texture on interior walls.
-  DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.`,
+  DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
+  THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
 
-  ROMA: `‼️ OVAL / TEARDROP shaped fiberglass pool — NOT rectangular, NOT square.
+  ROMA: `OVAL / TEARDROP shaped fiberglass pool — NOT rectangular, NOT square.
   Asymmetric teardrop/leaf shape when viewed from above.
   One short end is WIDER and fully rounded like a half-circle.
   The other short end is NARROWER and gently tapered/pointed.
@@ -16,7 +17,7 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   The wide rounded end is the entry side (where the ladder is).
   The narrow pointed end is the far end.
   Horizontal ribbing texture on interior walls.
-  THIS POOL IS OVAL. CURVED SIDES. NOT RECTANGULAR. NOT ROUND CIRCLE.`,
+  THIS POOL IS OVAL. CURVED SIDES. NOT RECTANGULAR. NOT A ROUND CIRCLE.`,
 };
 
 const DECK_MATERIALS: Record<string, { label: string; desc: string }> = {
@@ -92,118 +93,111 @@ export interface PoolConfig {
 export function buildPoolPrompt(config: PoolConfig): string {
   const { model, size, deck, ceramic, hasWaterfall, hasStairs, stairType } = config;
 
-  const shapeDesc      = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const mat            = deck ? DECK_MATERIALS[deck] : null;
-  const deckColorLabel = mat?.label ?? "natural";
-  const deckDesc       = mat?.desc  ?? null;
-  const ceramicDesc    = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored interior` : null;
-
-  const isRoma = model.toUpperCase() === "ROMA";
-  const shapeRule = isRoma
+  const shapeDesc   = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
+  const mat         = deck ? DECK_MATERIALS[deck] : null;
+  const deckDesc    = mat?.desc ?? null;
+  const ceramicDesc = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored interior` : null;
+  const isRoma      = model.toUpperCase() === "ROMA";
+  const shapeRule   = isRoma
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
-  const criticalRules = `
-═══════════════════════════════════════
-NON-NEGOTIABLE RULES — VIOLATING ANY OF
-THESE MAKES THE OUTPUT INVALID:
-═══════════════════════════════════════
-
-RULE 1 — IN-GROUND INSTALLATION ONLY
-The pool MUST be installed flush with or
-below the surrounding ground level.
-NEVER show the pool raised above ground.
-NEVER show it sitting on top of a platform
-like a container or above-ground pool.
-The water surface should be at approximately
-ground level, with only the coping/edge
-(15-20cm) visible above grass/deck level.
-This is a permanent in-ground installation,
-like a real swimming pool, NOT a portable
-above-ground pool.
-
-RULE 2 — EXACT POOL SHAPE PRESERVATION
-${isRoma ? `
-The pool shape is an ASYMMETRIC LEAF/TEARDROP.
-One short end is wider and rounded (entry side).
-The other short end is narrower, more pointed.
-Long sides curve gently inward toward the
-narrow end. NOT a circle. NOT a symmetric oval.
-NOT a torpedo. This is a one-directional
-tapering organic shape.
-` : `
-The pool shape is STRICTLY RECTANGULAR.
-Straight parallel long sides. Straight short
-ends with only slightly softened corners.
-NO oval, NO curves on the long sides,
-NO tapering. A clean geometric rectangle
-viewed from above.
-`}
-Fixed size: ${size} meters. This is the
-ONLY available size for this model — render
-proportions accurately matching this exact ratio.
-${hasStairs ? `
-RULE 3 — VISIBLE STAIRCASE (MANDATORY)
-A clip-on external pool ladder/staircase MUST
-be clearly visible in the final image, hanging
-over the pool edge into the water.
-${stairType === "wide"
-  ? "Wide ladder spanning most of one short end, 3-4 steps."
-  : "Compact corner ladder, stainless steel or white plastic, 3-4 steps, mounted at one corner of the pool."}
-This ladder must be visibly present — do not
-omit it under any circumstance when this
-feature is requested.
-` : ""}
-${hasWaterfall ? `
-RULE 4 — POOL WATERFALL FEATURE (MANDATORY)
-Add a stainless steel curved waterfall blade
-mounted on the pool's edge/coping, exactly like
-this reference description:
-- A polished stainless steel curved panel,
-  shaped like a smooth "C" curve or gentle arc
-- Mounted directly on the pool coping/edge,
-  extending from just below the water surface
-  up to about 40-50cm above the water line
-- Water flows over the curved metal surface
-  in a smooth continuous sheet, cascading down
-  into the pool with visible splashing texture
-- The metal surface has a brushed/polished
-  chrome-like reflective finish
-- Positioned on one side of the pool (not the
-  short ends, on a long side), as a freestanding
-  accent feature, not spanning the full width
-- This is a small-to-medium decorative water
-  feature, NOT a natural rock waterfall, NOT
-  spanning the entire pool wall
-This feature must be visibly present — do not
-omit it under any circumstance when requested.
-` : ""}
-═══════════════════════════════════════
-`;
-
   return `
-${criticalRules}
+GOAL: Seamlessly integrate the selected swimming pool into the uploaded outdoor photo. Result must look like a real professional photograph — NOT a render, NOT a cartoon, NOT an illustration.
 
-EDIT INSTRUCTION:
-Seamlessly integrate a prefabricated fiberglass swimming pool into the open ground or grass area visible in this image.
+---
 
-POOL SPECIFICATIONS:
-- Shape: ${shapeDesc}
-- Size: ${size} meters
-- Pool type: ${shapeRule}
-- Installation: IN-GROUND, flush with or below ground level
-${ceramicDesc ? `- Interior color: ${ceramicDesc}` : ""}
+RULE 1 — PRESERVE ALL EXISTING ELEMENTS
+Keep every existing element in the photo EXACTLY as it is.
+Do NOT change buildings, trees, fences, walls, or landscaping.
+Place the pool ONLY in an available open ground area.
+The pool must NOT block the view of the main building.
+Priority: 1) Existing building → 2) Surrounding landscape → 3) Pool placement
+
+---
+
+RULE 2 — IN-GROUND INSTALLATION (CRITICAL)
+The pool MUST be dug INTO the ground — fully in-ground installation.
+CORRECT: Water surface is flush with the surrounding lawn or deck. Only thin coping edge (10-15cm) visible above ground.
+WRONG: Pool sitting ON TOP of ground like a box. Pool walls rising above ground. Pool floating on the lawn.
+IN-GROUND. BELOW GROUND LEVEL. WATER SURFACE = GROUND LEVEL.
+
+---
+
+RULE 3 — POOL SHAPE
+Model: ${model.toUpperCase()}
+${shapeDesc}
+Shape rule: ${shapeRule}
+Size: ${size} meters — render exact proportions.
+
+---
+
+RULE 4 — POOL INTERIOR COLOR
+${ceramicDesc ?? "Standard blue fiberglass interior. Water appears bright blue."}
+Water must look realistic with natural depth and light reflections.
+
+---
+
 ${deckDesc ? `
-DECK/SURROUND — COLOR IS CRITICAL:
+RULE 5 — DECK COLOR (CRITICAL)
 ${deckDesc}
-Width: 1.0-1.5 meters on all sides. Sleek and modern appearance.
-IMPORTANT: The deck color must be clearly visible. Do not use white or grey if not specified.
+Deck width: exactly 1 meter on all sides around the pool.
+Panels run parallel to the nearest pool edge.
+THE DECK COLOR ABOVE IS MANDATORY. ANY OTHER COLOR = INVALID OUTPUT.
 ` : ""}
 
-REALISM RULES:
-- The pool must look completely realistic and naturally integrated into the existing outdoor space.
-- Keep every existing element in the scene exactly as-is — do not add, remove, or modify any structures, buildings, trees, fences, or landscaping.
-- Only insert the pool into an available open area.
-- Professional photography, natural daylight, photorealistic quality.
+${!deckDesc && ceramicDesc ? `
+RULE 5 — CERAMIC TILE SURROUND
+1 meter wide ceramic tile walkway around all sides of the pool.
+Tile size: 33cm x 66cm rectangular format.
+Regular grid pattern with visible grout lines (2-3mm wide).
+Neutral color ceramic (light grey or cream stone look).
+` : ""}
+
+---
+
+${hasStairs ? `
+RULE 6 — POOL LADDER (MANDATORY)
+A stainless steel pool ladder MUST be visible in the final image. DO NOT omit this.
+- Style: classic 3-step stainless steel pool ladder (muro type)
+- Material: polished chrome stainless steel, shiny and realistic
+- Position: mounted flush on one SHORT END of the pool edge, steps going DOWN INTO the water
+- Size: proportional to the pool — naturally integrated into the pool corner/edge
+- The ladder sits ON the pool edge only — NOT on the deck, NOT floating
+OMITTING THE LADDER = INVALID OUTPUT.
+` : ""}
+
+${hasWaterfall ? `
+RULE 7 — WATERFALL BLADE (MANDATORY)
+A stainless steel waterfall blade MUST be visible in the final image. DO NOT omit this.
+- Style: Cobra/curved stainless steel waterfall blade
+- Size: small and proportional — approximately 35cm wide, 40cm tall
+- Material: polished brushed stainless steel, chrome reflective finish
+- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side of the pool
+- The waterfall must be ON the pool edge ONLY — NOT on the deck, NOT floating, NOT beside the pool
+- Water: smooth thin sheet flowing over the curved blade DOWN INTO the pool water
+- Must look proportional and elegant — NOT oversized, NOT dominating the scene
+OMITTING THE WATERFALL = INVALID OUTPUT.
+` : ""}
+
+---
+
+RULE 8 — VISUAL QUALITY
+Output must look like a real professional photograph.
+Pool perspective must exactly match the camera angle of the original photo.
+Lighting and shadows must match the existing photo naturally.
+Pool must look fully integrated — like it was actually built there.
+Professional architectural visualization quality.
+
+---
+
+ABSOLUTE PROHIBITIONS:
+- Do NOT show pool above ground level
+- Do NOT use wrong deck color${mat ? ` (must be ${mat.label})` : ""}
+- Do NOT change pool shape (${isRoma ? "must stay OVAL/TEARDROP" : "must stay RECTANGLE"})
+- Do NOT omit ladder or waterfall if selected
+- Do NOT make waterfall larger than 35cm wide
+- Do NOT place waterfall or ladder anywhere except ON the pool edge
+- Do NOT produce cartoon, render, or illustration style
   `.trim();
 }
