@@ -83,10 +83,10 @@ export async function POST(request: Request) {
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
     let aiPhotoUrl: string;
     try {
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, hasWaterfall, hasStairs);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckType || undefined);
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, hasWaterfall, hasStairs);
+      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckType || undefined);
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
