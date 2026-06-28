@@ -36,7 +36,7 @@ export async function generatePoolImage(
     input: {
       prompt,
       image_url: imageUrls[0],
-      guidance_scale: 10,
+      guidance_scale: 15,
       output_format:  "jpeg",
       num_images:     1,
     },
