@@ -12,9 +12,9 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   Long sides have very slight inward curves — almost straight but gently bowed inward.
   All four corners have smooth rounded cutouts/indentations.
   The shape is SYMMETRICAL — both short ends are equal in width and roundness.
-  This is NOT a perfect oval. NOT a kidney. NOT a teardrop.
+  This is NOT a perfect oval. NOT a kidney. NOT a teardrop. NOT a flower shape.
   It looks like a rectangle where all corners and sides are softened into gentle curves.
-  Horizontal ribbing texture on interior walls.`,  
+  Horizontal ribbing texture on interior walls.`,
 };
 
 export interface PoolConfig {
@@ -74,10 +74,11 @@ RULE 2 — POOL SHAPE: ${model.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
-The pool must be PROPORTIONAL to the garden and building in the photo.
-A realistic residential pool occupies roughly 10-15% of the visible garden area — NOT more.
-The pool must NOT appear larger than the house or dominate the entire garden.
-Leave visible grass on all sides between the pool and the garden boundaries.
+The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
+The pool must be clearly SMALLER than the house/building.
+There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
+DO NOT fill the garden with the pool.
+
 ---
 
 RULE 3 — POOL WATER
