@@ -18,6 +18,9 @@ export async function generatePoolImage(
   deckHex?: string,
   poolModel?: string,
 ): Promise<string> {
+  const isRoma = poolModel?.toUpperCase() === "ROMA";
+  const model = isRoma ? "fal-ai/flux-pro/kontext/max" : "fal-ai/recraft-v3";
+
   const input: Record<string, unknown> = {
     prompt,
     image_url: customerPhotoUrl,
@@ -32,13 +35,13 @@ export async function generatePoolImage(
     };
   }
 
-  if (poolModel?.toUpperCase() === "ROMA") {
+  if (isRoma) {
     input.style_reference_images = [
       "https://havuzyaptir.com/pools/roma.png"
     ];
   }
 
-  const result = await fal.subscribe("fal-ai/recraft-v3", {
+  const result = await fal.subscribe(model, {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     input: input as any,
   }) as unknown as FalResponse;
