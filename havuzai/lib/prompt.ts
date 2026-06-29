@@ -33,6 +33,23 @@ export interface PoolConfig {
 export function buildPoolPrompt(config: PoolConfig): string {
   const { model, size } = config;
 
+  const imageRoleDescription = `
+REFERENCE IMAGES GUIDE:
+- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
+- Image 2: ${config.model} pool model — USE THIS EXACT POOL SHAPE
+${config.hasWaterfall
+  ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE"
+  : ""}
+
+Your task:
+Edit Image 1 ONLY by adding the pool from Image 2.
+Match pool shape exactly from Image 2.
+${config.hasWaterfall
+  ? "Add waterfall exactly as shown in Image 3."
+  : ""}
+Do NOT change anything else in Image 1.
+`;
+
   const shapeDesc = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
   const isRoma    = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
@@ -40,6 +57,7 @@ export function buildPoolPrompt(config: PoolConfig): string {
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   return `
+${imageRoleDescription}
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
 ---

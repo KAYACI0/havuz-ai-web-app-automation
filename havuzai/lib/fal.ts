@@ -1,51 +1,53 @@
 import { fal } from "@fal-ai/client";
+import { buildPoolPrompt, PoolConfig } from "./prompt";
 
-fal.config({ credentials: process.env.FAL_KEY });
+fal.config({ credentials: process.env.FAL_KEY! });
 
-interface FalResponse {
-  data: {
-    images: { url: string; width: number; height: number }[];
-  };
-  requestId: string;
-}
+const POOL_REFS: Record<string, string> = {
+  RELAX: process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL!,
+  ROMA:  process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL!,
+};
 
+const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 
-
-
-export async function generatePoolImage(
+export async function generatePoolVisualization(
   customerPhotoUrl: string,
-  prompt: string,
-  deckHex?: string,
-  poolModel?: string,
-): Promise<string> {
-  const isRoma = poolModel?.toUpperCase() === "ROMA";
+  config: PoolConfig
+) {
+  const prompt = buildPoolPrompt(config);
 
-  const input: Record<string, unknown> = {
+  // Referans görselleri topla
+  const imageUrls: string[] = [
+    customerPhotoUrl,                       // 1. Müşteri fotoğrafı (düzenlenecek)
+    POOL_REFS[config.model.toUpperCase()],  // 2. Havuz şekli referansı
+  ];
+
+  // Şelale seçildiyse referansı ekle
+  if (config.hasWaterfall) {
+    imageUrls.push(WATERFALL_REF);
+  }
+
+  console.log("Model:", config.model);
+  console.log("Referans görsel sayısı:", imageUrls.length);
+  console.log("Image URLs:", imageUrls);
+
+  const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
+    input: {
+      prompt,
+      image_urls: imageUrls,
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        update.logs?.forEach((log) =>
+          console.log("[fal.ai]", log.message)
+        );
+      }
+    },
+  });
+
+  return {
+    aiImageUrl: result.data.images[0].url,
     prompt,
-    image_url: customerPhotoUrl,
-    guidance_scale: 15,
-    output_format: "jpeg",
-    num_images: 1,
   };
-
-  if (deckHex) {
-    input.color_palette = {
-      members: [{ color: deckHex, weight: 0.4 }]
-    };
-  }
-
-  if (isRoma) {
-    input.image_urls = [
-      customerPhotoUrl,
-      "https://havuzyaptir.com/pools/roma.png"
-    ];
-    delete input.image_url;
-  }
-
-  const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    input: input as any,
-  }) as unknown as FalResponse;
-
-  return result.data.images[0].url;
 }
