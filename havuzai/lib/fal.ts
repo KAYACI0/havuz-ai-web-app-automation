@@ -38,7 +38,7 @@ export async function generatePoolImage(
     ];
   }
 
-  const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
+  const result = await fal.subscribe("fal-ai/recraft-v3", {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     input: input as any,
   }) as unknown as FalResponse;
