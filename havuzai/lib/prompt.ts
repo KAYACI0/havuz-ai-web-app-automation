@@ -14,7 +14,10 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   All transitions between straight sides and rounded ends are smooth.
   This shape is like a standard swimming pool — rectangular body with two rounded ends.
   NOT eye-shaped. NOT pointed ends. NOT kidney. NOT oval with pointed sides.
-  Horizontal ribbing texture on interior walls.`,
+  Horizontal ribbing texture on interior walls.
+  The pool has integrated entry steps at one short end — wide built-in steps that are part of the pool shell itself, descending into the water. These steps are inside the pool, not external. They appear as 3-4 wide platforms/ledges going from the pool edge down into the water at one short end.`,
+  
+  
 };
 
 export interface PoolConfig {
