@@ -35,9 +35,11 @@ export async function generatePoolImage(
   }
 
   if (isRoma) {
-    input.style_reference_images = [
+    input.image_urls = [
+      customerPhotoUrl,
       "https://havuzyaptir.com/pools/roma.png"
     ];
+    delete input.image_url;
   }
 
   const result = await fal.subscribe("fal-ai/flux-pro/kontext/max", {
