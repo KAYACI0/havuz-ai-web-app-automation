@@ -38,17 +38,24 @@ Yani:
 22 m²'lik şerit için iki ayrı senaryo:
 
 ### Senaryo A — Deck seçilirse
-- Deck tahtası: 20 cm en → 1 m²'yi kaplamak için **5 tahta-metre** (5 × 0,20 m × 1 m = 1 m²)
-- 22 m² × 5 = **110 tahta-metre** (1 m boyunda 20 cm tahta olarak: ~110 adet)
-- + %10 fire/kesim payı ≈ **~121 tahta-metre**
+- Deck tahtası: 20 cm en, **boy 1,5–2 m yeterli** (baba doğruladı)
+- 1 m²'yi kaplamak için **5 tahta-metre** (5 × 0,20 m × 1 m = 1 m²)
+- 22 m² × 5 = **110 tahta-metre** + %10 fire ≈ **~121 tahta-metre**
+- Adet (boya göre): 2 m boy → **~61 adet**, 1,5 m boy → **~81 adet**
+  → yani **~60–80 tahta** (1,5–2 m boyunda)
 
-### Senaryo B — Seramik seçilirse
-- Seramik 25 cm (25×25 cm karo varsayımı) → 1 m²'de **16 karo** (1 / 0,0625)
-- 22 m² × 16 = **352 karo**
-- + %10 fire/kesim payı ≈ **~388 karo**
+### Senaryo B — Seramik seçilirse (DİKDÖRTGEN karo)
+Seramik **dikdörtgen** (baba doğruladı). Bir kenarı **25 cm**, diğer kenarı (L) henüz net değil.
 
-> Not: Seramiğin tek ölçüsü (25 cm) verildi; kare (25×25) varsayıldı.
-> Dikdörtgen karo ise babadan ikinci ölçü alınınca güncellenecek.
+Formül (22 m² için): **karo adedi = 22 ÷ (0,25 × L)** = **88 ÷ L**  *(L = metre cinsinden ikinci kenar)*
+
+| Olası ölçü | 1 karo alanı | 22 m² için adet | + %10 fire |
+|------------|--------------|------------------|------------|
+| 25 × 40 cm | 0,10 m² | 220 | **~242 karo** |
+| 25 × 50 cm | 0,125 m² | 176 | **~194 karo** |
+| 25 × 60 cm | 0,15 m² | ~147 | **~162 karo** |
+
+> Babadan **ikinci kenar ölçüsü** gelince yukarıdaki tablodan kesin satır seçilecek.
 
 ## 4. Sisteme Etkisi (Geliştirme Notu)
 
@@ -66,6 +73,7 @@ Bu ölçüler şu noktalarda kullanılacak:
 
 - [x] ~~Deck şeridi kaç metre dışarı taşacak?~~ → **Her kenardan 1 metre** ✅
 - [ ] Seramik **havuz kenarında mı** (su kenarı bordürü) yoksa deckten sonra mı?
-- [ ] Deck tahtalarının **boyu** kaç metre? (fire/kesim hesabı için)
-- [ ] Seramik **kare mi (25×25)** yoksa dikdörtgen mi? (ikinci ölçü)
+- [x] ~~Deck tahtalarının boyu?~~ → **1,5–2 m yeterli** ✅
+- [x] ~~Seramik kare mi dikdörtgen mi?~~ → **Dikdörtgen** ✅ (ikinci kenar ölçüsü hâlâ lazım)
+- [ ] Dikdörtgen seramiğin **ikinci kenarı** kaç cm? (25 × ? )
 - [ ] 3×6 dışında başka standart ölçüler de olacak mı? (3×5, 4×8 vb.)
