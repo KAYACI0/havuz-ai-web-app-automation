@@ -43,23 +43,33 @@ export async function generatePoolVisualization(
     }
   }
 
-  const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
-    input: {
-      prompt,
-      image_urls: imageUrls,
-    },
-    logs: true,
-    onQueueUpdate: (update) => {
-      if (update.status === "IN_PROGRESS") {
-        update.logs?.forEach((log) =>
-          console.log("[fal.ai]", log.message)
-        );
-      }
-    },
-  });
+  try {
+    const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
+      input: {
+        prompt,
+        image_urls: imageUrls,
+      },
+      logs: true,
+      onQueueUpdate: (update) => {
+        if (update.status === "IN_PROGRESS") {
+          update.logs?.forEach((log) =>
+            console.log("[fal.ai]", log.message)
+          );
+        }
+      },
+    });
 
-  return {
-    aiImageUrl: result.data.images[0].url,
-    prompt,
-  };
+    console.log("✅ BAŞARILI:", result.data.images[0].url);
+
+    return {
+      aiImageUrl: result.data.images[0].url,
+      prompt,
+    };
+  } catch (error: any) {
+    console.error("❌ FAL.AI HATASI - tam detay:");
+    console.error("Status:", error?.status);
+    console.error("Body:", JSON.stringify(error?.body, null, 2));
+    console.error("Message:", error?.message);
+    throw error;
+  }
 }
