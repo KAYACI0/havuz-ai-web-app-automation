@@ -27,9 +27,21 @@ export async function generatePoolVisualization(
     imageUrls.push(WATERFALL_REF);
   }
 
+  console.log("=== FAL.AI DEBUG ===");
   console.log("Model:", config.model);
-  console.log("Referans görsel sayısı:", imageUrls.length);
-  console.log("Image URLs:", imageUrls);
+  console.log("Prompt uzunluğu:", prompt.length);
+  console.log("Prompt ilk 200 karakter:", prompt.slice(0, 200));
+  console.log("Image URLs:", JSON.stringify(imageUrls, null, 2));
+  console.log("====================");
+
+  for (const url of imageUrls) {
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      console.log(`URL kontrol: ${url} → ${res.status}`);
+    } catch (e) {
+      console.log(`URL HATASI: ${url} → erişilemiyor`);
+    }
+  }
 
   const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
     input: {
