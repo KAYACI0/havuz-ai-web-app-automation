@@ -209,6 +209,16 @@ function ResultContent({ orderId }: { orderId: string }) {
               </button>
             </div>
           </div>
+
+          {/* AI dipnotu */}
+          <div className="px-6 py-3 flex items-start gap-2"
+            style={{ borderTop: "1px solid var(--border-soft)", background: "var(--sand)" }}>
+            <span className="text-sm leading-none mt-0.5">ℹ️</span>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+              Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Seramik ve
+              deck renkleri talebinize göre üretilir; nihai üründe ton ve doku farklılıkları olabilir.
+            </p>
+          </div>
         </div>
 
         {/* Specs + CTA */}

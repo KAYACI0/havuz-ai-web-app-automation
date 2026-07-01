@@ -41,6 +41,8 @@ export interface ColorOption {
 export interface Features {
   waterfall: boolean;
   stairs: boolean;
+  /** Merdiven seçildiğinde fal.ai'ye gönderilen ladder stil referansı (public URL). */
+  stair_reference_url?: string;
 }
 
 /** Marka görünümü. */

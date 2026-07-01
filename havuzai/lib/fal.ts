@@ -32,6 +32,12 @@ export async function generatePoolVisualization(
     imageUrls.push(WATERFALL_REF);
   }
 
+  // Merdiven seçildiyse ladder stil referansını ekle
+  const stairRef = clientConfig.features?.stair_reference_url;
+  if (config.hasStairs && stairRef) {
+    imageUrls.push(stairRef);
+  }
+
   console.log("=== FAL.AI DEBUG ===");
   console.log("Model:", config.model);
   console.log("Prompt uzunluğu:", prompt.length);

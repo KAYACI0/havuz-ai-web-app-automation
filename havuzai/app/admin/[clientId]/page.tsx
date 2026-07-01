@@ -289,9 +289,17 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                       <img src={order.original_photo} alt=""
                         className="w-16 h-16 object-cover rounded-xl" />
                       <span style={{ color: "var(--text-faint)", fontSize: "18px" }}>→</span>
-                      <img src={order.ai_photo} alt=""
-                        className="w-16 h-16 object-cover rounded-xl"
-                        style={{ outline: "2px solid var(--pool)", outlineOffset: "2px" }} />
+                      {order.ai_photo ? (
+                        <img src={order.ai_photo} alt="AI Görsel"
+                          className="w-16 h-16 object-cover rounded-xl"
+                          style={{ outline: "2px solid var(--pool)", outlineOffset: "2px" }} />
+                      ) : (
+                        <div
+                          className="w-16 h-16 rounded-xl flex items-center justify-center text-center text-[9px] font-medium px-1"
+                          style={{ background: "var(--sand)", color: "var(--text-faint)", outline: "2px dashed var(--border)", outlineOffset: "2px" }}>
+                          AI görsel henüz yok
+                        </div>
+                      )}
                     </div>
 
                     {/* Info */}
@@ -386,8 +394,15 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
               style={{ borderBottom: "1px solid var(--border-soft)" }}>
               <img src={selected.original_photo} alt="Orijinal"
                 className="w-full object-cover" style={{ aspectRatio: "4/3" }} />
-              <img src={selected.ai_photo} alt="AI"
-                className="w-full object-cover" style={{ aspectRatio: "4/3" }} />
+              {selected.ai_photo ? (
+                <img src={selected.ai_photo} alt="AI Görsel"
+                  className="w-full object-cover" style={{ aspectRatio: "4/3" }} />
+              ) : (
+                <div className="w-full flex items-center justify-center text-sm font-medium"
+                  style={{ aspectRatio: "4/3", background: "var(--sand)", color: "var(--text-faint)" }}>
+                  AI görsel henüz yok
+                </div>
+              )}
             </div>
 
             {/* Details — müşterinin tüm seçimleri */}

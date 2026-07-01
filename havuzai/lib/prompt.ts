@@ -23,6 +23,9 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const deck = clientConfig.deck_colors.find((d) => d.id === config.deck);
   const ceramic = clientConfig.ceramic_colors.find((c) => c.id === config.ceramic);
 
+  // Merdiven seçildiğinde fal.ai'ye bir ladder stil referansı da gönderilir (varsa).
+  const stairRef = clientConfig.features?.stair_reference_url;
+
   const imageRoleDescription = `
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
@@ -62,7 +65,21 @@ What you must NEVER show:
 - The pool elevated above the surrounding surface
 
 THIS IS THE MOST CRITICAL RULE. Pool raised above ground = completely wrong output.
-
+${config.hasStairs ? `
+‼️ MANDATORY — POOL LADDER MUST BE VISIBLE:
+An external clip-on pool ladder is
+REQUIRED in this image.
+${config.stairType === "wide"
+  ? "Wide ladder spanning the full short end, 3-4 steps visible above water."
+  : "Compact A-frame ladder hooked over pool edge, stainless steel, 3-4 steps."}
+${stairRef
+  ? "Use the reference image provided for the exact ladder style and design. External clip-on ladder hooked over the pool edge, exactly as shown in the reference."
+  : ""}
+This ladder MUST be clearly visible
+in the final image.
+Do NOT omit the ladder.
+If ladder is missing the output is WRONG.
+` : ""}
 ---
 
 RULE 1 — PRESERVE THE SCENE
@@ -96,7 +113,15 @@ The pool interior goes visibly deep into the ground.
 
 RULE 4 — POOL SURROUND
 ${deck
-  ? `Add ${deck.name} colored composite wood deck boards around the pool, thin modern planks framing the pool edge neatly and realistically.
+  ? `DECK SURROUND — EXACT SPECIFICATIONS:
+${deck.name} colored composite wood decking.
+Surrounds ALL 4 sides of the pool.
+Each deck board is exactly 20cm wide.
+3 boards placed side by side on each edge.
+Total deck width: 60cm on all sides.
+Boards run PARALLEL to the pool edge.
+Thin modern profile, tight spacing between boards.
+Color: ${deck.name}.
 DO NOT add stone, pavers, tiles, or any other surround material — only the ${deck.name} composite wood deck.`
   : `The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
 DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
@@ -123,8 +148,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — the shape MUST match Image 2 and RULE 2 exactly
-${deck ? "" : "❌ Adding any deck, wood boards, stone, pavers, or surround material\n"}${config.hasWaterfall ? "" : "❌ Adding any waterfall or water feature\n"}❌ Adding a ladder or external stairs to the pool
-❌ Changing existing buildings, trees, or landscaping
+${deck ? "" : "❌ Adding any deck, wood boards, stone, pavers, or surround material\n"}${config.hasWaterfall ? "" : "❌ Adding any waterfall or water feature\n"}${config.hasStairs ? "" : "❌ Adding a ladder or external stairs to the pool\n"}❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
   `.trim();
 }
