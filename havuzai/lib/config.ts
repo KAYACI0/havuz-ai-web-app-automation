@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabase";
-import type { ClientConfig } from "./config-types";
+import type { ClientConfig, PoolModel, ColorOption } from "./config-types";
 import {
   defaultConfig,
   DEFAULT_POOL_MODELS,
@@ -8,6 +8,31 @@ import {
   DEFAULT_FEATURES,
   DEFAULT_BRAND,
 } from "./config-defaults";
+
+/**
+ * DB'den gelen ham veriyi güvenli hale getirir: eksik alanlar (özellikle sizes) tüketicileri
+ * çökertmesin; eski şemadaki `reference_image` alanı `reference_image_url`'e taşınsın.
+ */
+function normalizeModel(m: Record<string, unknown>): PoolModel {
+  return {
+    id: String(m.id ?? ""),
+    name: String(m.name ?? m.id ?? ""),
+    sub: m.sub != null ? String(m.sub) : undefined,
+    description: String(m.description ?? ""),
+    prompt_description: m.prompt_description != null ? String(m.prompt_description) : undefined,
+    tag: m.tag != null ? String(m.tag) : undefined,
+    reference_image_url: String(m.reference_image_url ?? m.reference_image ?? ""),
+    sizes: Array.isArray(m.sizes) ? m.sizes.map(String) : [],
+  };
+}
+
+function normalizeColor(c: Record<string, unknown>): ColorOption {
+  return {
+    id: String(c.id ?? ""),
+    name: String(c.name ?? ""),
+    hex: String(c.hex ?? ""),
+  };
+}
 
 /**
  * Bir firmanın tam konfigürasyonunu döner.
@@ -30,14 +55,18 @@ export async function getClientConfig(clientId: string): Promise<ClientConfig> {
 
   if (error || !data) return fallback;
 
-  const nonEmptyArr = <T>(v: unknown, def: T[]): T[] =>
-    Array.isArray(v) && v.length > 0 ? (v as T[]) : def;
+  const arr = (v: unknown): Record<string, unknown>[] =>
+    Array.isArray(v) ? (v as Record<string, unknown>[]) : [];
+
+  const models = arr(data.pool_models).map(normalizeModel);
+  const decks = arr(data.deck_colors).map(normalizeColor);
+  const ceramics = arr(data.ceramic_colors).map(normalizeColor);
 
   return {
     client_id: clientId,
-    pool_models: nonEmptyArr(data.pool_models, DEFAULT_POOL_MODELS),
-    deck_colors: nonEmptyArr(data.deck_colors, DEFAULT_DECK_COLORS),
-    ceramic_colors: nonEmptyArr(data.ceramic_colors, DEFAULT_CERAMIC_COLORS),
+    pool_models: models.length > 0 ? models : DEFAULT_POOL_MODELS,
+    deck_colors: decks.length > 0 ? decks : DEFAULT_DECK_COLORS,
+    ceramic_colors: ceramics.length > 0 ? ceramics : DEFAULT_CERAMIC_COLORS,
     features: { ...DEFAULT_FEATURES, ...(data.features || {}) },
     brand: { ...DEFAULT_BRAND, ...(data.brand || {}) },
     contact: { ...(data.contact || {}) },

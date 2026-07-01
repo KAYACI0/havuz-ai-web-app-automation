@@ -181,7 +181,7 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                           </div>
                           <div>
                             <label className={labelCls}>Ölçüler (virgülle: 3x5x1.5, 3x6x1.5)</label>
-                            <input className={inputCls} value={m.sizes.join(", ")}
+                            <input className={inputCls} value={(m.sizes || []).join(", ")}
                               onChange={(e) => updateModel(i, { sizes: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })} />
                           </div>
                         </div>
