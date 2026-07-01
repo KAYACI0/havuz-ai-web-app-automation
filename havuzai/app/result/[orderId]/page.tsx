@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HowToUse from "@/components/HowToUse";
+import type { ClientConfig } from "@/lib/config-types";
 
 async function downloadImage(url: string, filename: string) {
   try {
@@ -59,6 +60,7 @@ function ResultContent({ orderId }: { orderId: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
+  const [config, setConfig] = useState<ClientConfig | null>(null);
   const aiParam   = searchParams.get("ai");
   const origParam = searchParams.get("orig");
 
@@ -78,6 +80,20 @@ function ResultContent({ orderId }: { orderId: string }) {
         if (aiParam && origParam) setOrder(blank);
       });
   }, [orderId, aiParam, origParam]);
+
+  // Firma config'i (iletişim + deck/seramik ad çözümü)
+  useEffect(() => {
+    if (!order?.client_id) return;
+    fetch(`/api/config?clientId=${encodeURIComponent(order.client_id)}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setConfig(d.config); })
+      .catch(() => {});
+  }, [order?.client_id]);
+
+  const deckName    = (v?: string) => (v ? (config?.deck_colors.find(d => d.id === v)?.name ?? v) : "");
+  const ceramicName = (v?: string) => (v ? (config?.ceramic_colors.find(c => c.id === v)?.name ?? v) : "");
+  const phone    = config?.contact?.phone;
+  const whatsapp = config?.contact?.whatsapp;
 
   if (!order) return (
     <div className="min-h-screen flex items-center justify-center"
@@ -208,8 +224,8 @@ function ResultContent({ orderId }: { orderId: string }) {
               {[
                 { label: "Model",    value: order.pool_model || "—" },
                 { label: "Ölçü",    value: order.pool_size  || "—" },
-                { label: "Deck",    value: order.deck_type  || "Yok" },
-                { label: "Seramik", value: order.ceramic_type || "Yok" },
+                { label: "Deck",    value: deckName(order.deck_type)  || "Yok" },
+                { label: "Seramik", value: ceramicName(order.ceramic_type) || "Yok" },
                 { label: "Merdiven", value: order.has_stairs ? "✅ Var" : "❌ Yok" },
                 { label: "Şelale",  value: order.has_waterfall ? "✅ Var" : "❌ Yok" },
               ].map((s) => (
@@ -250,14 +266,33 @@ function ResultContent({ orderId }: { orderId: string }) {
                 Uzmanlarımız 24 saat içinde sizinle iletişime geçecek.
               </p>
             </div>
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl"
-              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
-              <span className="text-xl">📞</span>
-              <div>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Bizi arayın</p>
-                <p className="text-sm font-bold text-white">0850 XXX XX XX</p>
+            {(phone || whatsapp) && (
+              <div className="flex flex-col gap-2">
+                {phone && (
+                  <a href={`tel:${phone.replace(/\s/g, "")}`}
+                    className="flex items-center gap-2 px-4 py-3 rounded-xl"
+                    style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <span className="text-xl">📞</span>
+                    <div>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Bizi arayın</p>
+                      <p className="text-sm font-bold text-white">{phone}</p>
+                    </div>
+                  </a>
+                )}
+                {whatsapp && (
+                  <a href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-xl"
+                    style={{ background: "rgba(37,211,102,0.15)", border: "1px solid rgba(37,211,102,0.3)" }}>
+                    <span className="text-xl">💬</span>
+                    <div>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>WhatsApp</p>
+                      <p className="text-sm font-bold text-white">Mesaj gönderin</p>
+                    </div>
+                  </a>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

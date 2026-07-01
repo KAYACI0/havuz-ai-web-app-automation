@@ -1,24 +1,4 @@
-const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
-  RELAX: `STRICTLY RECTANGULAR fiberglass pool.
-  Perfectly straight parallel long sides.
-  Sharp 90-degree corners (very slightly softened radius only).
-  Clean boxy rectangular silhouette from above.
-  Horizontal ribbing texture on interior walls.
-  DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
-  THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
-
-  ROMA: `Fiberglass pool shaped like a ROUNDED RECTANGLE — also called a "squircle rectangle" or "pill shape".
-  Two long sides that are straight and parallel.
-  Two short ends that are large semicircles — fully rounded, like half circles.
-  The width is about half the length.
-  All transitions between straight sides and rounded ends are smooth.
-  This shape is like a standard swimming pool — rectangular body with two rounded ends.
-  NOT eye-shaped. NOT pointed ends. NOT kidney. NOT oval with pointed sides.
-  Horizontal ribbing texture on interior walls.
-  The pool has integrated entry steps at one short end — wide built-in steps that are part of the pool shell itself, descending into the water. These steps are inside the pool, not external. They appear as 3-4 wide platforms/ledges going from the pool edge down into the water at one short end.`,
-  
-  
-};
+import type { ClientConfig } from "./config-types";
 
 export interface PoolConfig {
   model:        string;
@@ -30,13 +10,23 @@ export interface PoolConfig {
   stairType:    "corner" | "wide";
 }
 
-export function buildPoolPrompt(config: PoolConfig): string {
-  const { model, size } = config;
+export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig): string {
+  const { size } = config;
+
+  // Seçilen modeli firma config'inden bul; şekil açıklaması modele göre gelir.
+  const model = clientConfig.pool_models.find((m) => m.id === config.model);
+  const modelName = model?.name || config.model;
+  const shapeDesc =
+    model?.prompt_description || model?.description || `${config.model} shaped fiberglass pool`;
+
+  // Seçilen deck / seramik rengini firma config'inden bul (deck ↔ seramik dışlamalı).
+  const deck = clientConfig.deck_colors.find((d) => d.id === config.deck);
+  const ceramic = clientConfig.ceramic_colors.find((c) => c.id === config.ceramic);
 
   const imageRoleDescription = `
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
-- Image 2: ${config.model} pool model — USE THIS EXACT POOL SHAPE
+- Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
 ${config.hasWaterfall
   ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE"
   : ""}
@@ -49,12 +39,6 @@ ${config.hasWaterfall
   : ""}
 Do NOT change anything else in Image 1.
 `;
-
-  const shapeDesc = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const isRoma    = model.toUpperCase() === "ROMA";
-  const shapeRule = isRoma
-    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
-    : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   return `
 ${imageRoleDescription}
@@ -91,9 +75,8 @@ Keep EVERYTHING in the original photo exactly as it is:
 
 ---
 
-RULE 2 — POOL SHAPE: ${model.toUpperCase()}
+RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
-Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
 The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
 The pool must be clearly SMALLER than the house/building.
@@ -103,21 +86,28 @@ DO NOT fill the garden with the pool.
 ---
 
 RULE 3 — POOL WATER
-Clear, bright blue fiberglass pool interior.
+${ceramic
+  ? `Pool interior: ${ceramic.name} ceramic tiles — the water appears ${ceramic.name}.`
+  : "Clear, bright blue fiberglass pool interior."}
 Water is realistic — natural depth, light shimmer, and color variation.
 The pool interior goes visibly deep into the ground.
 
 ---
 
 RULE 4 — POOL SURROUND
-The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
+${deck
+  ? `Add ${deck.name} colored composite wood deck boards around the pool, thin modern planks framing the pool edge neatly and realistically.
+DO NOT add stone, pavers, tiles, or any other surround material — only the ${deck.name} composite wood deck.`
+  : `The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
 DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
 DO NOT add any walkway or border around the pool.
 The original ground material continues right up to the pool water edge.
-DO NOT add any white border, coping, or rim around the pool.
+DO NOT add any white border, coping, or rim around the pool.`}
 The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
 The fiberglass pool body must NOT be visible above ground level.
-Only the water surface and thin rim are visible — everything else is underground. 
+${config.hasWaterfall
+  ? `\nRULE 4B — WATERFALL\nAdd a stainless steel curved blade waterfall on the pool edge, with a thin sheet of water flowing into the pool. Match the style shown in Image 3.`
+  : ""}
 ---
 
 RULE 5 — PHOTOREALISTIC QUALITY
@@ -132,8 +122,8 @@ RULE 5 — PHOTOREALISTIC QUALITY
 ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
-❌ Wrong pool shape — must stay ${isRoma ? "OVAL/TEARDROP" : "RECTANGLE"}
-❌ Adding deck, ceramic tiles, waterfall, or ladder to the image
+❌ Wrong pool shape — the shape MUST match Image 2 and RULE 2 exactly
+${deck ? "" : "❌ Adding any deck, wood boards, stone, pavers, or surround material\n"}${config.hasWaterfall ? "" : "❌ Adding any waterfall or water feature\n"}❌ Adding a ladder or external stairs to the pool
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
   `.trim();

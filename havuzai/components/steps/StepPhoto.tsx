@@ -1,25 +1,48 @@
 "use client";
 
-import { useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDropzone, type FileRejection } from "react-dropzone";
 import type { FormData } from "@/app/app/page";
 
 interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
 
 export default function StepPhoto({ form, update }: Props) {
+  const [rejectError, setRejectError] = useState<string | null>(null);
+
   const onDrop = useCallback(
-    (files: File[]) => { if (files[0]) update({ photo: files[0] }); },
+    (files: File[]) => {
+      if (files[0]) { setRejectError(null); update({ photo: files[0] }); }
+    },
     [update]
   );
 
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    const code = rejections[0]?.errors[0]?.code;
+    if (code === "file-too-large") {
+      setRejectError("Fotoğraf 10 MB'tan büyük. Lütfen daha küçük bir dosya seçin.");
+    } else if (code === "file-invalid-type") {
+      setRejectError("Geçersiz dosya türü. Sadece JPG, PNG veya WEBP yükleyebilirsiniz.");
+    } else {
+      setRejectError("Fotoğraf yüklenemedi. Lütfen başka bir dosya deneyin.");
+    }
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
     maxFiles: 1,
     maxSize: 10 * 1024 * 1024,
   });
 
-  const preview = form.photo ? URL.createObjectURL(form.photo) : null;
+  // Object URL'i dosya başına bir kez oluştur, değişince eskisini temizle (bellek sızıntısını önler)
+  const preview = useMemo(
+    () => (form.photo ? URL.createObjectURL(form.photo) : null),
+    [form.photo]
+  );
+  useEffect(() => {
+    return () => { if (preview) URL.revokeObjectURL(preview); };
+  }, [preview]);
 
   return (
     <div>
@@ -95,6 +118,12 @@ export default function StepPhoto({ form, update }: Props) {
           </div>
         )}
       </div>
+
+      {rejectError && (
+        <p className="text-sm mt-3 flex items-center gap-1.5" style={{ color: "var(--error)" }}>
+          <span>⚠️</span> {rejectError}
+        </p>
+      )}
     </div>
   );
 }

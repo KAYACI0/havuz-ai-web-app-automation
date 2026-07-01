@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import HowToUse from "@/components/HowToUse";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import type { ClientConfig } from "@/lib/config-types";
 
 const ADMIN_GUIDE = [
   {
@@ -53,19 +54,10 @@ interface Order {
   created_at: string;
 }
 
-// Müşterinin seçtiği değerlerin (id) okunabilir Türkçe karşılıkları
-const DECK_LABELS: Record<string, string> = {
-  ceviz: "Ceviz", antrasit04: "Antrasit 04", "koyu-kahve": "Koyu Kahve",
-  yesil: "Yeşil", kirmizi: "Kırmızı", "gunes-sarisi": "Güneş Sarısı", bej: "Bej",
-};
-const CERAMIC_LABELS: Record<string, string> = {
-  turkuaz: "Turkuaz", mavi: "Mavi", beyaz: "Beyaz", gri: "Gri", krem: "Krem",
-};
+// Müşterinin seçtiği değerlerin (id) okunabilir karşılıkları — firma config'inden çözülür
 const STAIR_LABELS: Record<string, string> = {
   corner: "Köşe merdiven", wide: "Geniş merdiven",
 };
-const deckLabel    = (v?: string) => (v ? DECK_LABELS[v] ?? v : null);
-const ceramicLabel = (v?: string) => (v ? CERAMIC_LABELS[v] ?? v : null);
 
 const STATUS = {
   new:       { label: "Yeni",           bg: "#EFF6FF", text: "#1D4ED8", dot: "#3B82F6" },
@@ -87,6 +79,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
   const router = useRouter();
   const [clientId, setClientId]   = useState("");
   const [authOk, setAuthOk]       = useState(false);
+  const [config, setConfig]       = useState<ClientConfig | null>(null);
   const [orders, setOrders]       = useState<Order[]>([]);
   const [filter, setFilter]       = useState<string>("all");
   const [selected, setSelected]   = useState<Order | null>(null);
@@ -129,6 +122,18 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
   };
 
   useEffect(() => { if (authOk) load(); }, [authOk, clientId, filter]);
+
+  // Firma config'i (deck/seramik id → ad çözümü için)
+  useEffect(() => {
+    if (!authOk || !clientId) return;
+    fetch(`/api/config?clientId=${encodeURIComponent(clientId)}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setConfig(d.config); })
+      .catch(() => {});
+  }, [authOk, clientId]);
+
+  const deckLabel    = (v?: string) => (v ? (config?.deck_colors.find(d => d.id === v)?.name ?? v) : null);
+  const ceramicLabel = (v?: string) => (v ? (config?.ceramic_colors.find(c => c.id === v)?.name ?? v) : null);
 
   const advance = async (orderId: string, status: string) => {
     await fetch(`/api/orders/${orderId}`, {

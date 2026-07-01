@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { generatePoolVisualization } from "@/lib/fal";
 import { sendOrderNotification } from "@/lib/email";
+import { getClientConfig } from "@/lib/config";
 import { log } from "@/lib/logger";
 
 export async function POST(request: Request) {
@@ -77,15 +78,18 @@ export async function POST(request: Request) {
       hasWaterfall, hasStairs, stairType,
     };
 
+    // 2.5 Firma konfigürasyonunu yükle (modeller, referans görseller)
+    const clientConfig = await getClientConfig(clientId);
+
     // 3. fal.ai görsel üret (1 retry)
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
 
     let aiPhotoUrl: string;
     try {
-      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig));
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig));
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
@@ -153,7 +157,7 @@ export async function POST(request: Request) {
       .then(({ data: client }) => {
         if (client) {
           log("info", `[${requestId}] 6-EMAIL`, "E-posta gönderiliyor...", { to: client.email });
-          void sendOrderNotification(client.email, client.name, order);
+          void sendOrderNotification(client.email, client.name, order, clientConfig);
         }
       });
 

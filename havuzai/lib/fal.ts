@@ -1,29 +1,34 @@
 import { fal } from "@fal-ai/client";
 import { buildPoolPrompt, PoolConfig } from "./prompt";
+import type { ClientConfig } from "./config-types";
 
 fal.config({ credentials: process.env.FAL_KEY! });
 
-const POOL_REFS: Record<string, string> = {
-  RELAX: process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL!,
-  ROMA:  process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL!,
-};
-
+// Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
 const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
-  config: PoolConfig
+  config: PoolConfig,
+  clientConfig: ClientConfig
 ) {
-  const prompt = buildPoolPrompt(config);
+  const prompt = buildPoolPrompt(config, clientConfig);
+
+  // Seçilen modelin referans görseli firma config'inden gelir.
+  const model = clientConfig.pool_models.find((m) => m.id === config.model);
+  const poolRef = model?.reference_image_url;
+  if (!poolRef) {
+    throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
+  }
 
   // Referans görselleri topla
   const imageUrls: string[] = [
-    customerPhotoUrl,                       // 1. Müşteri fotoğrafı (düzenlenecek)
-    POOL_REFS[config.model.toUpperCase()],  // 2. Havuz şekli referansı
+    customerPhotoUrl,  // 1. Müşteri fotoğrafı (düzenlenecek)
+    poolRef,           // 2. Havuz şekli referansı
   ];
 
   // Şelale seçildiyse referansı ekle
-  if (config.hasWaterfall) {
+  if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);
   }
 
