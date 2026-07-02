@@ -1,30 +1,4 @@
-const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
-  RELAX: `STRICTLY RECTANGULAR fiberglass pool.
-  Perfectly straight parallel long sides.
-  Sharp 90-degree corners (very slightly softened radius only).
-  Clean boxy rectangular silhouette from above.
-  Horizontal ribbing texture on interior walls.
-  DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.
-  THIS IS A RECTANGLE. NOT OVAL. NOT ROUND. NOT CURVED.`,
-
-  ROMA: `Fiberglass pool shaped like a ROUNDED RECTANGLE — also called a "squircle rectangle" or "pill shape".
-  Two long sides that are straight and parallel.
-  Two short ends that are large semicircles — fully rounded, like half circles.
-  The width is about half the length.
-  All transitions between straight sides and rounded ends are smooth.
-  This shape is like a standard swimming pool — rectangular body with two rounded ends.
-  NOT eye-shaped. NOT pointed ends. NOT kidney. NOT oval with pointed sides.
-  Horizontal ribbing texture on interior walls.
-  The pool has integrated entry steps at one short end — wide built-in steps that are part of the pool shell itself, descending into the water. These steps are inside the pool, not external. They appear as 3-4 wide platforms/ledges going from the pool edge down into the water at one short end.`,
-};
-
-const CERAMIC_COLOR_DESCRIPTIONS: Record<string, string> = {
-  turkuaz: "turquoise blue marble-look ceramic tiles",
-  mavi:    "deep blue ceramic tiles",
-  beyaz:   "bright white ceramic tiles",
-  gri:     "grey stone-look ceramic tiles",
-  krem:    "warm cream/beige ceramic tiles",
-};
+import type { ClientConfig } from "./config-types";
 
 export interface PoolConfig {
   model:        string;
@@ -36,18 +10,30 @@ export interface PoolConfig {
   stairType:    "corner" | "wide";
 }
 
-export function buildPoolPrompt(config: PoolConfig): string {
-  const { model, size, ceramic } = config;
+export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig): string {
+  const { model, size, ceramic, deck } = config;
 
-  const shapeDesc   = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const isRoma      = model.toUpperCase() === "ROMA";
-  const shapeRule   = isRoma
+  // Firma config'inden model bilgisini bul
+  const poolModel     = clientConfig.pool_models.find((m) => m.id === model);
+  const modelName     = poolModel?.name || model;
+  const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
+
+  // Deck ve seramik renk bilgilerini bul
+  const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
+  const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
+
+  const isRoma = model.toUpperCase() === "ROMA";
+  const shapeRule = isRoma
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
-  const ceramicDesc = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored ceramic tiles` : null;
 
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
+
+REFERENCE IMAGES GUIDE:
+- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
+- Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
+${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE" : ""}
 
 ---
 
@@ -80,7 +66,7 @@ Keep EVERYTHING in the original photo exactly as it is:
 
 ---
 
-RULE 2 — POOL SHAPE: ${model.toUpperCase()}
+RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
@@ -98,18 +84,28 @@ The pool interior goes visibly deep into the ground.
 
 ---
 
-${ceramicDesc ? `
+${ceramicColor ? `
 RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
 Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
 - Tile size: 60cm x 60cm square format
 - Tiles laid in a grid pattern parallel to the nearest pool edge
 - Visible grout lines between all tiles (2-3mm wide)
-- Tile color and material: ${ceramicDesc}
+- Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
 - Clean, professional, realistic tile finish
 - The ceramic surround replaces the grass directly around the pool
 DO NOT skip the ceramic tiles — they are MANDATORY when selected.
+` : deckColor ? `
+RULE 4 — DECK SURROUND (MANDATORY)
+Add a composite wood deck around ALL 4 sides of the pool.
+- Exactly 3 deck boards on each side — total width 60cm
+- Each board is 20cm wide, laid parallel to the nearest pool edge
+- Deck color: ${deckColor.name} colored composite wood deck
+- Deck sits flush at ground level — NOT raised
+- Clean modern finish with tight gaps between boards
+- The deck surround replaces the grass directly around the pool
+DO NOT skip the deck — it is MANDATORY when selected.
 ` : `
 RULE 4 — POOL SURROUND
 The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
@@ -118,13 +114,33 @@ DO NOT add any walkway or border around the pool.
 The original ground material continues right up to the pool water edge.
 DO NOT add any white border, coping, or rim around the pool.
 The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
-The fiberglass pool body must NOT be visible above ground level.
 Only the water surface and thin rim are visible — everything else is underground.
 `}
 
 ---
 
-RULE 5 — PHOTOREALISTIC QUALITY
+${config.hasStairs ? `
+RULE 5 — POOL LADDER (MANDATORY)
+A stainless steel pool ladder MUST be visible in the final image.
+- Type: 3-step stainless steel pool entry ladder
+- Material: polished chrome stainless steel, shiny and realistic
+- Position: mounted on one SHORT END of the pool edge, steps going DOWN INTO the water
+OMITTING THE LADDER = INVALID OUTPUT.
+` : ""}
+
+${config.hasWaterfall ? `
+RULE 6 — WATERFALL BLADE (MANDATORY)
+A stainless steel cobra waterfall blade MUST be visible in the final image.
+- Size: small and elegant — approximately 35cm wide, 40cm tall
+- Material: polished brushed stainless steel, chrome finish
+- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side
+- Water flows in a smooth sheet from the blade DOWN INTO the pool
+OMITTING THE WATERFALL = INVALID OUTPUT.
+` : ""}
+
+---
+
+RULE 7 — PHOTOREALISTIC QUALITY
 - Output must look like a real professional photograph
 - Match the exact camera angle and perspective of the original photo
 - Match the lighting, shadows, and time of day of the original photo
@@ -136,9 +152,12 @@ RULE 5 — PHOTOREALISTIC QUALITY
 ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
-❌ Wrong pool shape — must stay ${isRoma ? "OVAL/TEARDROP" : "RECTANGLE"}
+❌ Wrong pool shape — must match Image 2 exactly
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicDesc ? "❌ Missing ceramic tile surround — MANDATORY when selected" : "❌ Adding deck, ceramic tiles, waterfall, or ladder to the image"}
+${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
+${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
+${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
+${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim();
 }
