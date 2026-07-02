@@ -44,6 +44,8 @@ export interface FormData {
   photo:           File | null;
   poolModel:       string;
   poolSize:        string;
+  gardenLength:    string;
+  gardenWidth:     string;
   deckType:        string;
   ceramicType:     string;
   customerName:    string;
@@ -237,12 +239,13 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   const [loading, setLoading] = useState(false);
   const [config, setConfig]       = useState<ClientConfig | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
-  const [form, setForm]       = useState<FormData>({
-    photo: null, poolModel: "", poolSize: "",
-    deckType: "", ceramicType: "",
-    customerName: "", customerPhone: "", customerAddress: "",
-    hasWaterfall: false, hasStairs: false, stairType: "corner",
-  });
+  const [form, setForm] = useState<FormData>({
+  photo: null, poolModel: "", poolSize: "",
+  gardenLength: "", gardenWidth: "",
+  deckType: "", ceramicType: "",
+  customerName: "", customerPhone: "", customerAddress: "",
+  hasWaterfall: false, hasStairs: false, stairType: "corner",
+});
 
   const updateForm = (data: Partial<FormData>) =>
     setForm((prev) => ({ ...prev, ...data }));
