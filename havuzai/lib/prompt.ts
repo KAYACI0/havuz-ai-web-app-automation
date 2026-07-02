@@ -16,8 +16,14 @@ const POOL_SHAPE_DESCRIPTIONS: Record<string, string> = {
   NOT eye-shaped. NOT pointed ends. NOT kidney. NOT oval with pointed sides.
   Horizontal ribbing texture on interior walls.
   The pool has integrated entry steps at one short end — wide built-in steps that are part of the pool shell itself, descending into the water. These steps are inside the pool, not external. They appear as 3-4 wide platforms/ledges going from the pool edge down into the water at one short end.`,
-  
-  
+};
+
+const CERAMIC_COLOR_DESCRIPTIONS: Record<string, string> = {
+  turkuaz: "turquoise blue marble-look ceramic tiles",
+  mavi:    "deep blue ceramic tiles",
+  beyaz:   "bright white ceramic tiles",
+  gri:     "grey stone-look ceramic tiles",
+  krem:    "warm cream/beige ceramic tiles",
 };
 
 export interface PoolConfig {
@@ -31,13 +37,14 @@ export interface PoolConfig {
 }
 
 export function buildPoolPrompt(config: PoolConfig): string {
-  const { model, size } = config;
+  const { model, size, ceramic } = config;
 
-  const shapeDesc = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
-  const isRoma    = model.toUpperCase() === "ROMA";
-  const shapeRule = isRoma
+  const shapeDesc   = POOL_SHAPE_DESCRIPTIONS[model.toUpperCase()] || `${model} shaped fiberglass pool`;
+  const isRoma      = model.toUpperCase() === "ROMA";
+  const shapeRule   = isRoma
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
+  const ceramicDesc = ceramic ? CERAMIC_COLOR_DESCRIPTIONS[ceramic] || `${ceramic} colored ceramic tiles` : null;
 
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
@@ -91,6 +98,19 @@ The pool interior goes visibly deep into the ground.
 
 ---
 
+${ceramicDesc ? `
+RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
+Add a ceramic tile walkway around ALL 4 sides of the pool.
+- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
+- Tile size: 60cm x 60cm square format
+- Tiles laid in a grid pattern parallel to the nearest pool edge
+- Visible grout lines between all tiles (2-3mm wide)
+- Tile color and material: ${ceramicDesc}
+- Tiles sit flush at ground level — NOT raised
+- Clean, professional, realistic tile finish
+- The ceramic surround replaces the grass directly around the pool
+DO NOT skip the ceramic tiles — they are MANDATORY when selected.
+` : `
 RULE 4 — POOL SURROUND
 The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
 DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
@@ -99,7 +119,9 @@ The original ground material continues right up to the pool water edge.
 DO NOT add any white border, coping, or rim around the pool.
 The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
 The fiberglass pool body must NOT be visible above ground level.
-Only the water surface and thin rim are visible — everything else is underground. 
+Only the water surface and thin rim are visible — everything else is underground.
+`}
+
 ---
 
 RULE 5 — PHOTOREALISTIC QUALITY
@@ -115,8 +137,8 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must stay ${isRoma ? "OVAL/TEARDROP" : "RECTANGLE"}
-❌ Adding deck, ceramic tiles, waterfall, or ladder to the image
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
+${ceramicDesc ? "❌ Missing ceramic tile surround — MANDATORY when selected" : "❌ Adding deck, ceramic tiles, waterfall, or ladder to the image"}
   `.trim();
 }
