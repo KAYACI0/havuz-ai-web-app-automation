@@ -23,9 +23,11 @@ function parseSize(size: string): { length: number; width: number } | null {
 function sizesFitInGarden(
   size: string,
   gardenLength: string,
-  gardenWidth: string
+  gardenWidth: string,
+  hasDeck: boolean,
+  hasCeramic: boolean,
 ): boolean {
-  if (!gardenLength || !gardenWidth) return true; // Alan girilmemişse hepsini göster
+  if (!gardenLength || !gardenWidth) return true;
   const gl = parseFloat(gardenLength);
   const gw = parseFloat(gardenWidth);
   if (isNaN(gl) || isNaN(gw)) return true;
@@ -33,9 +35,14 @@ function sizesFitInGarden(
   const parsed = parseSize(size);
   if (!parsed) return true;
 
-  // Havuz her iki yönde de sığabilir (döndürülebilir)
-  const fitsNormal  = parsed.length <= gl && parsed.width <= gw;
-  const fitsRotated = parsed.length <= gw && parsed.width <= gl;
+  // Çevre eklentisi
+  const extra = hasCeramic ? 2.4 : hasDeck ? 1.2 : 0;
+
+  const totalLength = parsed.length + extra;
+  const totalWidth  = parsed.width  + extra;
+
+  const fitsNormal  = totalLength <= gl && totalWidth <= gw;
+  const fitsRotated = totalLength <= gw && totalWidth <= gl;
   return fitsNormal || fitsRotated;
 }
 
@@ -58,7 +65,7 @@ export default function StepSize({ form, update, config }: Props) {
   useEffect(() => {
     if (
       form.poolSize &&
-      !sizesFitInGarden(form.poolSize, form.gardenLength, form.gardenWidth)
+      !sizesFitInGarden(form.poolSize, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType)
     ) {
       update({ poolSize: "" });
     }
@@ -167,7 +174,7 @@ export default function StepSize({ form, update, config }: Props) {
       <div className="grid grid-cols-3 gap-3">
         {sizes.map((size) => {
           const sel  = form.poolSize === size;
-          const fits = sizesFitInGarden(size, form.gardenLength, form.gardenWidth);
+          const fits = sizesFitInGarden(size, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType);
           return (
             <button
               key={size}
@@ -198,7 +205,7 @@ export default function StepSize({ form, update, config }: Props) {
       </div>
 
       {form.gardenLength && form.gardenWidth && sizes.every(
-        (s) => !sizesFitInGarden(s, form.gardenLength, form.gardenWidth)
+        (s) => !sizesFitInGarden(s, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType)
       ) && (
         <p className="text-sm mt-4 text-center" style={{ color: "#ef4444" }}>
           Belirttiğiniz alana uygun havuz ölçüsü bulunamadı. Lütfen alanı kontrol edin.
