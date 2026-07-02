@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { generatePoolImage,  } from "@/lib/fal";
-import { buildPoolPrompt } from "@/lib/prompt";
+import { generatePoolVisualization } from "@/lib/fal";
 import { sendOrderNotification } from "@/lib/email";
+import { getClientConfig } from "@/lib/config";
 import { log } from "@/lib/logger";
 
 export async function POST(request: Request) {
@@ -71,33 +71,25 @@ export async function POST(request: Request) {
     const originalPhotoUrl = urlData.publicUrl;
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
-    // 2. Prompt oluştur
-    const prompt = buildPoolPrompt({
+    // 2. Havuz konfigürasyonu
+    const poolConfig = {
       model: poolModel, size: poolSize,
       deck: deckType, ceramic: ceramicType,
       hasWaterfall, hasStairs, stairType,
-    });
-    log("info", `[${requestId}] 3-PROMPT`, "Prompt hazır", { prompt });
+    };
+
+    // 2.5 Firma konfigürasyonunu yükle (modeller, referans görseller)
+    const clientConfig = await getClientConfig(clientId);
 
     // 3. fal.ai görsel üret (1 retry)
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
-    const DECK_HEX: Record<string, string> = {
-      ceviz: "#8B6347",
-      antrasit04: "#4A4A4A",
-      "koyu-kahve": "#3D2B1F",
-      yesil: "#5C7A3E",
-      kirmizi: "#8B3A3A",
-      "gunes-sarisi": "#C8A45A",
-      bej: "#C4A882",
-    };
-    const deckHex = deckType ? DECK_HEX[deckType] : undefined;
 
     let aiPhotoUrl: string;
     try {
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex, poolModel);
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
     } catch {
       log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      aiPhotoUrl = await generatePoolImage(originalPhotoUrl, prompt, deckHex, poolModel);
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
     }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
@@ -165,7 +157,7 @@ export async function POST(request: Request) {
       .then(({ data: client }) => {
         if (client) {
           log("info", `[${requestId}] 6-EMAIL`, "E-posta gönderiliyor...", { to: client.email });
-          void sendOrderNotification(client.email, client.name, order);
+          void sendOrderNotification(client.email, client.name, order, clientConfig);
         }
       });
 

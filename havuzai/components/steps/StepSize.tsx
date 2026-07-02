@@ -2,54 +2,53 @@
 
 import { useEffect } from "react";
 import type { FormData } from "@/app/app/page";
+import type { ClientConfig } from "@/lib/config-types";
 
-interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
+interface Props {
+  form: FormData;
+  update: (d: Partial<FormData>) => void;
+  config: ClientConfig;
+}
 
-const SIZES_BY_MODEL: Record<string, string[]> = {
-  RELAX: [
-    "2.25x4.45x1.5",
-    "3x5x1.5",
-    "3x6x1.5",
-    "3x7x1.5",
-    "3x8x1.5",
-  ],
-  ROMA: [
-    "3x6x1.5",
-  ],
-};
+export default function StepSize({ form, update, config }: Props) {
+  const model = config.pool_models.find((m) => m.id === form.poolModel);
+  const sizes = model?.sizes ?? [];
+  const single = sizes.length === 1;
 
-const DEFAULT_SIZES = SIZES_BY_MODEL.RELAX;
-
-export default function StepSize({ form, update }: Props) {
-  const isRoma = form.poolModel === "ROMA";
-  const sizes = SIZES_BY_MODEL[form.poolModel ?? ""] ?? DEFAULT_SIZES;
-
+  // Model değişince ölçüyü senkronize et
   useEffect(() => {
-    if (isRoma) {
-      update({ poolSize: "3x6x1.5" });
+    if (single) {
+      if (form.poolSize !== sizes[0]) update({ poolSize: sizes[0] });
     } else if (!sizes.includes(form.poolSize ?? "")) {
-      update({ poolSize: undefined });
+      update({ poolSize: "" });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.poolModel]);
 
-  if (isRoma) {
+  if (sizes.length === 0) {
     return (
       <div>
-        <h2
-          className="text-sm font-bold uppercase tracking-widest mb-4"
-          style={{ color: "var(--navy)" }}
-        >
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "var(--navy)" }}>
+          HAVUZ ÖLÇÜSÜ
+        </h2>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Bu model için tanımlı ölçü bulunamadı.
+        </p>
+      </div>
+    );
+  }
+
+  if (single) {
+    return (
+      <div>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "var(--navy)" }}>
           HAVUZ ÖLÇÜSÜ
         </h2>
         <div
           className="py-3 px-4 rounded-xl font-bold text-sm text-center"
-          style={{
-            background: "#1D7BBF",
-            color: "#ffffff",
-            border: "1.5px solid #1D7BBF",
-          }}
+          style={{ background: "var(--pool)", color: "#ffffff", border: "1.5px solid var(--pool)" }}
         >
-          3x6x1.5 (Tek Ölçü)
+          {sizes[0]} (Tek Ölçü)
         </div>
       </div>
     );
@@ -57,10 +56,7 @@ export default function StepSize({ form, update }: Props) {
 
   return (
     <div>
-      <h2
-        className="text-sm font-bold uppercase tracking-widest mb-4"
-        style={{ color: "var(--navy)" }}
-      >
+      <h2 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "var(--navy)" }}>
         HAVUZ ÖLÇÜSÜ SEÇİNİZ
       </h2>
 
@@ -73,9 +69,9 @@ export default function StepSize({ form, update }: Props) {
               onClick={() => update({ poolSize: size })}
               className="py-3 px-2 rounded-xl font-bold text-sm transition-all"
               style={{
-                background: sel ? "#1D7BBF" : "#ffffff",
+                background: sel ? "var(--pool)" : "#ffffff",
                 color: sel ? "#ffffff" : "#1a1a2e",
-                border: `1.5px solid ${sel ? "#1D7BBF" : "#d1d5db"}`,
+                border: `1.5px solid ${sel ? "var(--pool)" : "#d1d5db"}`,
               }}
             >
               {size}

@@ -1,33 +1,26 @@
 "use client";
 
 import type { FormData } from "@/app/app/page";
+import type { ClientConfig } from "@/lib/config-types";
 
-interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
+interface Props {
+  form: FormData;
+  update: (d: Partial<FormData>) => void;
+  config: ClientConfig;
+}
 
-const DECKS = [
-  { id: "ceviz",        label: "Ceviz",        hex: "#8B6347" },
-  { id: "antrasit04",   label: "Antrasit 04",  hex: "#4A4A4A" },
-  { id: "koyu-kahve",   label: "Koyu Kahve",   hex: "#3D2B1F" },
-  { id: "yesil",        label: "Yeşil",        hex: "#5C7A3E" },
-  { id: "kirmizi",      label: "Kırmızı",      hex: "#8B3A3A" },
-  { id: "gunes-sarisi", label: "Güneş Sarısı", hex: "#C8A45A" },
-  { id: "bej",          label: "Bej",          hex: "#C4A882" },
-];
+export default function StepEnvironment({ form, update, config }: Props) {
+  const decks = config.deck_colors;
+  const ceramics = config.ceramic_colors;
+  const showWaterfall = config.features?.waterfall;
+  const showStairs = config.features?.stairs;
+  const showExtras = showWaterfall || showStairs;
 
-const CERAMICS = [
-  { id: "turkuaz", label: "Turkuaz", gradient: "linear-gradient(135deg, #0EA5E9, #06B6D4)" },
-  { id: "mavi",    label: "Mavi",    gradient: "linear-gradient(135deg, #3B82F6, #1D4ED8)" },
-  { id: "beyaz",   label: "Beyaz",   gradient: "linear-gradient(135deg, #E0F2FE, #BAE6FD)" },
-  { id: "gri",     label: "Gri",     gradient: "linear-gradient(135deg, #94A3B8, #64748B)" },
-  { id: "krem",    label: "Krem",    gradient: "linear-gradient(135deg, #FEF3C7, #D4A853)" },
-];
-
-
-export default function StepEnvironment({ form, update }: Props) {
   return (
     <div className="space-y-6">
 
       {/* DECK */}
+      {decks.length > 0 && (
       <div>
         <div
           className="inline-block text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-2"
@@ -43,36 +36,39 @@ export default function StepEnvironment({ form, update }: Props) {
         </h3>
 
         <div className="flex flex-wrap gap-4">
-          {DECKS.map((d) => {
+          {decks.map((d) => {
             const sel = form.deckType === d.id;
             return (
               <button
                 key={d.id}
-               onClick={() => update({ deckType: d.id, ceramicType: "" })}
+                /* Deck ↔ seramik karşılıklı dışlaması kasıtlı: biri seçilince diğeri sıfırlanır. */
+                onClick={() => update({ deckType: d.id, ceramicType: "" })}
                 className="flex flex-col items-center gap-1"
               >
                 <div
                   className="w-10 h-10 rounded-full"
                   style={{
                     background: d.hex,
-                    outline: sel ? "3px solid #1D7BBF" : "3px solid transparent",
+                    outline: sel ? "3px solid var(--pool)" : "3px solid transparent",
                     outlineOffset: "2px",
                     transition: "outline 0.15s",
                   }}
                 />
                 <span
                   className="text-[11px] font-medium text-center leading-tight max-w-[52px]"
-                  style={{ color: sel ? "#1D7BBF" : "#374151" }}
+                  style={{ color: sel ? "var(--pool)" : "#374151" }}
                 >
-                  {d.label}
+                  {d.name}
                 </span>
               </button>
             );
           })}
         </div>
       </div>
+      )}
 
       {/* SERAMİK */}
+      {ceramics.length > 0 && (
       <div>
         <div
           className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3"
@@ -82,32 +78,35 @@ export default function StepEnvironment({ form, update }: Props) {
         </div>
 
         <div className="flex gap-3 flex-wrap">
-          {CERAMICS.map((c) => {
+          {ceramics.map((c) => {
             const sel = form.ceramicType === c.id;
             return (
               <button
                 key={c.id}
+                /* Deck ↔ seramik karşılıklı dışlaması kasıtlı: biri seçilince diğeri sıfırlanır. */
                 onClick={() => update({ ceramicType: c.id, deckType: "" })}
                 className="flex flex-col items-center gap-1"
               >
                 <div
                   className="w-16 h-16 rounded-xl border-4 transition-all"
                   style={{
-                    background: c.gradient,
-                    borderColor: sel ? "#3B82F6" : "transparent",
+                    background: c.hex,
+                    borderColor: sel ? "var(--pool)" : "transparent",
                     transform: sel ? "scale(1.1)" : "scale(1)",
                   }}
                 />
-                <p className="text-xs text-center mt-1" style={{ color: sel ? "#1D7BBF" : "#374151" }}>
-                  {c.label}
+                <p className="text-xs text-center mt-1" style={{ color: sel ? "var(--pool)" : "#374151" }}>
+                  {c.name}
                 </p>
               </button>
             );
           })}
         </div>
       </div>
+      )}
 
       {/* EKSTRA ÖZELLİKLER */}
+      {showExtras && (
       <div>
         <div
           className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3"
@@ -117,11 +116,12 @@ export default function StepEnvironment({ form, update }: Props) {
         </div>
 
         {/* Şelale toggle */}
+        {showWaterfall && (
         <button
           onClick={() => update({ hasWaterfall: !form.hasWaterfall })}
           className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all"
           style={{
-            borderColor: form.hasWaterfall ? "#3B82F6" : "#E5E7EB",
+            borderColor: form.hasWaterfall ? "var(--pool)" : "#E5E7EB",
             background: form.hasWaterfall ? "#EFF6FF" : "#F9FAFB",
           }}
         >
@@ -130,7 +130,7 @@ export default function StepEnvironment({ form, update }: Props) {
             <div className="text-left">
               <div
                 className="text-sm font-semibold"
-                style={{ color: form.hasWaterfall ? "#1D7BBF" : "#374151" }}
+                style={{ color: form.hasWaterfall ? "var(--pool)" : "#374151" }}
               >
                 Havuz Şelalesi
               </div>
@@ -141,7 +141,7 @@ export default function StepEnvironment({ form, update }: Props) {
           </div>
           <div
             className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-            style={{ background: form.hasWaterfall ? "#3B82F6" : "#D1D5DB" }}
+            style={{ background: form.hasWaterfall ? "var(--pool)" : "#D1D5DB" }}
           >
             <div
               className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
@@ -149,13 +149,15 @@ export default function StepEnvironment({ form, update }: Props) {
             />
           </div>
         </button>
+        )}
 
         {/* Merdiven toggle */}
+        {showStairs && (
         <button
           onClick={() => update({ hasStairs: !form.hasStairs })}
-          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all"
+          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all mt-3"
           style={{
-            borderColor: form.hasStairs ? "#3B82F6" : "#E5E7EB",
+            borderColor: form.hasStairs ? "var(--pool)" : "#E5E7EB",
             background: form.hasStairs ? "#EFF6FF" : "#F9FAFB",
           }}
         >
@@ -164,7 +166,7 @@ export default function StepEnvironment({ form, update }: Props) {
             <div className="text-left">
               <div
                 className="text-sm font-semibold"
-                style={{ color: form.hasStairs ? "#1D7BBF" : "#374151" }}
+                style={{ color: form.hasStairs ? "var(--pool)" : "#374151" }}
               >
                 Havuz Merdiveni
               </div>
@@ -175,7 +177,7 @@ export default function StepEnvironment({ form, update }: Props) {
           </div>
           <div
             className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-            style={{ background: form.hasStairs ? "#3B82F6" : "#D1D5DB" }}
+            style={{ background: form.hasStairs ? "var(--pool)" : "#D1D5DB" }}
           >
             <div
               className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
@@ -183,7 +185,9 @@ export default function StepEnvironment({ form, update }: Props) {
             />
           </div>
         </button>
+        )}
       </div>
+      )}
 
     </div>
   );

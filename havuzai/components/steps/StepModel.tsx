@@ -1,30 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import type { FormData } from "@/app/app/page";
+import type { ClientConfig } from "@/lib/config-types";
 
-interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
+interface Props {
+  form: FormData;
+  update: (d: Partial<FormData>) => void;
+  config: ClientConfig;
+}
 
-const MODELS = [
-  {
-    id:    "RELAX",
-    name:  "RELAX",
-    sub:   "Organik & Aile",
-    desc:  "dikdörtgen yapısıyla işlevsel ve sade bir tasarım sunan, her bahçeye kolaylıkla uyum sağlayan havuz modelidir.",
-    tag:   "En Popüler",
-    img:   "/pools/pool-relax.png",
-  },
-  {
-    id:    "ROMA",
-    name:  "ROMA",
-    sub:   "Klasik & Prestij",
-    desc:  "Yumuşak oval hatlarıyla doğal ve şık görünüm. Modern bahcelere mükemmel uyum sağlanması.",
-    tag:   "Premium",
-    img:   "/pools/pool-roma.jpg",
-  },
-];
-
-export default function StepModel({ form, update }: Props) {
+export default function StepModel({ form, update, config }: Props) {
+  const models = config.pool_models;
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-widest mb-1"
@@ -37,7 +23,7 @@ export default function StepModel({ form, update }: Props) {
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {MODELS.map((m) => {
+        {models.map((m) => {
           const sel = form.poolModel === m.id;
           return (
             <button
@@ -76,29 +62,29 @@ export default function StepModel({ form, update }: Props) {
             >
               {/* Görsel */}
               <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", background: "var(--sand)" }}>
-                <Image
-                  src={m.img}
+                <img
+                  src={m.reference_image_url}
                   alt={m.name}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 240px"
-                  style={{ objectFit: "cover" }}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                 />
 
                 {/* Tag */}
-                <div style={{
-                  position:   "absolute",
-                  top:        "10px",
-                  left:       "10px",
-                  padding:    "3px 10px",
-                  borderRadius: "99px",
-                  fontSize:   "11px",
-                  fontWeight: 700,
-                  background: sel ? "var(--pool)" : "rgba(0,0,0,0.45)",
-                  color:      "white",
-                  backdropFilter: "blur(4px)",
-                }}>
-                  {m.tag}
-                </div>
+                {m.tag && (
+                  <div style={{
+                    position:   "absolute",
+                    top:        "10px",
+                    left:       "10px",
+                    padding:    "3px 10px",
+                    borderRadius: "99px",
+                    fontSize:   "11px",
+                    fontWeight: 700,
+                    background: sel ? "var(--pool)" : "rgba(0,0,0,0.45)",
+                    color:      "white",
+                    backdropFilter: "blur(4px)",
+                  }}>
+                    {m.tag}
+                  </div>
+                )}
 
                 {/* Checkmark */}
                 {sel && (
@@ -134,11 +120,13 @@ export default function StepModel({ form, update }: Props) {
                 }}>
                   {m.name}
                 </h3>
-                <p style={{ fontSize: "11px", fontWeight: 600, color: "var(--gold)", marginBottom: "6px" }}>
-                  {m.sub}
-                </p>
+                {m.sub && (
+                  <p style={{ fontSize: "11px", fontWeight: 600, color: "var(--gold)", marginBottom: "6px" }}>
+                    {m.sub}
+                  </p>
+                )}
                 <p style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: 1.5 }}>
-                  {m.desc}
+                  {m.description}
                 </p>
               </div>
             </button>

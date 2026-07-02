@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import ConfigEditor from "@/components/super-admin/ConfigEditor";
 
 type Client = {
   id: string;
@@ -350,6 +351,7 @@ export default function SuperAdminPage() {
   const [listError, setListError]       = useState("");
   const [editClient, setEditClient]     = useState<Client | null>(null);
   const [deleteClient, setDeleteClient] = useState<Client | null>(null);
+  const [configClient, setConfigClient] = useState<Client | null>(null);
 
   const fetchClients = useCallback(async (pass: string) => {
     setListLoading(true);
@@ -721,6 +723,12 @@ export default function SuperAdminPage() {
 
                   <div className="flex gap-2 shrink-0">
                     <button
+                      onClick={() => setConfigClient(c)}
+                      className="px-3 py-1.5 bg-blue-900/40 hover:bg-blue-900/70 text-blue-300 border border-blue-800/50 rounded-xl text-xs font-medium transition-colors"
+                    >
+                      ⚙️ Ayarla
+                    </button>
+                    <button
                       onClick={() => setEditClient(c)}
                       className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl text-xs font-medium transition-colors"
                     >
@@ -754,6 +762,13 @@ export default function SuperAdminPage() {
           adminPass={adminPass}
           onClose={() => setDeleteClient(null)}
           onDeleted={() => fetchClients(adminPass)}
+        />
+      )}
+      {configClient && (
+        <ConfigEditor
+          client={configClient}
+          adminPass={adminPass}
+          onClose={() => setConfigClient(null)}
         />
       )}
     </div>

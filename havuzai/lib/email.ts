@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import type { ClientConfig } from "./config-types";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -19,19 +20,18 @@ export async function sendOrderNotification(
     has_waterfall?: boolean;
     has_stairs?: boolean;
     stair_type?: string;
-  }
+  },
+  config?: ClientConfig
 ): Promise<void> {
   if (!resend) return;
 
-  const DECK_LABELS: Record<string, string> = {
-    ceviz: "Ceviz", antrasit04: "Antrasit 04", "koyu-kahve": "Koyu Kahve",
-    yesil: "Yeşil", kirmizi: "Kırmızı", "gunes-sarisi": "Güneş Sarısı", bej: "Bej",
-  };
-  const CERAMIC_LABELS: Record<string, string> = {
-    turkuaz: "Turkuaz", mavi: "Mavi", beyaz: "Beyaz", gri: "Gri", krem: "Krem",
-  };
-  const deckLabel    = order.deck_type ? (DECK_LABELS[order.deck_type] ?? order.deck_type) : "-";
-  const ceramicLabel = order.ceramic_type ? (CERAMIC_LABELS[order.ceramic_type] ?? order.ceramic_type) : "-";
+  // Deck/seramik id → ad çözümü firma config'inden (yoksa ham id).
+  const deckLabel    = order.deck_type
+    ? (config?.deck_colors.find(d => d.id === order.deck_type)?.name ?? order.deck_type)
+    : "-";
+  const ceramicLabel = order.ceramic_type
+    ? (config?.ceramic_colors.find(c => c.id === order.ceramic_type)?.name ?? order.ceramic_type)
+    : "-";
 
   await resend.emails.send({
     from: "HavuzAI <bildirim@havuz-ai-web-app-automation.vercel.app>",

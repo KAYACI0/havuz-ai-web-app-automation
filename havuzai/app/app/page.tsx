@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import type { ClientConfig } from "@/lib/config-types";
 import StepPhoto from "@/components/steps/StepPhoto";
 import StepModel from "@/components/steps/StepModel";
 import StepSize from "@/components/steps/StepSize";
@@ -20,7 +21,7 @@ const FORM_GUIDE = [
   {
     icon: "🏊",
     title: "Havuz Modelini Seçin",
-    desc: "RELAX modeli organik oval hatlarıyla aile kullanımına uygundur. ROMA modeli dikdörtgen klasik tasarımıyla modern villaları tamamlar.",
+    desc: "Bahçenize en uygun havuz modelini seçin. Her kartta modelin görseli ve kısa açıklaması yer alır.",
   },
   {
     icon: "📐",
@@ -72,7 +73,9 @@ function canProceed(step: number, form: FormData): boolean {
 interface Props { clientId?: string; isEmbed?: boolean; }
 
 /* ── Left decorative panel ── */
-function BrandPanel({ step }: { step: number }) {
+function BrandPanel({ step, config }: { step: number; config: ClientConfig | null }) {
+  const logoUrl = config?.brand?.logo_url || "/pools/havuzai-logo-şeffaf.png";
+  const companyName = config?.brand?.company_name;
   const headlines = [
     "Hayalinizdeki havuzu evinizde görün.",
     "Hangi model size uygun?",
@@ -116,17 +119,19 @@ function BrandPanel({ step }: { step: number }) {
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-2">
           <img
-            src="/pools/havuzai-logo-şeffaf.png"
-            alt="HavuzAI"
+            src={logoUrl}
+            alt={companyName || "HavuzAI"}
             style={{
               height: "80px", width: "auto", objectFit: "contain",
               background: "white", borderRadius: "12px", padding: "8px 14px",
             }}
           />
         </div>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px" }}>
-          havuz-ai-web-app-automation.vercel.app
-        </p>
+        {companyName && (
+          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px" }}>
+            {companyName}
+          </p>
+        )}
       </div>
 
       {/* Center content */}
@@ -195,14 +200,15 @@ function BrandPanel({ step }: { step: number }) {
 }
 
 /* ── Progress bar (mobile) ── */
-function MobileProgress({ step }: { step: number }) {
+function MobileProgress({ step, config }: { step: number; config: ClientConfig | null }) {
+  const logoUrl = config?.brand?.logo_url || "/pools/favicon-logo-havuzai.png";
   return (
     <div className="lg:hidden px-6 pt-6 pb-0">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <img
-            src="/pools/favicon-logo-havuzai.png"
-            alt="HavuzAI"
+            src={logoUrl}
+            alt={config?.brand?.company_name || "HavuzAI"}
             style={{
               height: "60px", width: "auto", objectFit: "contain",
               background: "white", borderRadius: "10px", padding: "6px 10px",
@@ -227,12 +233,10 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   const urlClientId   = searchParams.get("client");
   const clientId      = propClientId || urlClientId || null;
 
-  console.log("APP PAGE - propClientId:", propClientId);
-  console.log("APP PAGE - urlClientId:", urlClientId);
-  console.log("APP PAGE - final clientId:", clientId);
-
   const [step, setStep]       = useState(1);
   const [loading, setLoading] = useState(false);
+  const [config, setConfig]       = useState<ClientConfig | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
   const [form, setForm]       = useState<FormData>({
     photo: null, poolModel: "", poolSize: "",
     deckType: "", ceramicType: "",
@@ -242,6 +246,25 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
 
   const updateForm = (data: Partial<FormData>) =>
     setForm((prev) => ({ ...prev, ...data }));
+
+  // Firma konfigürasyonunu yükle
+  useEffect(() => {
+    if (!clientId) return;
+    let cancelled = false;
+    setConfig(null);
+    setConfigError(null);
+    fetch(`/api/config?clientId=${encodeURIComponent(clientId)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (d.success && d.config) setConfig(d.config);
+        else setConfigError(d.error || "Konfigürasyon yüklenemedi.");
+      })
+      .catch(() => {
+        if (!cancelled) setConfigError("Bağlantı hatası.");
+      });
+    return () => { cancelled = true; };
+  }, [clientId]);
 
   const handleSubmit = async () => {
     if (!canProceed(5, form)) {
@@ -292,10 +315,24 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     );
   }
 
-  if (loading) return <LoadingScreen />;
+  if (configError) {
+    return (
+      <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
+        <h2 style={{ color: "#cc0000" }}>Form açılamadı</h2>
+        <p>{configError}</p>
+      </div>
+    );
+  }
+
+  if (loading || !config) return <LoadingScreen />;
+
+  const brandColor = config.brand?.primary_color || "#1D7BBF";
 
   return (
-    <div className="min-h-screen lg:grid" style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)" }}>
+    <div
+      className="min-h-screen lg:grid"
+      style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)", ["--pool" as string]: brandColor }}
+    >
       <Toaster
         position="top-center"
         toastOptions={{
@@ -310,11 +347,11 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       />
 
       {/* Left brand panel */}
-      <BrandPanel step={step} />
+      <BrandPanel step={step} config={config} />
 
       {/* Right form area */}
       <div className="flex flex-col min-h-screen" style={{ background: "var(--sand)" }}>
-        <MobileProgress step={step} />
+        <MobileProgress step={step} config={config} />
 
         <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full" style={{ maxWidth: "520px" }}>
@@ -330,9 +367,9 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
               {/* Step content */}
               <div className="p-8">
                 {step === 1 && <StepPhoto       form={form} update={updateForm} />}
-                {step === 2 && <StepModel       form={form} update={updateForm} />}
-                {step === 3 && <StepSize        form={form} update={updateForm} />}
-                {step === 4 && <StepEnvironment form={form} update={updateForm} />}
+                {step === 2 && <StepModel       form={form} update={updateForm} config={config} />}
+                {step === 3 && <StepSize        form={form} update={updateForm} config={config} />}
+                {step === 4 && <StepEnvironment form={form} update={updateForm} config={config} />}
                 {step === 5 && <StepContact     form={form} update={updateForm} />}
               </div>
 

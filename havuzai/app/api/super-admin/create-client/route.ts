@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { defaultConfig } from "@/lib/config-defaults";
 
 export async function POST(request: Request) {
   const { password, clientData } = await request.json();
@@ -50,6 +51,18 @@ export async function POST(request: Request) {
     await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
     return Response.json({ error: dbError.message }, { status: 500 });
   }
+
+  // 3. Varsayılan config satırı oluştur (non-fatal — süper admin sonra düzenler).
+  const cfg = defaultConfig(id);
+  await supabaseAdmin.from("client_configs").insert({
+    client_id: id,
+    pool_models: cfg.pool_models,
+    deck_colors: cfg.deck_colors,
+    ceramic_colors: cfg.ceramic_colors,
+    features: cfg.features,
+    brand: cfg.brand,
+    contact: cfg.contact,
+  });
 
   return Response.json({ success: true });
 }
