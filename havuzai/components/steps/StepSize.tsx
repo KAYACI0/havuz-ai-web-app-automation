@@ -11,7 +11,6 @@ interface Props {
 }
 
 function parseSize(size: string): { length: number; width: number } | null {
-  // Format: "3x5x1.5" veya "3x5"
   const parts = size.split("x");
   if (parts.length < 2) return null;
   const length = parseFloat(parts[0]);
@@ -24,8 +23,6 @@ function sizesFitInGarden(
   size: string,
   gardenLength: string,
   gardenWidth: string,
-  hasDeck: boolean,
-  hasCeramic: boolean,
 ): boolean {
   if (!gardenLength || !gardenWidth) return true;
   const gl = parseFloat(gardenLength);
@@ -35,8 +32,7 @@ function sizesFitInGarden(
   const parsed = parseSize(size);
   if (!parsed) return true;
 
-  // Çevre eklentisi
-  const extra = hasCeramic ? 2.4 : hasDeck ? 1.2 : 0;
+  const extra = 1.2; // Her zaman deck ölçüsü baz alınır (60cm x 2 kenar)
 
   const totalLength = parsed.length + extra;
   const totalWidth  = parsed.width  + extra;
@@ -51,7 +47,6 @@ export default function StepSize({ form, update, config }: Props) {
   const sizes  = model?.sizes ?? [];
   const single = sizes.length === 1;
 
-  // Model değişince ölçüyü senkronize et
   useEffect(() => {
     if (single) {
       if (form.poolSize !== sizes[0]) update({ poolSize: sizes[0] });
@@ -61,11 +56,10 @@ export default function StepSize({ form, update, config }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.poolModel]);
 
-  // Seçili ölçü artık sığmıyorsa sıfırla
   useEffect(() => {
     if (
       form.poolSize &&
-      !sizesFitInGarden(form.poolSize, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType)
+      !sizesFitInGarden(form.poolSize, form.gardenLength, form.gardenWidth)
     ) {
       update({ poolSize: "" });
     }
@@ -112,7 +106,6 @@ export default function StepSize({ form, update, config }: Props) {
         Havuzu kuracağınız alanın ölçüsünü girin, size uygun boyutlar otomatik filtrelensin.
       </p>
 
-      {/* Bahçe alanı girişi */}
       <div className="mb-6 p-4 rounded-xl" style={{ background: "var(--sand)", border: "1px solid var(--border)" }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--navy)" }}>
           Havuz kurulacak alan (metre)
@@ -170,11 +163,10 @@ export default function StepSize({ form, update, config }: Props) {
         )}
       </div>
 
-      {/* Havuz ölçüleri */}
       <div className="grid grid-cols-3 gap-3">
         {sizes.map((size) => {
           const sel  = form.poolSize === size;
-          const fits = sizesFitInGarden(size, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType);
+          const fits = sizesFitInGarden(size, form.gardenLength, form.gardenWidth);
           return (
             <button
               key={size}
@@ -205,7 +197,7 @@ export default function StepSize({ form, update, config }: Props) {
       </div>
 
       {form.gardenLength && form.gardenWidth && sizes.every(
-        (s) => !sizesFitInGarden(s, form.gardenLength, form.gardenWidth, !!form.deckType, !!form.ceramicType)
+        (s) => !sizesFitInGarden(s, form.gardenLength, form.gardenWidth)
       ) && (
         <p className="text-sm mt-4 text-center" style={{ color: "#ef4444" }}>
           Belirttiğiniz alana uygun havuz ölçüsü bulunamadı. Lütfen alanı kontrol edin.
