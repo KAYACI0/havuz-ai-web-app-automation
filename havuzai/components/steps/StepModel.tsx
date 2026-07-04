@@ -68,23 +68,7 @@ export default function StepModel({ form, update, config }: Props) {
                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                 />
 
-                {/* Tag */}
-                {m.tag && (
-                  <div style={{
-                    position:   "absolute",
-                    top:        "10px",
-                    left:       "10px",
-                    padding:    "3px 10px",
-                    borderRadius: "99px",
-                    fontSize:   "11px",
-                    fontWeight: 700,
-                    background: sel ? "var(--pool)" : "rgba(0,0,0,0.45)",
-                    color:      "white",
-                    backdropFilter: "blur(4px)",
-                  }}>
-                    {m.tag}
-                  </div>
-                )}
+                
 
                 {/* Checkmark */}
                 {sel && (
