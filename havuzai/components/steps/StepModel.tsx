@@ -111,6 +111,20 @@ export default function StepModel({ form, update, config }: Props) {
 
               {/* Metin */}
               <div style={{ padding: "14px 16px 16px" }}>
+                {m.tag && (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "2px 8px",
+                    borderRadius: "99px",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    background: sel ? "var(--pool)" : "rgba(0,0,0,0.08)",
+                    color: sel ? "white" : "var(--text-muted)",
+                    marginBottom: "6px",
+                  }}>
+                    {m.tag}
+                  </span>
+                )}
                 <h3 style={{
                   fontFamily: "var(--font-fraunces), serif",
                   fontSize:   "18px",
