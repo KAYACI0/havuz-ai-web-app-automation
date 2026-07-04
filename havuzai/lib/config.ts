@@ -22,9 +22,11 @@ function normalizeModel(m: Record<string, unknown>): PoolModel {
     prompt_description: m.prompt_description != null ? String(m.prompt_description) : undefined,
     tag: m.tag != null ? String(m.tag) : undefined,
     reference_image_url: String(m.reference_image_url ?? m.reference_image ?? ""),
+    reference_image_url_2: m.reference_image_url_2 != null ? String(m.reference_image_url_2) : undefined,
     sizes: Array.isArray(m.sizes) ? m.sizes.map(String) : [],
   };
 }
+
 
 function normalizeColor(c: Record<string, unknown>): ColorOption {
   return {
