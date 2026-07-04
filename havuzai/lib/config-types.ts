@@ -22,7 +22,10 @@ export interface PoolModel {
   /** Kart rozeti. Örn: "En Popüler" */
   tag?: string;
   /** fal.ai'ye gönderilen referans görsel (public URL). */
-  reference_image_url: string;
+  /** fal.ai'ye gönderilen referans görsel (public URL). */
+reference_image_url: string;
+/** fal.ai'ye gönderilen ikinci referans görsel (isteğe bağlı, public URL). */
+reference_image_url_2?: string;
   /** Bu modele uygun ölçüler. Örn: ["3x5x1.5", "3x6x1.5"] */
   sizes: string[];
 }

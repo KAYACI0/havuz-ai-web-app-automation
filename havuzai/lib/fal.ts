@@ -23,10 +23,15 @@ export async function generatePoolVisualization(
 
   // Referans görselleri topla
   const imageUrls: string[] = [
-    customerPhotoUrl,  // 1. Müşteri fotoğrafı (düzenlenecek)
-    poolRef,           // 2. Havuz şekli referansı
-  ];
+  customerPhotoUrl,
+  poolRef,
+];
 
+// İkinci referans görsel varsa ekle
+const poolRef2 = model?.reference_image_url_2;
+if (poolRef2) {
+  imageUrls.push(poolRef2);
+}
   // Şelale seçildiyse referansı ekle
   if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);
