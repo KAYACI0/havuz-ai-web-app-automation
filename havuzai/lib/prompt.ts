@@ -88,8 +88,10 @@ ${ceramicColor ? `
 RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
 Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
-- Tile size: 33cm x 66cm rectangular format
-- Tiles laid in a brick/offset pattern or straight grid, longer side parallel to pool edge
+- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
+- Each tile is TWICE as long as it is wide — like a brick shape
+- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
+- Visible grout lines between all tiles
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
