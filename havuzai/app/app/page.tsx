@@ -41,20 +41,22 @@ const FORM_GUIDE = [
 ];
 
 export interface FormData {
-  photo:           File | null;
-  poolModel:       string;
-  poolSize:        string;
-  gardenLength:    string;
-  gardenWidth:     string;
-  deckType:        string;
-  ceramicType:     string;
-  customerName:    string;
-  customerPhone:   string;
-  customerAddress: string;
-  hasWaterfall:    boolean;
-  hasStairs:       boolean;
-  stairType:       "corner" | "wide";
+  photo:            File | null;
+  poolModel:        string;
+  poolSize:         string;
+  gardenLength:     string;
+  gardenWidth:      string;
+  poolOrientation:  "horizontal" | "vertical" | "";
+  deckType:         string;
+  ceramicType:      string;
+  customerName:     string;
+  customerPhone:    string;
+  customerAddress:  string;
+  hasWaterfall:     boolean;
+  hasStairs:        boolean;
+  stairType:        "corner" | "wide";
 }
+
 
 const STEPS = [
   { n: 1, label: "Fotoğraf",  icon: "📷" },
@@ -242,6 +244,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   const [form, setForm] = useState<FormData>({
   photo: null, poolModel: "", poolSize: "",
   gardenLength: "", gardenWidth: "",
+  poolOrientation: "",
   deckType: "", ceramicType: "",
   customerName: "", customerPhone: "", customerAddress: "",
   hasWaterfall: false, hasStairs: false, stairType: "corner",
@@ -289,6 +292,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("hasWaterfall",    String(form.hasWaterfall));
       fd.append("hasStairs",       String(form.hasStairs));
       fd.append("stairType",       form.stairType);
+      fd.append("poolOrientation", form.poolOrientation);
       fd.append("source",          isEmbed ? "widget" : "direct");
 
       const res  = await fetch("/api/generate", { method: "POST", body: fd });
