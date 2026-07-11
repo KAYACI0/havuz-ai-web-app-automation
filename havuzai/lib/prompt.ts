@@ -40,6 +40,11 @@ DO NOT place the pool horizontally. VERTICAL ONLY.`
     : "";
 
   return `
+  ${poolOrientation === "horizontal" ? `
+🚨 CRITICAL ORIENTATION: THE POOL MUST BE HORIZONTAL. LONG SIDE LEFT-TO-RIGHT. THIS IS MANDATORY.
+` : poolOrientation === "vertical" ? `
+🚨 CRITICAL ORIENTATION: THE POOL MUST BE VERTICAL. LONG SIDE TOP-TO-BOTTOM. THIS IS MANDATORY.
+` : ""}
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
 REFERENCE IMAGES GUIDE:
