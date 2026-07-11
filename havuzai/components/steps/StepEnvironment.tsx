@@ -44,7 +44,8 @@ export default function StepEnvironment({ form, update, config }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [tempLength, setTempLength] = useState(form.gardenLength || "");
   const [tempWidth, setTempWidth]   = useState(form.gardenWidth  || "");
-  const [fitError, setFitError]     = useState(false);
+  const [tempOrientation, setTempOrientation] = useState<"horizontal" | "vertical" | "">(form.poolOrientation || "");
+  const [fitError, setFitError] = useState(false);
 
   function handleSurroundSelect(type: "deck" | "ceramic", id: string) {
     if (type === "deck") {
@@ -54,6 +55,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
     }
     setTempLength(form.gardenLength || "");
     setTempWidth(form.gardenWidth   || "");
+    setTempOrientation(form.poolOrientation || "");
     setFitError(false);
     setShowModal(true);
   }
@@ -66,13 +68,17 @@ export default function StepEnvironment({ form, update, config }: Props) {
         return;
       }
     }
-    update({ gardenLength: tempLength, gardenWidth: tempWidth });
+    update({
+      gardenLength: tempLength,
+      gardenWidth: tempWidth,
+      poolOrientation: tempOrientation,
+    });
     setShowModal(false);
     setFitError(false);
   }
 
   function handleModalSkip() {
-    update({ gardenLength: "", gardenWidth: "" });
+    update({ gardenLength: "", gardenWidth: "", poolOrientation: "" });
     setShowModal(false);
     setFitError(false);
   }
@@ -108,9 +114,10 @@ export default function StepEnvironment({ form, update, config }: Props) {
               Havuz kurulacak alan
             </h3>
             <p style={{ color: "var(--text-muted)", fontSize: "13px", marginBottom: "20px" }}>
-              Alanın ölçüsünü girin, havuzun sığıp sığmadığını kontrol edelim. İsterseniz atlayabilirsiniz.
+              Alanın ölçüsünü girin ve havuzun yönünü seçin. İsterseniz atlayabilirsiniz.
             </p>
 
+            {/* Ölçü girişi */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
               <div>
                 <label style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
@@ -163,6 +170,65 @@ export default function StepEnvironment({ form, update, config }: Props) {
                   />
                   <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>m</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Havuz yönü seçimi */}
+            <div style={{ marginBottom: "16px" }}>
+              <label style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "8px", fontWeight: 600 }}>
+                Havuz yönü (isteğe bağlı)
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <button
+                  onClick={() => setTempOrientation(tempOrientation === "horizontal" ? "" : "horizontal")}
+                  style={{
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: `2px solid ${tempOrientation === "horizontal" ? "var(--pool)" : "var(--border)"}`,
+                    background: tempOrientation === "horizontal" ? "#EFF6FF" : "white",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  {/* Yatay havuz şekli */}
+                  <div style={{
+                    width: "48px",
+                    height: "28px",
+                    borderRadius: "6px",
+                    background: tempOrientation === "horizontal" ? "var(--pool)" : "#CBD5E1",
+                  }} />
+                  <span style={{ fontSize: "12px", fontWeight: 600, color: tempOrientation === "horizontal" ? "var(--pool)" : "#374151" }}>
+                    Yatay
+                  </span>
+                </button>
+                <button
+                  onClick={() => setTempOrientation(tempOrientation === "vertical" ? "" : "vertical")}
+                  style={{
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: `2px solid ${tempOrientation === "vertical" ? "var(--pool)" : "var(--border)"}`,
+                    background: tempOrientation === "vertical" ? "#EFF6FF" : "white",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  {/* Dikey havuz şekli */}
+                  <div style={{
+                    width: "28px",
+                    height: "48px",
+                    borderRadius: "6px",
+                    background: tempOrientation === "vertical" ? "var(--pool)" : "#CBD5E1",
+                  }} />
+                  <span style={{ fontSize: "12px", fontWeight: 600, color: tempOrientation === "vertical" ? "var(--pool)" : "#374151" }}>
+                    Dikey
+                  </span>
+                </button>
               </div>
             </div>
 
