@@ -3,6 +3,7 @@ import { generatePoolVisualization } from "@/lib/fal";
 import { sendOrderNotification } from "@/lib/email";
 import { getClientConfig } from "@/lib/config";
 import { log } from "@/lib/logger";
+import type { PoolConfig } from "@/lib/prompt";
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID().slice(0, 8);
@@ -10,20 +11,21 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
-    const clientId      = formData.get("clientId") as string;
-    const photo         = formData.get("photo") as File;
-    const poolModel     = formData.get("poolModel") as string;
-    const poolSize      = formData.get("poolSize") as string;
-    const deckType      = formData.get("deckType") as string;
-    const ceramicType   = formData.get("ceramicType") as string;
-    const customerName  = formData.get("customerName") as string;
-    const customerPhone = formData.get("customerPhone") as string;
-    const customerAddr  = formData.get("customerAddress") as string;
-    const customerCity  = formData.get("customerCity") as string;
-    const source        = (formData.get("source") as string) || "direct";
-    const hasWaterfall  = formData.get("hasWaterfall") === "true";
-    const hasStairs = formData.get("hasStairs") === "true";
-    const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
+    const clientId        = formData.get("clientId") as string;
+    const photo           = formData.get("photo") as File;
+    const poolModel       = formData.get("poolModel") as string;
+    const poolSize        = formData.get("poolSize") as string;
+    const deckType        = formData.get("deckType") as string;
+    const ceramicType     = formData.get("ceramicType") as string;
+    const customerName    = formData.get("customerName") as string;
+    const customerPhone   = formData.get("customerPhone") as string;
+    const customerAddr    = formData.get("customerAddress") as string;
+    const customerCity    = formData.get("customerCity") as string;
+    const source          = (formData.get("source") as string) || "direct";
+    const hasWaterfall    = formData.get("hasWaterfall") === "true";
+    const hasStairs       = formData.get("hasStairs") === "true";
+    const stairType       = (formData.get("stairType") as "corner" | "wide") || "corner";
+    const poolOrientation = (formData.get("poolOrientation") as "horizontal" | "vertical" | "") || "";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
       clientId, poolModel, poolSize, deckType, ceramicType,
@@ -72,10 +74,15 @@ export async function POST(request: Request) {
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
     // 2. Havuz konfigürasyonu
-    const poolConfig = {
-      model: poolModel, size: poolSize,
-      deck: deckType, ceramic: ceramicType,
-      hasWaterfall, hasStairs, stairType,
+    const poolConfig: PoolConfig = {
+      model:           poolModel,
+      size:            poolSize,
+      deck:            deckType,
+      ceramic:         ceramicType,
+      hasWaterfall,
+      hasStairs,
+      stairType,
+      poolOrientation,
     };
 
     // 2.5 Firma konfigürasyonunu yükle (modeller, referans görseller)
@@ -94,7 +101,6 @@ export async function POST(request: Request) {
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
     // 4. Supabase'e kaydet
-    // clientId geçerli mi kontrol et
     const { data: clientRow, error: clientError } = await supabaseAdmin
       .from("clients")
       .select("id")
@@ -124,7 +130,7 @@ export async function POST(request: Request) {
         ceramic_type:     ceramicType || null,
         stair_type:       stairType,
         has_waterfall:    hasWaterfall,
-        has_stairs: hasStairs,
+        has_stairs:       hasStairs,
         original_photo:   originalPhotoUrl,
         ai_photo:         aiPhotoUrl,
         source,
@@ -134,10 +140,10 @@ export async function POST(request: Request) {
 
     if (orderError) {
       log("error", `[${requestId}] 5-DB`, "DB kayıt hatası", {
-        msg:  orderError.message,
-        code: orderError.code,
+        msg:     orderError.message,
+        code:    orderError.code,
         details: orderError.details,
-        hint: orderError.hint,
+        hint:    orderError.hint,
       });
       return Response.json(
         { success: false, error: `Sipariş kaydedilemedi: ${orderError.message}` },
