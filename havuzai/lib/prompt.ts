@@ -26,9 +26,17 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   const orientationRule = poolOrientation === "horizontal"
-    ? `POOL ORIENTATION: The pool must be placed HORIZONTALLY — the LONG side runs left-to-right across the scene. The pool is wider than it is tall when viewed in the photo.`
+    ? `POOL ORIENTATION — CRITICAL: The pool MUST be placed HORIZONTALLY in the scene.
+The LONG side of the pool runs LEFT to RIGHT across the image.
+The pool appears WIDER than it is tall when viewed in the photograph.
+If the pool size is 3x7, the 7-meter side goes left-to-right, the 3-meter side goes top-to-bottom.
+DO NOT place the pool vertically. HORIZONTAL ONLY.`
     : poolOrientation === "vertical"
-    ? `POOL ORIENTATION: The pool must be placed VERTICALLY — the LONG side runs top-to-bottom in the scene. The pool is taller than it is wide when viewed in the photo.`
+    ? `POOL ORIENTATION — CRITICAL: The pool MUST be placed VERTICALLY in the scene.
+The LONG side of the pool runs TOP to BOTTOM in the image.
+The pool appears TALLER than it is wide when viewed in the photograph.
+If the pool size is 3x7, the 7-meter side goes top-to-bottom, the 3-meter side goes left-to-right.
+DO NOT place the pool horizontally. VERTICAL ONLY.`
     : "";
 
   return `
