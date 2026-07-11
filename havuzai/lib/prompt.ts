@@ -1,31 +1,35 @@
 import type { ClientConfig } from "./config-types";
 
 export interface PoolConfig {
-  model:        string;
-  size:         string;
-  deck:         string;
-  ceramic:      string;
-  hasWaterfall: boolean;
-  hasStairs:    boolean;
-  stairType:    "corner" | "wide";
+  model:           string;
+  size:            string;
+  deck:            string;
+  ceramic:         string;
+  hasWaterfall:    boolean;
+  hasStairs:       boolean;
+  stairType:       "corner" | "wide";
+  poolOrientation: "horizontal" | "vertical" | "";
 }
 
 export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig): string {
-  const { model, size, ceramic, deck } = config;
+  const { model, size, ceramic, deck, poolOrientation } = config;
 
-  // Firma config'inden model bilgisini bul
-  const poolModel     = clientConfig.pool_models.find((m) => m.id === model);
-  const modelName     = poolModel?.name || model;
-  const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
-
-  // Deck ve seramik renk bilgilerini bul
-  const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
-  const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
+  const poolModel    = clientConfig.pool_models.find((m) => m.id === model);
+  const modelName    = poolModel?.name || model;
+  const shapeDesc    = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
+  const deckColor    = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
+  const ceramicColor = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
+
+  const orientationRule = poolOrientation === "horizontal"
+    ? `POOL ORIENTATION: The pool must be placed HORIZONTALLY — the LONG side runs left-to-right across the scene. The pool is wider than it is tall when viewed in the photo.`
+    : poolOrientation === "vertical"
+    ? `POOL ORIENTATION: The pool must be placed VERTICALLY — the LONG side runs top-to-bottom in the scene. The pool is taller than it is wide when viewed in the photo.`
+    : "";
 
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
@@ -75,6 +79,12 @@ The pool must be clearly SMALLER than the house/building.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
 DO NOT fill the garden with the pool.
 
+${orientationRule ? `
+RULE 2B — POOL ORIENTATION (CRITICAL)
+${orientationRule}
+THIS ORIENTATION IS MANDATORY. Do NOT rotate the pool in any other direction.
+` : ""}
+
 ---
 
 RULE 3 — POOL WATER
@@ -88,12 +98,9 @@ ${ceramicColor ? `
 RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
 Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
-- Tile size: RECTANGULAR — width 33cm, length 66cm (2:1 ratio, twice as long as wide)
-- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio.
-- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
+- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square
 - Each tile is TWICE as long as it is wide — like a brick shape
 - Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
-- Visible grout lines between all tiles
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
@@ -157,6 +164,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
+${orientationRule ? "❌ Wrong pool orientation — MUST follow the specified direction" : ""}
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
