@@ -22,7 +22,14 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
-    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
+    ? `OVAL/TEARDROP shaped — ASYMMETRIC. The two ends of the pool are DIFFERENT from each other:
+- One end is a WIDE, fully rounded semicircle
+- The other end NARROWS and tapers to a smaller rounded tip
+- The two long sides are NOT parallel — they curve and taper from the wide end toward the narrow end
+- Think of a water droplet or egg shape, NOT a running-track shape
+- WRONG: a rectangle with rounded corners (stadium/pill shape) — that is NOT the Roma shape
+- WRONG: a symmetric oval where both ends are identical
+- ABSOLUTELY NOT rectangular, NOT a rounded rectangle, NOT a stadium shape. Copy the exact silhouette from Image 2.`
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   // Orientation is described relative to the CAMERA of the original photo,
@@ -38,13 +45,14 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 - Render the pool in correct perspective for the original camera angle — the far long edge appears slightly higher and shorter than the near long edge.
 - This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
     : poolOrientation === "vertical"
-    ? `The pool's LONG axis points STRAIGHT AT the main building in the background — PERPENDICULAR to the building's facade.
-- The nearest edge to the camera is one of the pool's SHORT ends.
-- The pool's LONG sides run from the foreground toward the house/background, like a path leading to the building.
-- For a ${size} pool: the shorter dimension faces the camera; the longer dimension recedes toward the house, naturally foreshortened by perspective (the far end looks smaller and sits higher in the frame).
-- WRONG: the pool placed diagonally, tilted, or at a 45-degree angle across the lawn. The long axis must aim straight at the background, not slanted.
-- WRONG: the pool's long side spanning left-to-right — that is the opposite orientation.
-- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
+    ? `THE POOL IS ROTATED 90 DEGREES. VERTICAL PLACEMENT.
+- The pool's SHORT side faces the camera directly (the near edge is a SHORT end).
+- The pool's LONG side recedes STRAIGHT AWAY from camera toward the house — like a corridor or path leading to the building.
+- The pool looks like a tall narrow rectangle in the photo because perspective foreshortens the long axis.
+- The long dimension goes INTO the scene (depth), the short dimension goes left-to-right (width).
+- WRONG: pool placed horizontally with long side left-to-right.
+- WRONG: pool placed at any diagonal angle.
+- CORRECT: imagine looking down a long corridor — you see the short end, the sides go away from you.`
     : "";
 
   return `
@@ -125,7 +133,9 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - The walkway is NARROW — about 1.2m wide. Do NOT create a large patio or wide platform around the pool.
 - The FIRST row of tiles meets the pool water edge DIRECTLY — the tiles themselves act as the pool coping
 - ALL tiles are the SAME ${ceramicColor.name} color. Every single tile, including the row touching the water.
-- NO inner frame, NO border row, NO edge strip of a DIFFERENT color around the water — not white, not cream, not beige, not gray, not any other color
+- NO inner frame, NO border row, NO edge strip, NO wide rim around the water — in ANY color. Not white, not cream, not beige, not gray, not blue, not the pool's own color. NO visible band of any kind between water and tile.
+- The pool's fiberglass lip/edge must be completely HIDDEN under the tiles — the fiberglass shell is never visible from outside
+- The visible edge where water meets tile is a THIN line only — a few centimeters at most, like a real overflow pool edge
 - The transition is: blue water → thin dark shadow line at the waterline → ${ceramicColor.name} ceramic tile. Nothing else in between.
 - Clean, professional, realistic tile finish
 - The ceramic surround replaces the grass directly around the pool
@@ -190,15 +200,15 @@ RULE 7 — PHOTOREALISTIC QUALITY
 ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
-❌ Wrong pool shape — must match Image 2 exactly
+❌ Wrong pool shape — must match Image 2 exactly${isRoma ? " (NOT a rounded rectangle / stadium shape — the Roma is an asymmetric teardrop)" : ""}
 ${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrientation === "horizontal" ? "run left-to-right, parallel to the building facade" : "point straight at the building, perpendicular to its facade"}
 ❌ Diagonal, tilted, or angled pool placement — the pool must be aligned straight, never at an angle` : ""}
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Changing the photo's framing, crop, aspect ratio, or camera perspective
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected\n❌ Any different-colored frame, border row, or edge strip between the water and the tiles (white, cream, beige, or any other color)\n❌ Tile area raised above the grass like a platform — the outer tile edge must be flush with the lawn" : ""}
+${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected\n❌ Any visible frame, band, rim, or lip around the water in ANY color (white, cream, blue, pool-colored — all forbidden). Water meets tile with only a thin edge line.\n❌ Tile area raised above the grass like a platform — the outer tile edge must be flush with the lawn" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected\n❌ White coping, white rim, or any white border between the water and the deck" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected\n❌ More than ONE ladder" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected\n❌ More than ONE waterfall — exactly one, never two" : ""}
   `.trim();
-}
+} 
