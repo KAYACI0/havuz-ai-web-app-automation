@@ -62,7 +62,7 @@ This is a PROFESSIONAL IN-GROUND swimming pool, built INTO the ground.
 
 What you MUST show:
 - The pool water surface is at the SAME LEVEL as the surrounding grass or ground
-- The pool goes DOWN into the earth — only the thin coping/rim (5-10cm) is at ground level
+- The pool goes DOWN into the earth — only the pool's thin top edge sits at ground level, blending into the surrounding surface
 - The pool looks like it has ALWAYS been there — natural, permanent, built-in
 - Surrounding grass or ground meets the pool edge naturally
 
@@ -119,6 +119,10 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
+- The FIRST row of tiles meets the pool water edge DIRECTLY — the tiles themselves act as the pool coping
+- ALL tiles are the SAME ${ceramicColor.name} color. Every single tile, including the row touching the water.
+- NO inner frame, NO border row, NO edge strip of a DIFFERENT color around the water — not white, not cream, not beige, not gray, not any other color
+- The transition is: blue water → thin dark shadow line at the waterline → ${ceramicColor.name} ceramic tile. Nothing else in between.
 - Clean, professional, realistic tile finish
 - The ceramic surround replaces the grass directly around the pool
 DO NOT skip the ceramic tiles — they are MANDATORY when selected.
@@ -129,6 +133,8 @@ Add a composite wood deck around ALL 4 sides of the pool.
 - Each board is 20cm wide, laid parallel to the nearest pool edge
 - Deck color: ${deckColor.name} colored composite wood deck
 - Deck sits flush at ground level — NOT raised
+- The FIRST deck board meets the pool water edge DIRECTLY — the deck itself acts as the pool coping
+- NO white coping, NO white rim, NO white plastic or fiberglass border between the water and the deck boards
 - Clean modern finish with tight gaps between boards
 - The deck surround replaces the grass directly around the pool
 DO NOT skip the deck — it is MANDATORY when selected.
@@ -146,8 +152,9 @@ Only the water surface and thin rim are visible — everything else is undergrou
 ---
 
 ${config.hasStairs ? `
-RULE 5 — POOL LADDER (MANDATORY)
-A stainless steel pool ladder MUST be visible in the final image.
+RULE 5 — POOL LADDER (MANDATORY — EXACTLY ONE)
+EXACTLY ONE stainless steel pool ladder MUST be visible in the final image.
+- COUNT: ONE single ladder. NOT two. NOT one on each end. ONE only.
 - Type: 3-step stainless steel pool entry ladder
 - Material: polished chrome stainless steel, shiny and realistic
 - Position: mounted on one SHORT END of the pool edge, steps going DOWN INTO the water
@@ -155,13 +162,14 @@ OMITTING THE LADDER = INVALID OUTPUT.
 ` : ""}
 
 ${config.hasWaterfall ? `
-RULE 6 — WATERFALL BLADE (MANDATORY)
-A stainless steel cobra waterfall blade MUST be visible in the final image.
+RULE 6 — WATERFALL BLADE (MANDATORY — EXACTLY ONE)
+EXACTLY ONE stainless steel cobra waterfall blade MUST be visible in the final image.
+- COUNT: ONE single waterfall. NOT two. NOT one on each side. ONE only.
 - Size: small and elegant — approximately 35cm wide, 40cm tall
 - Material: polished brushed stainless steel, chrome finish
-- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side
+- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side, roughly at the middle of that side
 - Water flows in a smooth sheet from the blade DOWN INTO the pool
-OMITTING THE WATERFALL = INVALID OUTPUT.
+OMITTING THE WATERFALL = INVALID OUTPUT. ADDING A SECOND WATERFALL = INVALID OUTPUT.
 ` : ""}
 
 ---
@@ -184,9 +192,9 @@ ${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrienta
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Changing the photo's framing, crop, aspect ratio, or camera perspective
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
-${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
-${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
-${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
+${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected\n❌ Any different-colored frame, border row, or edge strip between the water and the tiles (white, cream, beige, or any other color)" : ""}
+${deckColor ? "❌ Missing deck surround — MANDATORY when selected\n❌ White coping, white rim, or any white border between the water and the deck" : ""}
+${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected\n❌ More than ONE ladder" : ""}
+${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected\n❌ More than ONE waterfall — exactly one, never two" : ""}
   `.trim();
 }
