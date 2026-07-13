@@ -114,7 +114,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
               <div>
                 <label style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Uzunluk
+                  📏 Boy (Uzun Kenar)
                 </label>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <input
@@ -122,7 +122,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
                     min="1"
                     max="50"
                     step="0.5"
-                    placeholder="örn: 10"
+                    placeholder="örn: 8"
                     value={tempLength}
                     onChange={(e) => { setTempLength(e.target.value); setFitError(false); }}
                     style={{
@@ -140,7 +140,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
               </div>
               <div>
                 <label style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Genişlik
+                  📐 En (Kısa Kenar)
                 </label>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <input
@@ -148,7 +148,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
                     min="1"
                     max="50"
                     step="0.5"
-                    placeholder="örn: 6"
+                    placeholder="örn: 4"
                     value={tempWidth}
                     onChange={(e) => { setTempWidth(e.target.value); setFitError(false); }}
                     style={{
