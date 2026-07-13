@@ -45,14 +45,13 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 - Render the pool in correct perspective for the original camera angle — the far long edge appears slightly higher and shorter than the near long edge.
 - This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
     : poolOrientation === "vertical"
-    ? `THE POOL IS ROTATED 90 DEGREES. VERTICAL PLACEMENT.
-- The pool's SHORT side faces the camera directly (the near edge is a SHORT end).
-- The pool's LONG side recedes STRAIGHT AWAY from camera toward the house — like a corridor or path leading to the building.
-- The pool looks like a tall narrow rectangle in the photo because perspective foreshortens the long axis.
-- The long dimension goes INTO the scene (depth), the short dimension goes left-to-right (width).
-- WRONG: pool placed horizontally with long side left-to-right.
-- WRONG: pool placed at any diagonal angle.
-- CORRECT: imagine looking down a long corridor — you see the short end, the sides go away from you.`
+    ? `The pool's LONG axis points STRAIGHT AT the main building in the background — PERPENDICULAR to the building's facade.
+- The nearest edge to the camera is one of the pool's SHORT ends.
+- The pool's LONG sides run from the foreground toward the house/background, like a path leading to the building.
+- For a ${size} pool: the shorter dimension faces the camera; the longer dimension recedes toward the house, naturally foreshortened by perspective (the far end looks smaller and sits higher in the frame).
+- WRONG: the pool placed diagonally, tilted, or at a 45-degree angle across the lawn. The long axis must aim straight at the background, not slanted.
+- WRONG: the pool's long side spanning left-to-right — that is the opposite orientation.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
     : "";
 
   return `
