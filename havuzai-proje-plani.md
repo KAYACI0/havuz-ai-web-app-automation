@@ -1081,27 +1081,14 @@ export default function AdminPage({
   document.body.appendChild(overlay);
 
   // Olaylar
-  btn.addEventListener("click", () => {
+  // Olaylar
+btn.addEventListener("click", () => {
   window.open(
     `https://havuz-ai-web-app-automation.vercel.app/app?client=${clientId}`,
     "_blank",
     "noopener,noreferrer"
   );
 });
-  closeBtn.addEventListener("click", closeModal);
-  overlay.addEventListener("click", function (e) {
-    if (e.target === overlay) closeModal();
-  });
-
-  // iframe'den gelen mesajları dinle (modal kapat)
-  window.addEventListener("message", function (e) {
-    if (e.data === "HAVUZAI_CLOSE") closeModal();
-    if (e.data === "HAVUZAI_SUCCESS") {
-      closeModal();
-      // İsteğe bağlı: Teşekkür bildirimi
-    }
-  });
-})();
 ```
 
 ### Embed Modu Sayfası
