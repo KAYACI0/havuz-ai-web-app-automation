@@ -1081,10 +1081,13 @@ export default function AdminPage({
   document.body.appendChild(overlay);
 
   // Olaylar
-  const openModal  = () => { overlay.style.display = "block"; };
-  const closeModal = () => { overlay.style.display = "none";  };
-
-  btn.addEventListener("click", openModal);
+  btn.addEventListener("click", () => {
+  window.open(
+    `https://havuz-ai-web-app-automation.vercel.app/app?client=${clientId}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
+});
   closeBtn.addEventListener("click", closeModal);
   overlay.addEventListener("click", function (e) {
     if (e.target === overlay) closeModal();
