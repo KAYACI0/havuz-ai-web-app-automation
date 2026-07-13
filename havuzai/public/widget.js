@@ -79,9 +79,12 @@
 
     // Her tıklamada iframe yeniden yüklenir — form sıfırlanır
     btn.addEventListener("click", function () {
-      iframe.src = "https://havuz-ai-web-app-automation.vercel.app/embed?client=" + clientId + "&t=" + Date.now();
-      overlay.style.display = "block";
-    });
+  window.open(
+    "https://havuz-ai-web-app-automation.vercel.app/app?client=" + clientId,
+    "_blank",
+    "noopener,noreferrer"
+  );
+});
 
     closeBtn.addEventListener("click", function () {
       overlay.style.display = "none";
