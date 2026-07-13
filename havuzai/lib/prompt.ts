@@ -210,4 +210,4 @@ ${deckColor ? "❌ Missing deck surround — MANDATORY when selected\n❌ White 
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected\n❌ More than ONE ladder" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected\n❌ More than ONE waterfall — exactly one, never two" : ""}
   `.trim();
-} 
+}
