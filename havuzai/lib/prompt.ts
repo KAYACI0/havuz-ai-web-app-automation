@@ -119,6 +119,10 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
+- The OUTER edge of the tile area meets the grass at EXACTLY the same level — grass blades touch the tile edge directly
+- NO visible slab thickness, NO raised platform edge, NO step, NO side face, NO shadow gap where the tiles meet the grass
+- The tile walkway is set INTO the ground like a patio, NOT placed ON TOP of the grass like a platform
+- The walkway is NARROW — about 1.2m wide. Do NOT create a large patio or wide platform around the pool.
 - The FIRST row of tiles meets the pool water edge DIRECTLY — the tiles themselves act as the pool coping
 - ALL tiles are the SAME ${ceramicColor.name} color. Every single tile, including the row touching the water.
 - NO inner frame, NO border row, NO edge strip of a DIFFERENT color around the water — not white, not cream, not beige, not gray, not any other color
@@ -192,7 +196,7 @@ ${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrienta
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Changing the photo's framing, crop, aspect ratio, or camera perspective
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected\n❌ Any different-colored frame, border row, or edge strip between the water and the tiles (white, cream, beige, or any other color)" : ""}
+${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected\n❌ Any different-colored frame, border row, or edge strip between the water and the tiles (white, cream, beige, or any other color)\n❌ Tile area raised above the grass like a platform — the outer tile edge must be flush with the lawn" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected\n❌ White coping, white rim, or any white border between the water and the deck" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected\n❌ More than ONE ladder" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected\n❌ More than ONE waterfall — exactly one, never two" : ""}
