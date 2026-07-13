@@ -26,24 +26,30 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   const orientationRule = poolOrientation === "horizontal"
-    ? `POOL ORIENTATION — CRITICAL: The pool MUST be placed HORIZONTALLY in the scene.
-The LONG side of the pool runs LEFT to RIGHT across the image.
-The pool appears WIDER than it is tall when viewed in the photograph.
-If the pool size is 3x7, the 7-meter side goes left-to-right, the 3-meter side goes top-to-bottom.
-DO NOT place the pool vertically. HORIZONTAL ONLY.`
+    ? `POOL ORIENTATION — CRITICAL (0 DEGREES / LANDSCAPE):
+The pool MUST be rotated so its LONG AXIS runs LEFT-TO-RIGHT across the scene.
+Think of it as a landscape/horizontal rectangle — wider than tall.
+For a 3x7 pool: the 7-meter side goes left-to-right, the 3-meter side goes toward the viewer.
+The pool should look like a horizontal swimming lane when viewed from above.
+NEVER place the pool vertically. HORIZONTAL = LONG SIDE LEFT-TO-RIGHT. MANDATORY.`
     : poolOrientation === "vertical"
-    ? `POOL ORIENTATION — CRITICAL: The pool MUST be placed VERTICALLY in the scene.
-The LONG side of the pool runs TOP to BOTTOM in the image.
-The pool appears TALLER than it is wide when viewed in the photograph.
-If the pool size is 3x7, the 7-meter side goes top-to-bottom, the 3-meter side goes left-to-right.
-DO NOT place the pool horizontally. VERTICAL ONLY.`
+    ? `POOL ORIENTATION — CRITICAL (90 DEGREES / PORTRAIT):
+The pool MUST be rotated so its LONG AXIS runs TOP-TO-BOTTOM (away from the viewer).
+Think of it as a portrait/vertical rectangle — taller than wide.
+For a 3x7 pool: the 7-meter side goes from the viewer toward the back of the scene, the 3-meter side goes left-to-right.
+The pool should look like a vertical swimming lane going deep into the scene.
+NEVER place the pool horizontally. VERTICAL = LONG SIDE TOP-TO-BOTTOM. MANDATORY.`
     : "";
 
   return `
-  ${poolOrientation === "horizontal" ? `
-🚨 CRITICAL ORIENTATION: THE POOL MUST BE HORIZONTAL. LONG SIDE LEFT-TO-RIGHT. THIS IS MANDATORY.
+${poolOrientation === "horizontal" ? `
+🚨🚨🚨 CRITICAL — POOL MUST BE HORIZONTAL (LANDSCAPE ORIENTATION) 🚨🚨🚨
+THE LONG SIDE OF THE POOL RUNS LEFT TO RIGHT. WIDTH > HEIGHT IN THE IMAGE.
+THIS IS THE MOST IMPORTANT INSTRUCTION AFTER SAFETY RULES.
 ` : poolOrientation === "vertical" ? `
-🚨 CRITICAL ORIENTATION: THE POOL MUST BE VERTICAL. LONG SIDE TOP-TO-BOTTOM. THIS IS MANDATORY.
+🚨🚨🚨 CRITICAL — POOL MUST BE VERTICAL (PORTRAIT ORIENTATION) 🚨🚨🚨
+THE LONG SIDE OF THE POOL RUNS TOP TO BOTTOM (AWAY FROM VIEWER). HEIGHT > WIDTH IN THE IMAGE.
+THIS IS THE MOST IMPORTANT INSTRUCTION AFTER SAFETY RULES.
 ` : ""}
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
@@ -93,9 +99,9 @@ There must be visible grass on ALL sides around the pool — at least 2-3 meters
 DO NOT fill the garden with the pool.
 
 ${orientationRule ? `
-RULE 2B — POOL ORIENTATION (CRITICAL)
+RULE 2B — POOL ORIENTATION (CRITICAL — READ CAREFULLY)
 ${orientationRule}
-THIS ORIENTATION IS MANDATORY. Do NOT rotate the pool in any other direction.
+THIS ORIENTATION IS MANDATORY. FAILURE TO FOLLOW = INVALID OUTPUT.
 ` : ""}
 
 ---
@@ -177,7 +183,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
-${orientationRule ? "❌ Wrong pool orientation — MUST follow the specified direction" : ""}
+${orientationRule ? `❌ Wrong pool orientation — MUST be ${poolOrientation === "horizontal" ? "HORIZONTAL (long side left-to-right)" : "VERTICAL (long side top-to-bottom)"}` : ""}
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
