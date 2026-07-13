@@ -25,32 +25,26 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
+  // Orientation is described relative to the CAMERA of the original photo,
+  // never as a top-down/plan view and never as the image's aspect ratio.
+  // This avoids conflicts with the "match the original camera angle" rule.
   const orientationRule = poolOrientation === "horizontal"
-    ? `POOL ORIENTATION — CRITICAL (0 DEGREES / LANDSCAPE):
-The pool MUST be rotated so its LONG AXIS runs LEFT-TO-RIGHT across the scene.
-Think of it as a landscape/horizontal rectangle — wider than tall.
-For a 3x7 pool: the 7-meter side goes left-to-right, the 3-meter side goes toward the viewer.
-The pool should look like a horizontal swimming lane when viewed from above.
-NEVER place the pool vertically. HORIZONTAL = LONG SIDE LEFT-TO-RIGHT. MANDATORY.`
+    ? `The pool's LONG axis runs LEFT-TO-RIGHT across the scene, roughly parallel to the camera.
+- The camera sees one of the pool's LONG sides facing it.
+- The pool's SHORT ends point toward the left and right sides of the frame.
+- For a ${size} pool: the longer dimension spans left-to-right; the shorter dimension is the pool's depth going away from the camera.
+- Render the pool in correct perspective for the original camera angle — the far long edge appears slightly higher and shorter than the near long edge.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
     : poolOrientation === "vertical"
-    ? `POOL ORIENTATION — CRITICAL (90 DEGREES / PORTRAIT):
-The pool MUST be rotated so its LONG AXIS runs TOP-TO-BOTTOM (away from the viewer).
-Think of it as a portrait/vertical rectangle — taller than wide.
-For a 3x7 pool: the 7-meter side goes from the viewer toward the back of the scene, the 3-meter side goes left-to-right.
-The pool should look like a vertical swimming lane going deep into the scene.
-NEVER place the pool horizontally. VERTICAL = LONG SIDE TOP-TO-BOTTOM. MANDATORY.`
+    ? `The pool's LONG axis extends AWAY from the camera, into the depth of the scene.
+- The camera sees one of the pool's SHORT ends facing it (the near edge).
+- The pool's LONG sides run from the foreground toward the background.
+- For a ${size} pool: the shorter dimension faces the camera; the longer dimension recedes toward the back of the garden, naturally foreshortened by perspective.
+- Render the pool in correct perspective for the original camera angle — the far short end appears smaller and higher in the frame than the near end.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
     : "";
 
   return `
-${poolOrientation === "horizontal" ? `
-🚨🚨🚨 CRITICAL — POOL MUST BE HORIZONTAL (LANDSCAPE ORIENTATION) 🚨🚨🚨
-THE LONG SIDE OF THE POOL RUNS LEFT TO RIGHT. WIDTH > HEIGHT IN THE IMAGE.
-THIS IS THE MOST IMPORTANT INSTRUCTION AFTER SAFETY RULES.
-` : poolOrientation === "vertical" ? `
-🚨🚨🚨 CRITICAL — POOL MUST BE VERTICAL (PORTRAIT ORIENTATION) 🚨🚨🚨
-THE LONG SIDE OF THE POOL RUNS TOP TO BOTTOM (AWAY FROM VIEWER). HEIGHT > WIDTH IN THE IMAGE.
-THIS IS THE MOST IMPORTANT INSTRUCTION AFTER SAFETY RULES.
-` : ""}
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
 REFERENCE IMAGES GUIDE:
@@ -99,9 +93,8 @@ There must be visible grass on ALL sides around the pool — at least 2-3 meters
 DO NOT fill the garden with the pool.
 
 ${orientationRule ? `
-RULE 2B — POOL ORIENTATION (CRITICAL — READ CAREFULLY)
+RULE 2B — POOL ORIENTATION (MANDATORY)
 ${orientationRule}
-THIS ORIENTATION IS MANDATORY. FAILURE TO FOLLOW = INVALID OUTPUT.
 ` : ""}
 
 ---
@@ -183,8 +176,9 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
-${orientationRule ? `❌ Wrong pool orientation — MUST be ${poolOrientation === "horizontal" ? "HORIZONTAL (long side left-to-right)" : "VERTICAL (long side top-to-bottom)"}` : ""}
+${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrientation === "horizontal" ? "run left-to-right across the scene" : "extend away from the camera into the scene"}` : ""}
 ❌ Changing existing buildings, trees, or landscaping
+❌ Changing the photo's framing, crop, aspect ratio, or camera perspective
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
