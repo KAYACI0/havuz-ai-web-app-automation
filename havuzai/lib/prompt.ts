@@ -52,6 +52,9 @@ FORBIDDEN:
 - NO 45-degree rotation.
 - Do NOT rotate the pool to match diagonal garden boundaries, paths, fences, buildings, lawn lines, or the camera's existing perspective.
 - If the available garden area is diagonal or narrow, reduce the pool size or reposition it; NEVER rotate the pool.
+FINAL ORIENTATION CHECK: Before generating the final image, verify that the pool’s longest visible edges are horizontal on the final image canvas. If either long edge slopes upward or downward from left to right, the result is INVALID — rotate and regenerate the pool until both long edges are parallel to the bottom image border.
+
+Priority order: IMAGE-FRAME HORIZONTAL ALIGNMENT is more important than matching the garden geometry, camera perspective, fences, paths, buildings, or natural terrain.
 
 The camera faces one of the pool's LONG sides head-on.
 For a ${size} pool: the longer measurement goes left-to-right; the shorter measurement goes straight away from the camera into the depth of the scene.
