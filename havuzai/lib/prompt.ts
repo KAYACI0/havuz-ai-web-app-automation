@@ -186,11 +186,6 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - The transition is: blue water → thin dark shadow line at the waterline → ${ceramicColor.name} ceramic tile. Nothing else in between.
 - Clean, professional, realistic tile finish.
 - The ceramic surround replaces the grass directly around the pool.
-COLOR LOCK — MANDATORY:
-- Use ONLY ${ceramicColor.name} ceramic tiles for the entire pool surround.
-- The tile surface must be clearly ceramic/stone, NEVER wood or wood-look decking.
-- Do NOT substitute the selected color with beige, tan, brown, cream, wood, or any other color.
-- Every tile on all four sides must have the exact same selected ${ceramicColor.name} color.
 DO NOT skip the ceramic tiles — they are MANDATORY when selected.
 `
     : deckColor
