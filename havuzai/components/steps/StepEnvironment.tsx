@@ -72,10 +72,10 @@ export default function StepEnvironment({ form, update, config }: Props) {
   }
 
   function handleModalSkip() {
-    update({ gardenLength: "", gardenWidth: "" });
-    setShowModal(false);
-    setFitError(false);
-  }
+  update({ gardenLength: "", gardenWidth: "", deckType: "", ceramicType: "" });
+  setShowModal(false);
+  setFitError(false);
+}
 
   return (
     <div className="space-y-6">
