@@ -44,42 +44,46 @@ export function buildPoolPrompt(
     : `Strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.`;
 
   const orientationRule =
-    poolOrientation === "horizontal"
-      ? `⚠️ HORIZONTAL POOL ORIENTATION — MANDATORY.
+  poolOrientation === "horizontal"
+    ? `HORIZONTAL POOL PLACEMENT — STRICT IMAGE-FRAME GEOMETRY.
 
-HORIZONTAL means IMAGE-FRAME HORIZONTAL, not alignment with the garden, fence, lawn, path, building, or terrain.
+Place the pool as a wide landscape pool across the final image.
 
-REQUIRED FINAL IMAGE RESULT:
-- The pool's LONG axis must run LEFT-TO-RIGHT across the final image.
-- The pool must look WIDER than it is deep in the final image.
-- The pool's two SHORT ends must be on the LEFT and RIGHT.
-- The near edge closest to the camera must be a LONG edge.
-- The far edge closest to the background must be a LONG edge.
+REQUIRED:
+- The pool's LONG axis runs from LEFT to RIGHT.
+- The pool's two SHORT ends are on the LEFT and RIGHT.
+- The pool must look wider left-to-right than it is deep from foreground to background.
+- The edge nearest the camera must be a LONG edge, never a short end.
+- The far edge toward the background must also be a LONG edge.
 - The pool must NOT point toward the back fence, house, or background.
 
-EXACT SCREEN-SPACE GEOMETRY:
-- Both visible LONG pool edges must be straight, horizontal, and parallel to the bottom edge of the image frame.
-- The long axis rotation relative to the image frame must be 0 degrees.
-- The left and right ends of the pool must be at the same vertical height in the image.
-- Do NOT rotate the pool to follow diagonal fences, paths, walls, garden boundaries, shadows, terrain, or photo perspective.
+GEOMETRY:
+- Both visible LONG pool edges must be straight and parallel to the bottom edge of the image frame.
+- The left and right ends of the pool must be at the same vertical height.
+- Maximum visible long-axis rotation: 3 degrees from horizontal.
+- Do NOT align the pool with diagonal fences, walls, paths, grass lines, shadows, terrain, or existing photo perspective.
+- If the available garden area is diagonal or narrow, reduce the pool size or reposition it. NEVER rotate the pool diagonally or vertically.
 
-ORIENTATION QUALITY-CHECK LOOP:
-1. Check the final pool shape in the image.
-2. If either long edge slopes upward or downward from left to right, rotate the pool until both long edges are horizontal.
-3. If the pool extends more toward the background than from left to right, rotate it 90 degrees to horizontal.
-4. If a short end faces the camera, rotate it 90 degrees to horizontal.
-5. If a horizontal pool does not fit, reduce its size or reposition it. NEVER make it diagonal or vertical.
-6. Generate only after every check above passes.
-
-INVALID OUTPUT:
-- A diagonal, tilted, corner-to-corner, or 45-degree pool.
-- A tall/narrow pool extending from the foreground toward the back fence.
+INVALID RESULTS:
+- A pool extending mainly from the foreground toward the back fence.
 - A short pool end facing the camera.
-- A pool aligned with an angled garden feature instead of the image frame.
+- A diagonal, tilted, corner-to-corner, or 45-degree pool.
+- A pool whose long edges slope visibly upward or downward from left to right.
 
-This rule controls the pool placement only. Do NOT crop, rotate, reframe, or change the camera angle of the original photo.
+This rule controls pool placement only. Do NOT crop, rotate, reframe, or change the camera angle of the original photo.
 The pool must fit entirely within the visible garden — do NOT let it extend beyond any fence, wall, or lawn boundary.`
-      : poolOrientation === "vertical"
+    : poolOrientation === "vertical"
+    ? `MANDATORY: VERTICAL POOL PLACEMENT ONLY.
+The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
+- The nearest edge to the camera is one of the pool's SHORT ends.
+- The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
+- For a ${size} pool: the shorter dimension faces the camera left-to-right; the longer dimension recedes toward the house (foreshortened by perspective).
+- WRONG: the pool placed diagonally, tilted, or at any angle. The long axis must aim straight at the background.
+- WRONG: the pool's long side spanning left-to-right — that is HORIZONTAL, the opposite of what is required.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
+- The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
+    : "";
+       poolOrientation === "vertical"
       ? `⚠️ MANDATORY: VERTICAL POOL PLACEMENT ONLY.
 The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
 - The nearest edge to the camera is one of the pool's SHORT ends.
@@ -182,6 +186,11 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - The transition is: blue water → thin dark shadow line at the waterline → ${ceramicColor.name} ceramic tile. Nothing else in between.
 - Clean, professional, realistic tile finish.
 - The ceramic surround replaces the grass directly around the pool.
+COLOR LOCK — MANDATORY:
+- Use ONLY ${ceramicColor.name} ceramic tiles for the entire pool surround.
+- The tile surface must be clearly ceramic/stone, NEVER wood or wood-look decking.
+- Do NOT substitute the selected color with beige, tan, brown, cream, wood, or any other color.
+- Every tile on all four sides must have the exact same selected ${ceramicColor.name} color.
 DO NOT skip the ceramic tiles — they are MANDATORY when selected.
 `
     : deckColor
