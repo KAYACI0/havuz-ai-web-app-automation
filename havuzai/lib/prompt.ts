@@ -54,11 +54,22 @@ FORBIDDEN:
 - If the available garden area is diagonal or narrow, reduce the pool size or reposition it; NEVER rotate the pool.
 FINAL ORIENTATION CHECK: Before generating the final image, verify that the pool’s longest visible edges are horizontal on the final image canvas. If either long edge slopes upward or downward from left to right, the result is INVALID — rotate and regenerate the pool until both long edges are parallel to the bottom image border.
 
-Priority order: IMAGE-FRAME HORIZONTAL ALIGNMENT is more important than matching the garden geometry, camera perspective, fences, paths, buildings, or natural terrain.
+Priority order: IMAGE-FRAME HORIZONTAL ALIGNMENT is more important than matching the garden geometry, camera perspective, fences, paths, buildings, or natural terrain. 
 
-The camera faces one of the pool's LONG sides head-on.
-For a ${size} pool: the longer measurement goes left-to-right; the shorter measurement goes straight away from the camera into the depth of the scene.
-This describes pool placement in the garden ONLY. Do NOT alter the photo's crop, framing, or camera angle.
+CRITICAL VISUAL TARGET: In the FINAL IMAGE, the pool must look like a wide horizontal rectangle spanning from the LEFT side toward the RIGHT side of the frame.
+
+- The edge CLOSEST to the camera MUST be one of the pool's LONG edges, never a short end.
+- The edge FARTHEST from the camera MUST also be one of the pool's LONG edges.
+- The pool's SHORT ends must be visibly positioned at the LEFT and RIGHT.
+- The pool must be WIDE across the image and SHALLOW from foreground to background.
+
+INVALID VERTICAL RESULT — DO NOT GENERATE THIS:
+- A short pool end facing the camera in the foreground.
+- A pool that extends mainly from the foreground toward the back fence.
+- A pool shaped as a tall/narrow rectangle in the final image.
+- A pool whose long axis points toward the back fence or background.
+
+If the pool visually extends toward the back fence more than it extends left-to-right, it is VERTICAL and INVALID. Rotate it 90 degrees so it spans LEFT-TO-RIGHT.This describes pool placement in the garden ONLY. Do NOT alter the photo's crop, framing, or camera angle.
 The pool must fit ENTIRELY within the visible garden — do NOT let it extend beyond any fence, wall, or lawn boundary.`
     : poolOrientation === "vertical"
     ? `⚠️ MANDATORY: VERTICAL POOL PLACEMENT ONLY.
