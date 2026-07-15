@@ -126,30 +126,35 @@ export async function generatePoolVisualization(
   console.log("====================");
 
   try {
-    const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
-  input: {
-    prompt,
-    image_urls: imageUrls,
-    output_format: "png",
-    resolution: "2K",
-    num_images: 4,
-  },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          update.logs?.forEach((log) =>
-            console.log("[fal.ai]", log.message)
-          );
-        }
-      },
-    });
-
-    return {
-      aiImageUrl: result.data.images[0].url,
+  const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
+    input: {
       prompt,
-    };
-  } catch (error: any) {
-    console.error("FAL.AI error:", error?.message);
-    throw error;
-  }
-} 
+      image_urls: imageUrls,
+      output_format: "png",
+      resolution: "2K",
+      num_images: 4,
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        update.logs?.forEach((log) => {
+          console.log("[fal.ai]", log.message);
+        });
+      }
+    },
+  });
+
+  console.log(
+    "4 GÖRSEL URL:",
+    result.data.images.map((image) => image.url)
+  );
+
+  return {
+    aiImageUrl: result.data.images[0].url,
+    prompt,
+  };
+} catch (error: any) {
+  console.error("FAL.AI HATASI:", error);
+  throw error;
+}
+}
