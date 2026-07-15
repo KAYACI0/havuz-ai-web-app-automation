@@ -46,6 +46,13 @@ export function buildPoolPrompt(
   const orientationRule =
   poolOrientation === "horizontal"
     ? `HORIZONTAL POOL PLACEMENT — STRICT IMAGE-FRAME GEOMETRY.
+    PLACEMENT GUIDE — MANDATORY:
+Image 1 contains a temporary bright magenta rectangular placement guide.
+Replace the guide completely with the pool. The guide must not remain visible in the final image.
+
+The pool must stay entirely inside the guide.
+Match the guide's position, dimensions, and orientation exactly.
+Do not rotate, move, resize beyond, or reinterpret the guide.
 
 Place the pool as a wide landscape pool across the final image.
 
@@ -83,8 +90,16 @@ The pool LONG axis points STRAIGHT AWAY from the camera toward the background. T
 - This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
 - The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
     : "";
+    
        poolOrientation === "vertical"
       ? `⚠️ MANDATORY: VERTICAL POOL PLACEMENT ONLY.
+      PLACEMENT GUIDE — MANDATORY:
+Image 1 contains a temporary bright magenta rectangular placement guide.
+Replace the guide completely with the pool. The guide must not remain visible in the final image.
+
+The pool must stay entirely inside the guide.
+Match the guide's position, dimensions, and orientation exactly.
+Do not rotate, move, resize beyond, or reinterpret the guide.
 The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
 - The nearest edge to the camera is one of the pool's SHORT ends.
 - The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
