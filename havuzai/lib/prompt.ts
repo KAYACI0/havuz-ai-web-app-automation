@@ -32,26 +32,27 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 - ABSOLUTELY NOT rectangular, NOT a rounded rectangle, NOT a stadium shape. Copy the exact silhouette from Image 2.`
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
-  // Orientation is described relative to the CAMERA of the original photo,
-  // never as a top-down/plan view and never as the image's aspect ratio.
-  // This avoids conflicts with the "match the original camera angle" rule.
   const orientationRule = poolOrientation === "horizontal"
-    ? `The pool's LONG axis runs LEFT-TO-RIGHT across the scene, PARALLEL to the main building's facade (or the back boundary of the garden).
+    ? `⚠️ MANDATORY: HORIZONTAL POOL PLACEMENT ONLY.
+The pool LONG axis runs LEFT-TO-RIGHT. The pool SHORT axis runs front-to-back (toward the camera).
 - The camera sees one of the pool's LONG sides facing it directly.
 - The pool's SHORT ends point toward the LEFT and RIGHT edges of the frame.
 - For a ${size} pool: the longer dimension spans left-to-right; the shorter dimension is the pool's depth going away from the camera.
-- WRONG: the pool placed diagonally, tilted, or at a 45-degree angle across the lawn. The long axis must be straight left-to-right, not slanted.
+- WRONG: the pool placed diagonally, tilted, or at any angle. The long axis must be straight left-to-right.
 - WRONG: the pool's long side pointing toward the house.
-- Render the pool in correct perspective for the original camera angle — the far long edge appears slightly higher and shorter than the near long edge.
-- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
+- Render the pool in correct perspective — the far long edge appears slightly higher and shorter than the near long edge.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
+- The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
     : poolOrientation === "vertical"
-    ? `The pool's LONG axis points STRAIGHT AT the main building in the background — PERPENDICULAR to the building's facade.
+    ? `⚠️ MANDATORY: VERTICAL POOL PLACEMENT ONLY.
+The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
 - The nearest edge to the camera is one of the pool's SHORT ends.
-- The pool's LONG sides run from the foreground toward the house/background, like a path leading to the building.
-- For a ${size} pool: the shorter dimension faces the camera; the longer dimension recedes toward the house, naturally foreshortened by perspective (the far end looks smaller and sits higher in the frame).
-- WRONG: the pool placed diagonally, tilted, or at a 45-degree angle across the lawn. The long axis must aim straight at the background, not slanted.
-- WRONG: the pool's long side spanning left-to-right — that is the opposite orientation.
-- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing, aspect ratio, crop, or camera perspective.`
+- The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
+- For a ${size} pool: the shorter dimension faces the camera left-to-right; the longer dimension recedes toward the house (foreshortened by perspective).
+- WRONG: the pool placed diagonally, tilted, or at any angle. The long axis must aim straight at the background.
+- WRONG: the pool's long side spanning left-to-right — that is HORIZONTAL, the opposite of what is required.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
+- The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
     : "";
 
   return `
@@ -100,10 +101,11 @@ Size: ${size} meters — maintain exact proportions.
 The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
 The pool must be clearly SMALLER than the house/building.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
+The pool must fit ENTIRELY within the visible garden boundaries — do NOT let the pool or its surround extend beyond any lawn edge, fence, wall, or garden boundary.
 DO NOT fill the garden with the pool.
 
 ${orientationRule ? `
-RULE 2B — POOL ORIENTATION (MANDATORY)
+RULE 2B — POOL ORIENTATION (MANDATORY — FAILURE = INVALID OUTPUT)
 ${orientationRule}
 ` : ""}
 
@@ -200,8 +202,10 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly${isRoma ? " (NOT a rounded rectangle / stadium shape — the Roma is an asymmetric teardrop)" : ""}
-${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrientation === "horizontal" ? "run left-to-right, parallel to the building facade" : "point straight at the building, perpendicular to its facade"}
-❌ Diagonal, tilted, or angled pool placement — the pool must be aligned straight, never at an angle` : ""}
+${orientationRule ? `❌ Wrong pool orientation — long axis must ${poolOrientation === "horizontal" ? "run LEFT-TO-RIGHT (horizontal)" : "point STRAIGHT AWAY from camera toward background (vertical)"}
+❌ Diagonal, tilted, or angled pool placement — pool must be aligned straight, never at any angle
+❌ Pool or surround extending beyond garden boundaries, fences, or walls` : ""}
+❌ Pool or surround extending beyond garden boundaries, fences, or walls
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Changing the photo's framing, crop, aspect ratio, or camera perspective
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
