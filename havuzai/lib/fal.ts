@@ -127,12 +127,13 @@ export async function generatePoolVisualization(
 
   try {
     const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
-      input: {
-        prompt,
-        image_urls: imageUrls,
-        output_format: "png",
-        resolution: "2K",
-      },
+  input: {
+    prompt,
+    image_urls: imageUrls,
+    output_format: "png",
+    resolution: "2K",
+    num_images: 4,
+  },
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
@@ -151,4 +152,4 @@ export async function generatePoolVisualization(
     console.error("FAL.AI error:", error?.message);
     throw error;
   }
-}
+} 
