@@ -44,16 +44,20 @@ export function buildPoolPrompt(
     poolOrientation === "horizontal"
       ? `${guideText}
 
-The guide is drawn flat on the image: its long edges are parallel to the bottom edge of the photo. Keep the pool aligned with the guide exactly as drawn — do not re-angle it to follow lawns, fences, hedges, or the garden's perspective lines. The camera sees one LONG side of the pool; the short ends point left and right. If the garden is narrow, make the pool smaller rather than turning it.`
+The guide is drawn flat on the image: its long edges are parallel to the bottom edge of the photo. Keep the pool aligned with the guide exactly as drawn — do not re-angle it to follow lawns, fences, hedges, or the garden's perspective lines. The camera sees one LONG side of the pool; the short ends point left and right.
+
+PRECISION: the pool's two long edges stay parallel to the photo's bottom edge, and the left and right ends of the pool sit at the same height in the frame — a level, ruler-straight placement, within a couple of degrees at most. If the garden is narrow, make the pool smaller rather than turning it.`
       : poolOrientation === "vertical"
       ? `${guideText}
 
-The pool's long axis points straight away from the camera toward the background, like a lane leading into the garden. The camera sees one SHORT end of the pool as the nearest edge; the long sides recede toward the back with natural perspective. Do not angle the pool and do not lay it left-to-right.`
+The pool's long axis points straight away from the camera toward the background, like a lane leading into the garden. The camera sees one SHORT end of the pool as the nearest edge; the long sides recede toward the back with natural perspective.
+
+PRECISION: the pool's long axis lines up with the guide's dashed line exactly as drawn — aimed straight at the background, not leaning left or right, not angled toward any corner. The near short end and the far short end sit vertically stacked in the frame, the far end directly behind the near end. Do not lay the pool left-to-right.`
       : "";
 
   // ---- Surround ----
   const surroundRule = ceramicColor
-    ? `Surround the pool on all four sides with a narrow walkway of ${ceramicColor.name} ceramic tiles, about 1.2m wide (two rows of 33x66cm rectangular tiles laid long-side parallel to the pool, thin grout lines). The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. Every tile is the same ${ceramicColor.name} color, including the row at the water — the water meets tile directly, with only a thin natural shadow at the waterline.`
+    ? `Surround the pool on all four sides with a narrow walkway of ${ceramicColor.name} ceramic tiles, about 1.2m wide (two rows per side). Each tile is RECTANGULAR, 33cm x 66cm — exactly twice as long as it is wide, like an elongated brick. Square tiles are wrong. Lay them with the 66cm long side parallel to the pool edge, so the grout lines form a clear brick pattern of long rectangles, with thin grout lines between them. The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. Every tile is the same ${ceramicColor.name} color, including the row at the water — the water meets tile directly, with only a thin natural shadow at the waterline.`
     : deckColor
     ? `Surround the pool on all four sides with a narrow ${deckColor.name} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping.`
     : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
@@ -90,7 +94,8 @@ FINAL CHECK — the image is wrong if any of these appear:
 - a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
-- a wide band or rim of any color separating the water from its surround
+- a wide band or rim of any color separating the water from its surround${ceramicColor ? `
+- square tiles in the walkway — every tile must read as a 2:1 elongated brick` : ""}
 - anything in the original photo changed besides adding the pool
   `.trim();
 }
