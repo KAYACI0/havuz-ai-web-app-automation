@@ -32,275 +32,65 @@ export function buildPoolPrompt(
 
   const isRoma = model.toUpperCase() === "ROMA";
 
+  // ---- Shape (delegated to Image 2, one clarifying line for Roma) ----
   const shapeRule = isRoma
-    ? `OVAL/TEARDROP shaped — ASYMMETRIC. The two ends of the pool are DIFFERENT from each other:
-- One end is a WIDE, fully rounded semicircle.
-- The other end NARROWS and tapers to a smaller rounded tip.
-- The two long sides are NOT parallel — they curve and taper from the wide end toward the narrow end.
-- Think of a water droplet or egg shape, NOT a running-track shape.
-- WRONG: a rectangle with rounded corners (stadium/pill shape) — that is NOT the Roma shape.
-- WRONG: a symmetric oval where both ends are identical.
-- ABSOLUTELY NOT rectangular, NOT a rounded rectangle, NOT a stadium shape. Copy the exact silhouette from Image 2.`
-    : `Strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.`;
+    ? `Copy the EXACT silhouette of the pool in Image 2. The Roma is an asymmetric teardrop: one wide rounded end, one narrower tapered end, gently curving sides. It is never a rectangle and never a rounded rectangle.`
+    : `Copy the EXACT silhouette of the pool in Image 2: a clean rectangle with straight sides and square corners.`;
 
-  // The magenta placement guide is drawn onto Image 1 by fal.ts
-  // (createOrientationGuide) whenever an orientation is selected.
-  // Both orientation branches below MUST stay in sync with that behavior.
-  const placementGuide = `PLACEMENT GUIDE — MANDATORY:
-Image 1 contains a temporary bright magenta rectangular placement guide.
-Replace the guide completely with the pool. The guide must not remain visible in the final image.
-
-The pool must stay entirely inside the guide.
-Match the guide's position, dimensions, and orientation exactly.
-Do not rotate, move, resize beyond, or reinterpret the guide.
-The dashed magenta line inside the guide shows the direction of the pool's LONG axis.`;
+  // ---- Placement guide (drawn by fal.ts when an orientation is selected) ----
+  const guideText = `Image 1 contains a temporary magenta rectangle with a dashed center line. That rectangle is the pool's exact footprint; the dashed line is the pool's long axis. Build the pool precisely inside it — same position, same size, same direction as drawn on the image. The magenta marking is construction tape: it must be fully replaced and never visible in the result.`;
 
   const orientationRule =
     poolOrientation === "horizontal"
-      ? `HORIZONTAL POOL PLACEMENT — STRICT IMAGE-FRAME GEOMETRY.
-${placementGuide}
+      ? `${guideText}
 
-Place the pool as a wide landscape pool across the final image.
-
-REQUIRED:
-- The pool's LONG axis runs from LEFT to RIGHT.
-- The pool's two SHORT ends are on the LEFT and RIGHT.
-- The pool must look wider left-to-right than it is deep from foreground to background.
-- The edge nearest the camera must be a LONG edge, never a short end.
-- The far edge toward the background must also be a LONG edge.
-- The pool must NOT point toward the back fence, house, or background.
-
-GEOMETRY:
-- Both visible LONG pool edges must be straight and parallel to the bottom edge of the image frame.
-- The left and right ends of the pool must be at the same vertical height.
-- Maximum visible long-axis rotation: 3 degrees from horizontal.
-- Do NOT align the pool with diagonal fences, walls, paths, grass lines, shadows, terrain, or existing photo perspective.
-- If the available garden area is diagonal or narrow, reduce the pool size. NEVER rotate the pool diagonally or vertically.
-
-INVALID RESULTS:
-- A pool extending mainly from the foreground toward the back fence.
-- A short pool end facing the camera.
-- A diagonal, tilted, corner-to-corner, or 45-degree pool.
-- A pool whose long edges slope visibly upward or downward from left to right.
-
-This rule controls pool placement only. Do NOT crop, rotate, reframe, or change the camera angle of the original photo.
-The pool must fit entirely within the visible garden — do NOT let it extend beyond any fence, wall, or lawn boundary.`
+The guide is drawn flat on the image: its long edges are parallel to the bottom edge of the photo. Keep the pool aligned with the guide exactly as drawn — do not re-angle it to follow lawns, fences, hedges, or the garden's perspective lines. The camera sees one LONG side of the pool; the short ends point left and right. If the garden is narrow, make the pool smaller rather than turning it.`
       : poolOrientation === "vertical"
-      ? `MANDATORY: VERTICAL POOL PLACEMENT ONLY.
-${placementGuide}
+      ? `${guideText}
 
-The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
-- The nearest edge to the camera is one of the pool's SHORT ends.
-- The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
-- For a ${size} pool: the shorter dimension faces the camera left-to-right; the longer dimension recedes toward the house (foreshortened by perspective).
-- WRONG: the pool placed diagonally, tilted, or at any angle. The long axis must aim straight at the background.
-- WRONG: the pool's long side spanning left-to-right — that is HORIZONTAL, the opposite of what is required.
-- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
-- The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
+The pool's long axis points straight away from the camera toward the background, like a lane leading into the garden. The camera sees one SHORT end of the pool as the nearest edge; the long sides recede toward the back with natural perspective. Do not angle the pool and do not lay it left-to-right.`
       : "";
 
-  return `
-You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
-
-REFERENCE IMAGES GUIDE:
-- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
-- Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
-${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE" : ""}
-
----
-
-MOST IMPORTANT RULE — IN-GROUND POOL INSTALLATION:
-This is a PROFESSIONAL IN-GROUND swimming pool, built INTO the ground.
-
-What you MUST show:
-- The pool water surface is at the SAME LEVEL as the surrounding grass or ground.
-- The pool goes DOWN into the earth — only the pool's thin top edge sits at ground level, blending into the surrounding surface.
-- The pool looks like it has ALWAYS been there — natural, permanent, built-in.
-- Surrounding grass or ground meets the pool edge naturally.
-
-What you must NEVER show:
-- The pool sitting ON TOP of the ground like a box or container.
-- The pool walls or sides visible above the ground.
-- Any gap between the pool and the surrounding ground.
-- The pool elevated above the surrounding surface.
-
-THIS IS THE MOST CRITICAL RULE. Pool raised above ground = completely wrong output.
-
----
-
-RULE 1 — PRESERVE THE SCENE
-Keep EVERYTHING in the original photo exactly as it is:
-- Buildings, houses, villas — do NOT touch them.
-- Trees, hedges, plants — do NOT remove or change.
-- Fences, walls, paths — do NOT alter.
-- Only add the pool to the available open ground/grass area.
-- Pool must NOT block the main building's view.
-
----
-
-RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
-${shapeDesc}
-Shape rule: ${shapeRule}
-Size: ${size} meters — maintain exact proportions.
-The pool must be SMALL relative to the garden — roughly 20–25% of the visible open garden area.
-The pool must be clearly SMALLER than the house/building.
-There must be visible grass on ALL sides around the pool — at least 2–3 meters of grass between pool edge and garden boundaries.
-The pool must fit ENTIRELY within the visible garden boundaries — do NOT let the pool or its surround extend beyond any lawn edge, fence, wall, or garden boundary.
-DO NOT fill the garden with the pool.
-
-${
-  orientationRule
-    ? `
-RULE 2B — POOL ORIENTATION (MANDATORY — FAILURE = INVALID OUTPUT)
-${orientationRule}
-`
-    : ""
-}
-
----
-
-RULE 3 — POOL WATER
-Clear, bright blue fiberglass pool interior.
-Water is realistic — natural depth, light shimmer, and color variation.
-The pool interior goes visibly deep into the ground.
-
----
-
-${
-  ceramicColor
-    ? `
-RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
-Add a ceramic tile walkway around ALL 4 sides of the pool.
-- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row).
-- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square.
-- Each tile is TWICE as long as it is wide — like a brick shape.
-- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge.
-- Visible grout lines between all tiles (2–3mm wide).
-- Tile color: ${ceramicColor.name} colored ceramic tiles.
-- Tiles sit flush at ground level — NOT raised.
-- The OUTER edge of the tile area meets the grass at EXACTLY the same level — grass blades touch the tile edge directly.
-- NO visible slab thickness, NO raised platform edge, NO step, NO side face, NO shadow gap where the tiles meet the grass.
-- The tile walkway is set INTO the ground like a patio, NOT placed ON TOP of the grass like a platform.
-- The walkway is NARROW — about 1.2m wide. Do NOT create a large patio or wide platform around the pool.
-- The FIRST row of tiles meets the pool water edge DIRECTLY — the tiles themselves act as the pool coping.
-- ALL tiles are the SAME ${ceramicColor.name} color. Every single tile, including the row touching the water.
-- NO inner frame, NO border row, NO edge strip, NO wide rim around the water — in ANY color.
-- The pool's fiberglass lip/edge must be completely HIDDEN under the tiles — the fiberglass shell is never visible from outside.
-- The visible edge where water meets tile is a THIN line only — a few centimeters at most.
-- The transition is: blue water → thin dark shadow line at the waterline → ${ceramicColor.name} ceramic tile. Nothing else in between.
-- Clean, professional, realistic tile finish.
-- The ceramic surround replaces the grass directly around the pool.
-DO NOT skip the ceramic tiles — they are MANDATORY when selected.
-`
+  // ---- Surround ----
+  const surroundRule = ceramicColor
+    ? `Surround the pool on all four sides with a narrow walkway of ${ceramicColor.name} ceramic tiles, about 1.2m wide (two rows of 33x66cm rectangular tiles laid long-side parallel to the pool, thin grout lines). The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. Every tile is the same ${ceramicColor.name} color, including the row at the water — the water meets tile directly, with only a thin natural shadow at the waterline.`
     : deckColor
-    ? `
-RULE 4 — DECK SURROUND (MANDATORY)
-Add a composite wood deck around ALL 4 sides of the pool.
-- Exactly 3 deck boards on each side — total width 60cm.
-- Each board is 20cm wide, laid parallel to the nearest pool edge.
-- Deck color: ${deckColor.name} colored composite wood deck.
-- Deck sits flush at ground level — NOT raised.
-- The FIRST deck board meets the pool water edge DIRECTLY — the deck itself acts as the pool coping.
-- NO white coping, NO white rim, NO white plastic or fiberglass border between the water and the deck boards.
-- Clean modern finish with tight gaps between boards.
-- The deck surround replaces the grass directly around the pool.
-DO NOT skip the deck — it is MANDATORY when selected.
-`
-    : `
-RULE 4 — POOL SURROUND
-The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
-DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
-DO NOT add any walkway or border around the pool.
-The original ground material continues right up to the pool water edge.
-DO NOT add any white border, coping, or rim around the pool.
-The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
-Only the water surface and thin rim are visible — everything else is underground.
-`
-}
+    ? `Surround the pool on all four sides with a narrow ${deckColor.name} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping.`
+    : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
 
----
+  // ---- Equipment ----
+  const ladderRule = config.hasStairs
+    ? `Install exactly one 3-step polished stainless steel entry ladder on one short end of the pool, steps going down into the water. One ladder in the whole image — never two.`
+    : "";
+  const waterfallRule = config.hasWaterfall
+    ? `Install exactly one small stainless steel cobra waterfall blade (about 35cm wide) on the middle of one long side, pouring a smooth sheet of water into the pool. One waterfall in the whole image — never two.`
+    : "";
 
-${
-  config.hasStairs
-    ? `
-RULE 5 — POOL LADDER (MANDATORY — EXACTLY ONE)
-EXACTLY ONE stainless steel pool ladder MUST be visible in the final image.
-- COUNT: ONE single ladder. NOT two. NOT one on each end. ONE only.
-- Type: 3-step stainless steel pool entry ladder.
-- Material: polished chrome stainless steel, shiny and realistic.
-- Position: mounted on one SHORT END of the pool edge, steps going DOWN INTO the water.
-OMITTING THE LADDER = INVALID OUTPUT.
-`
-    : ""
-}
+  return `
+You are a professional architectural visualization AI. Edit Image 1 (the customer's garden photo) so it looks like a real photograph taken after a luxury fiberglass pool was professionally installed. Image 2 shows the ${modelName} pool model whose shape must be copied exactly.${config.hasWaterfall ? " Image 3 shows the waterfall style." : ""}
 
-${
-  config.hasWaterfall
-    ? `
-RULE 6 — WATERFALL BLADE (MANDATORY — EXACTLY ONE)
-EXACTLY ONE stainless steel cobra waterfall blade MUST be visible in the final image.
-- COUNT: ONE single waterfall. NOT two. NOT one on each side. ONE only.
-- Size: small and elegant — approximately 35cm wide, 40cm tall.
-- Material: polished brushed stainless steel, chrome finish.
-- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side, roughly at the middle of that side.
-- Water flows in a smooth sheet from the blade DOWN INTO the pool.
-OMITTING THE WATERFALL = INVALID OUTPUT. ADDING A SECOND WATERFALL = INVALID OUTPUT.
-`
-    : ""
-}
+PRIORITY 1 — BUILT INTO THE GROUND.
+This is an in-ground pool, excavated into the earth. The water surface sits at the same level as the surrounding lawn, and the ground runs naturally up to the water's edge. The pool casts and receives the same shadows as everything else in the scene, so it reads as permanently part of the garden — as if it had always been there. Nothing of the pool's shell, walls, or lip rises above the surrounding ground; from outside, only water and the ground around it are visible. A pool sitting on top of the grass like a container is the single worst possible failure.
 
----
+PRIORITY 2 — REAL PHOTO, SAME SCENE.
+The result is the original photograph with one change: the pool. Keep every building, tree, hedge, fence, path, and object exactly as it is, and keep the photo's framing, aspect ratio, camera angle, lighting, and time of day. Place the pool only on open lawn. Photographic realism only — never a render, illustration, or 3D look.
 
-RULE 7 — PHOTOREALISTIC QUALITY
-- Output must look like a real professional photograph.
-- Match the exact lighting, shadows, and time of day of the original photo.
-- Preserve the original photo's crop, framing, aspect ratio, and camera angle.
-- The pool must look completely natural — like it was always there.
-- Luxury villa quality — professional, clean, premium finish.
+PRIORITY 3 — SHAPE AND SIZE.
+${shapeDesc}
+${shapeRule}
+The pool is ${size} meters — keep those proportions. Keep it modest in scale: roughly a fifth to a quarter of the visible open lawn, clearly smaller than the house, with open grass on every side, and never extending past any lawn edge, fence, or wall.
 
----
+${orientationRule ? `PRIORITY 4 — PLACEMENT.\n${orientationRule}\n` : ""}
+SURROUND.
+${surroundRule}
 
-ABSOLUTE PROHIBITIONS:
-❌ Pool above ground level in any way.
-❌ Pool walls or sides visible above the surrounding surface.
-❌ Wrong pool shape — must match Image 2 exactly${
-    isRoma
-      ? " (NOT a rounded rectangle / stadium shape — the Roma is an asymmetric teardrop)."
-      : ""
-  }
-${
-  orientationRule
-    ? `❌ Wrong pool orientation — long axis must ${
-        poolOrientation === "horizontal"
-          ? "run LEFT-TO-RIGHT and remain horizontal relative to the image frame."
-          : "point STRAIGHT AWAY from camera toward background."
-      }
-❌ Diagonal, tilted, or angled pool placement.
-❌ Any magenta/pink guide markings visible in the output — the guide must be completely replaced by the pool.`
-    : ""
-}
-❌ Pool or surround extending beyond garden boundaries, fences, or walls.
-❌ Changing existing buildings, trees, or landscaping.
-❌ Changing the photo's framing, crop, aspect ratio, or camera perspective.
-❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY.
-${
-  ceramicColor
-    ? `❌ Missing ceramic tile surround — MANDATORY when selected.
-❌ Any visible frame, band, rim, or lip around the water in ANY color.
-❌ Tile area raised above the grass like a platform.`
-    : ""
-}
-${
-  deckColor
-    ? `❌ Missing deck surround — MANDATORY when selected.
-❌ White coping, white rim, or any white border between the water and the deck.`
-    : ""
-}
-${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected.\n❌ More than ONE ladder." : ""}
-${
-  config.hasWaterfall
-    ? "❌ Missing waterfall — MANDATORY when selected.\n❌ More than ONE waterfall — exactly one, never two."
-    : ""
-}
+${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filter(Boolean).join("\n")}\n` : ""}
+FINAL CHECK — the image is wrong if any of these appear:
+- the pool or its shell raised above the ground in any way
+- a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}
+- the pool angled diagonally or turned against the selected placement
+- any magenta marking left in the image
+- a wide band or rim of any color separating the water from its surround
+- anything in the original photo changed besides adding the pool
   `.trim();
 }
