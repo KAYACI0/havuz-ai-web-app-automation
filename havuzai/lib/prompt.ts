@@ -43,22 +43,16 @@ export function buildPoolPrompt(
 - ABSOLUTELY NOT rectangular, NOT a rounded rectangle, NOT a stadium shape. Copy the exact silhouette from Image 2.`
     : `Strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.`;
 
-  // The magenta placement guide is drawn onto Image 1 by fal.ts
-  // (createOrientationGuide) whenever an orientation is selected.
-  // Both orientation branches below MUST stay in sync with that behavior.
-  const placementGuide = `PLACEMENT GUIDE — MANDATORY:
+  const orientationRule =
+  poolOrientation === "horizontal"
+    ? `HORIZONTAL POOL PLACEMENT — STRICT IMAGE-FRAME GEOMETRY.
+    PLACEMENT GUIDE — MANDATORY:
 Image 1 contains a temporary bright magenta rectangular placement guide.
 Replace the guide completely with the pool. The guide must not remain visible in the final image.
 
 The pool must stay entirely inside the guide.
 Match the guide's position, dimensions, and orientation exactly.
 Do not rotate, move, resize beyond, or reinterpret the guide.
-The dashed magenta line inside the guide shows the direction of the pool's LONG axis.`;
-
-  const orientationRule =
-    poolOrientation === "horizontal"
-      ? `HORIZONTAL POOL PLACEMENT — STRICT IMAGE-FRAME GEOMETRY.
-${placementGuide}
 
 Place the pool as a wide landscape pool across the final image.
 
@@ -75,7 +69,7 @@ GEOMETRY:
 - The left and right ends of the pool must be at the same vertical height.
 - Maximum visible long-axis rotation: 3 degrees from horizontal.
 - Do NOT align the pool with diagonal fences, walls, paths, grass lines, shadows, terrain, or existing photo perspective.
-- If the available garden area is diagonal or narrow, reduce the pool size. NEVER rotate the pool diagonally or vertically.
+- If the available garden area is diagonal or narrow, reduce the pool size or reposition it. NEVER rotate the pool diagonally or vertically.
 
 INVALID RESULTS:
 - A pool extending mainly from the foreground toward the back fence.
@@ -85,10 +79,27 @@ INVALID RESULTS:
 
 This rule controls pool placement only. Do NOT crop, rotate, reframe, or change the camera angle of the original photo.
 The pool must fit entirely within the visible garden — do NOT let it extend beyond any fence, wall, or lawn boundary.`
-      : poolOrientation === "vertical"
-      ? `MANDATORY: VERTICAL POOL PLACEMENT ONLY.
-${placementGuide}
+    : poolOrientation === "vertical"
+    ? `MANDATORY: VERTICAL POOL PLACEMENT ONLY.
+The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
+- The nearest edge to the camera is one of the pool's SHORT ends.
+- The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
+- For a ${size} pool: the shorter dimension faces the camera left-to-right; the longer dimension recedes toward the house (foreshortened by perspective).
+- WRONG: the pool placed diagonally, tilted, or at any angle. The long axis must aim straight at the background.
+- WRONG: the pool's long side spanning left-to-right — that is HORIZONTAL, the opposite of what is required.
+- This describes the pool's placement in the garden ONLY. Do NOT change the photo's framing or camera perspective.
+- The pool must fit ENTIRELY within the visible garden. Do NOT let the pool extend beyond any garden boundary, fence, or wall.`
+    : "";
+    
+       poolOrientation === "vertical"
+      ? `⚠️ MANDATORY: VERTICAL POOL PLACEMENT ONLY.
+      PLACEMENT GUIDE — MANDATORY:
+Image 1 contains a temporary bright magenta rectangular placement guide.
+Replace the guide completely with the pool. The guide must not remain visible in the final image.
 
+The pool must stay entirely inside the guide.
+Match the guide's position, dimensions, and orientation exactly.
+Do not rotate, move, resize beyond, or reinterpret the guide.
 The pool LONG axis points STRAIGHT AWAY from the camera toward the background. The pool SHORT axis runs left-to-right.
 - The nearest edge to the camera is one of the pool's SHORT ends.
 - The pool's LONG sides run from the foreground toward the house/background, like a corridor leading to the building.
@@ -275,8 +286,7 @@ ${
           ? "run LEFT-TO-RIGHT and remain horizontal relative to the image frame."
           : "point STRAIGHT AWAY from camera toward background."
       }
-❌ Diagonal, tilted, or angled pool placement.
-❌ Any magenta/pink guide markings visible in the output — the guide must be completely replaced by the pool.`
+❌ Diagonal, tilted, or angled pool placement.`
     : ""
 }
 ❌ Pool or surround extending beyond garden boundaries, fences, or walls.
