@@ -54,7 +54,10 @@ Copy the pool's INTERIOR from Image 2 as well: the Roma has built-in molded fibe
 Copy the pool's INTERIOR from Image 2 as well: the model has built-in molded fiberglass entry steps at one short end — full-width steps molded from the same material and color as the pool shell, exactly as shown in Image 2. The steps are clearly visible through the water, with light and gentle shadows defining each step edge underwater.`;
 
   // ---- Placement guide (drawn by fal.ts when an orientation is selected) ----
-  const guideText = `Image 1 contains a temporary magenta rectangle with a dashed center line. That rectangle is the pool's exact footprint; the dashed line is the pool's long axis. Build the pool precisely inside it — same position, same size, same direction as drawn on the image. The magenta marking is construction tape: it must be fully replaced and never visible in the result.`;
+  const hasSurround = Boolean(ceramicColor || deckColor);
+  const guideText = hasSurround
+    ? `Image 1 contains temporary magenta construction guides: a THICK rectangle marking the pool's water footprint, a THIN rectangle around it marking the OUTER edge of the walkway, and a dashed center line showing the pool's long axis. Build the water exactly inside the thick rectangle. Fill the ring between the two rectangles with the walkway — and ONLY that ring: the lawn begins immediately at the thin outer line, and nothing is paved beyond it. All magenta markings are construction tape: fully replaced, never visible in the result.`
+    : `Image 1 contains a temporary magenta rectangle with a dashed center line. That rectangle is the pool's exact footprint; the dashed line is the pool's long axis. Build the pool precisely inside it — same position, same size, same direction as drawn on the image. The magenta marking is construction tape: it must be fully replaced and never visible in the result.`;
 
   const orientationRule =
     poolOrientation === "horizontal"
@@ -75,7 +78,7 @@ PRECISION: the pool's long axis lines up with the guide's dashed line exactly as
   const surroundRule = ceramicColor
     ? `Surround the pool on all four sides with a NARROW walkway of LARGE-FORMAT ${ceramicColorEn} porcelain paving slabs — outdoor terrace paving with a matte finish. The walkway is a thin frame, not a patio: exactly TWO slab rows per side, about 1.2m total — if the walkway looks wider than 1.2m, it is wrong. Each slab is BIG and RECTANGULAR, 33cm x 66cm — twice as long as it is wide, laid with the long side parallel to the pool edge, thin grout joints forming a clean brick pattern of large rectangles. This is NOT pool mosaic: no small square tiles, no glossy bathroom tiles — only large matte ${ceramicColorEn} paving slabs. The walkway is ONE CONTINUOUS SURFACE in ONE COLOR: the slab row touching the water is identical in color, size, and material to every other row — it is not lighter, not whiter, not a separate ring. The innermost slabs run straight to the water and ARE the pool coping; the transition is water, a thin natural waterline shadow, then ${ceramicColorEn} slab. The walkway sits flush with the lawn like a real sunken patio, and its surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures.`
     : deckColor
-    ? `Surround the pool on all four sides with a ${deckColorEn} composite wood deck walkway, about 1.2m wide — six 20cm boards per side, laid parallel to the pool edge, wide enough to comfortably walk on. The deck sits flush with the lawn and reaches the water directly, acting as the pool coping — no white strip or border between water and boards, and the board row at the water is identical to all the others. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
+    ? `Surround the pool on all four sides with a ${deckColorEn} composite wood deck walkway, about 1.2m wide — six 20cm boards per side, laid parallel to the pool edge, wide enough to comfortably walk on. The deck is SET INTO the lawn like a real sunken terrace: its surface sits at exactly the same level as the grass, the outer boards meet the lawn flush with grass blades touching the wood, and there is no visible board thickness, no raised platform edge, no step, no side face, and no shadow gap anywhere around it. The inner boards reach the water directly and act as the pool coping — no white strip or border between water and boards, and the board row at the water is identical to all the others. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
     : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
 
   // ---- Equipment ----
@@ -107,18 +110,11 @@ ${surroundRule}
 ${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filter(Boolean).join("\n")}\n` : ""}
 FINAL CHECK — the image is wrong if any of these appear:
 - the pool or its shell raised above the ground in any way
-- a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}
-- a plain empty pool basin — the built-in steps from Image 2 must be visible underwater${config.hasStairs ? `
-- the ladder placed at the same end as the built-in steps — they belong at opposite ends` : ""}
-- the pool touching or crowding the edges of the photo — clear lawn must remain on all sides and in the foreground
+- a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}, or an empty basin without the built-in steps
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
-- a wide band or rim of any color separating the water from its surround${ceramicColor ? `
-- small square tiles or mosaic anywhere in the walkway — only large 2:1 rectangular slabs
-- a white frame or strip between the water and the ${ceramicColorEn} slabs
-- slabs in any color other than ${ceramicColorEn} (red brick or terracotta paving is wrong)
-- a walkway wider than two slab rows per side
-- any cover, plate, or fixture sitting on the walkway surface` : ""}
+- a band, frame, or rim of any color between the water and its surround${hasSurround ? `
+- paving or decking beyond the thin outer guide line, or a walkway surface raised above the lawn` : ""}
 - anything in the original photo changed besides adding the pool
   `.trim();
 }
