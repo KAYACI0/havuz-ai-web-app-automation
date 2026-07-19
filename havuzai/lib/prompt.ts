@@ -19,10 +19,6 @@ export function buildPoolPrompt(
 
   const poolModel = clientConfig.pool_models.find((m) => m.id === model);
   const modelName = poolModel?.name || model;
-  const shapeDesc =
-    poolModel?.prompt_description ||
-    poolModel?.description ||
-    `${model} shaped fiberglass pool`;
   const deckColor = deck
     ? clientConfig.deck_colors.find((d) => d.id === deck)
     : null;
@@ -31,9 +27,9 @@ export function buildPoolPrompt(
     : null;
 
   const isRoma = model.toUpperCase() === "ROMA";
+  const hasSurround = Boolean(ceramicColor || deckColor);
 
-  // Config'teki renk adları Türkçe olabilir; İngilizce prompt içinde model
-  // bunları renk olarak tanımayabiliyor (örn. "Mavi tiles" → kırmızı tuğla).
+  // Türkçe renk adlarını İngilizceye çevir (model Türkçe rengi tanımıyor).
   const COLOR_EN: Record<string, string> = {
     mavi: "blue", beyaz: "white", gri: "gray", "açık gri": "light gray",
     "koyu gri": "dark gray", antrasit: "anthracite gray", bej: "beige",
@@ -42,83 +38,68 @@ export function buildPoolPrompt(
   };
   const toEnColor = (name: string) =>
     COLOR_EN[name.trim().toLowerCase()] ?? name;
-
   const ceramicColorEn = ceramicColor ? toEnColor(ceramicColor.name) : "";
   const deckColorEn = deckColor ? toEnColor(deckColor.name) : "";
-
-  // ---- Shape (delegated to Image 2, one clarifying line for Roma) ----
-  const shapeRule = isRoma
-    ? `Copy the EXACT silhouette of the pool shown in the reference images: the Roma is a soft FREEFORM OVAL — both ends fully rounded, sides gently curving, and one long side flowing with a subtle wave (a soft S-curve that dips inward and back out). No sharp corners anywhere and no straight machine-drawn edges — the whole outline is organic and flowing, exactly as in the reference.
-Copy the pool's INTERIOR from the reference as well: wide molded steps spanning the width of one rounded end, and a long molded bench ledge running along one side — same position, same form, same count as shown, molded from the same material and color as the pool shell. The steps and bench are clearly visible through the water, each edge defined underwater by light and gentle shadow.`
-    : `Copy the EXACT silhouette of the pool in Image 2: a clean rectangle with straight sides and square corners.
-Copy the pool's INTERIOR from Image 2 as well — the built-in molded steps, benches, and ledges, in the same position, same form, and same count as shown there (for example corner steps stay corner steps, in the same corner), molded from the same material and color as the pool shell. The steps are clearly visible through the water, each step edge defined underwater by light and gentle shadow.`;
-
-  // ---- Placement guide (drawn by fal.ts when an orientation is selected) ----
-  const hasSurround = Boolean(ceramicColor || deckColor);
-  const guideText = hasSurround
-    ? `Image 1 contains TEMPORARY magenta construction markings that must be completely painted over and replaced — not one magenta pixel may survive into the final image. The markings are: a THICK rectangle marking the pool's water footprint, a THIN rectangle around it marking the OUTER edge of the walkway, and a dashed center line showing the pool's long axis. Build the water exactly inside the thick rectangle. Fill the ring between the two rectangles with the walkway — and ONLY that ring: the lawn begins immediately at the thin outer line, and nothing is paved beyond it. The walkway's OUTER edge is always straight and rectangular, following the thin outer guide rectangle exactly — even when the pool inside is curved or freeform, the paving fills the space between the curved water edge and the straight rectangular outer boundary.`
-    : `Image 1 contains a TEMPORARY magenta rectangle with a dashed center line that must be completely painted over and replaced — not one magenta pixel may survive into the final image. That rectangle is the pool's exact footprint; the dashed line is the pool's long axis. Build the pool precisely inside it — same position, same size, same direction as drawn on the image.`;
-
-  const orientationRule =
-    poolOrientation === "horizontal"
-      ? `${guideText}
-
-The guide is drawn flat on the image: its long edges are parallel to the bottom edge of the photo. Keep the pool aligned with the guide exactly as drawn — do not re-angle it to follow lawns, fences, hedges, or the garden's perspective lines. The camera sees one LONG side of the pool; the short ends point left and right.
-
-PRECISION: the pool's two long edges stay parallel to the photo's bottom edge, and the left and right ends of the pool sit at the same height in the frame — a level, ruler-straight placement, within a couple of degrees at most. If the garden is narrow, make the pool smaller rather than turning it.`
-      : poolOrientation === "vertical"
-      ? `${guideText}
-
-The pool's long axis points straight away from the camera toward the background, like a lane leading into the garden. The camera sees one SHORT end of the pool as the nearest edge; the long sides recede toward the back with natural perspective.
-
-PRECISION: the pool's long axis lines up with the guide's dashed line exactly as drawn — aimed straight at the background, not leaning left or right, not angled toward any corner. The near short end and the far short end sit vertically stacked in the frame, the far end directly behind the near end. Do not lay the pool left-to-right.`
-      : "";
-
-  // ---- Surround ----
-  const surroundRule = ceramicColor
-    ? `Surround the pool on all four sides with a NARROW walkway of LARGE-FORMAT ${ceramicColorEn} porcelain paving slabs — outdoor terrace paving with a matte finish. The walkway is a thin frame, not a patio: exactly TWO slab rows per side, about 1.2m total — if the walkway looks wider than 1.2m, it is wrong. Each slab is BIG and RECTANGULAR, 33cm x 66cm — twice as long as it is wide, laid with the long side parallel to the pool edge, thin grout joints forming a clean brick pattern of large rectangles. This is NOT pool mosaic: no small square tiles, no glossy bathroom tiles — only large matte ${ceramicColorEn} paving slabs. The walkway is ONE CONTINUOUS SURFACE in ONE COLOR: the slab row touching the water is identical in color, size, and material to every other row — not lighter, not darker, not a different shade, never a contrasting border row in any tone. The innermost slabs run straight to the water and ARE the pool coping; the transition is water, a thin natural waterline shadow, then ${ceramicColorEn} slab. The walkway sits flush with the lawn like a real sunken patio, and its surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures.`
-    : deckColor
-    ? `Surround the pool on all four sides with a ${deckColorEn} composite wood deck walkway, about 1.2m wide — six 20cm boards per side, laid parallel to the pool edge, wide enough to comfortably walk on. The deck is SET INTO the lawn like a real sunken terrace: its surface sits at exactly the same level as the grass, the outer boards meet the lawn flush with grass blades touching the wood, and there is no visible board thickness, no raised platform edge, no step, no side face, and no shadow gap anywhere around it. The inner boards reach the water directly and act as the pool coping — no white strip or border between water and boards, and the board row at the water is identical to all the others. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
-    : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
-
-  // ---- Equipment ----
-  const ladderRule = config.hasStairs
-    ? `Install exactly one 3-step polished stainless steel entry ladder at the end of the pool FARTHEST from the built-in molded steps — ladder and molded steps never share the same end and never overlap. Steps of the ladder go down into the water. One ladder in the whole image — never two.`
-    : "";
-  const waterfallRule = config.hasWaterfall
-    ? `Install exactly one small stainless steel cobra waterfall blade (about 35cm wide) on the middle of one long side, pouring a smooth sheet of water into the pool. One waterfall in the whole image — never two.`
-    : "";
 
   const hasRef2 = Boolean(poolModel?.reference_image_url_2);
   const poolRefLabel = hasRef2 ? "Images 2 and 3 show" : "Image 2 shows";
   const waterfallImageNo = hasRef2 ? 4 : 3;
 
+  // ---- Şekil (referansa devredilmiş, tek netleştirme satırı) ----
+  const shapeLine = isRoma
+    ? `Pool shape: copy the reference pool EXACTLY — a soft freeform oval, both ends rounded, one long side gently wavy. No sharp corners. Copy its molded interior too: wide steps at the rounded end, bench along one side, visible under the water.`
+    : `Pool shape: copy the reference pool EXACTLY — a clean rectangle. Copy its molded interior too: the built-in steps in the SAME position as the reference (corner steps stay in the same corner), visible under the water.`;
+
+  // ---- Kılavuz + yön ----
+  const guideLines = hasSurround
+    ? `Image 1 has magenta construction marks: THICK rectangle = the water area. THIN outer rectangle = outer edge of the paving. Dashed line = the pool's long axis.
+Water goes exactly inside the thick rectangle. Paving fills ONLY the ring between the two rectangles. The paving's outer edge is straight and rectangular; grass starts right at the thin line.
+PAINT OVER ALL MAGENTA COMPLETELY. Zero magenta in the final image.`
+    : `Image 1 has magenta construction marks: the rectangle = the pool's exact footprint, the dashed line = the pool's long axis.
+Build the pool exactly inside the rectangle, same direction as drawn.
+PAINT OVER ALL MAGENTA COMPLETELY. Zero magenta in the final image.`;
+
+  const orientationLine =
+    poolOrientation === "horizontal"
+      ? `The pool lies LEFT-TO-RIGHT, exactly as the guide is drawn — its long edges parallel to the bottom of the photo. Never diagonal. Never pointing toward the house. Do NOT change the photo's framing or aspect ratio — only the pool is horizontal, not the image.`
+      : poolOrientation === "vertical"
+      ? `The pool points STRAIGHT AWAY from the camera toward the background, exactly as the guide is drawn — short end nearest the camera. Never diagonal. Never lying left-to-right. Do NOT change the photo's framing or aspect ratio — only the pool is vertical, not the image.`
+      : "";
+
+  // ---- Zemin çevresi ----
+  const surroundLines = ceramicColor
+    ? `Paving: LARGE matte ${ceramicColorEn} porcelain slabs, each 33x66cm — big 2:1 rectangles laid long-side parallel to the pool. NOT mosaic, NOT small square tiles, NOT bathroom tiles. Two rows per side, about 1.2m total.
+One color everywhere: the slab row touching the water is IDENTICAL to the others — no lighter, darker, or white border row. Water meets slab directly.
+The paving is SUNK INTO the lawn: its surface level with the grass, no visible thickness or platform edge where it meets the lawn. Clean surface — no covers or fixtures.`
+    : deckColor
+    ? `Deck: ${deckColorEn} composite wood boards, 20cm wide, laid parallel to the pool, about 1.2m total per side.
+The deck is SUNK INTO the lawn: its surface level with the grass, no visible thickness or platform edge where it meets the lawn. Boards reach the water directly — no white strip. Clean surface — no covers or fixtures.`
+    : `No paving, no deck: the existing ground runs directly to the water's edge. Do not add any border.`;
+
+  // ---- Ekipman ----
+  const equipLines = [
+    config.hasStairs
+      ? `Exactly ONE stainless steel 3-step ladder, at the end away from the molded steps. Never two ladders.`
+      : "",
+    config.hasWaterfall
+      ? `Exactly ONE small stainless cobra waterfall (about 35cm) on one long side, water pouring into the pool. Never two waterfalls.`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
   return `
-You are a professional architectural visualization AI. Edit Image 1 (the customer's garden photo) so it looks like a real photograph taken after a luxury fiberglass pool was professionally installed. ${poolRefLabel} the ${modelName} pool model whose shape must be copied exactly.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""}
+Edit Image 1 (the customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed. ${poolRefLabel} the ${modelName} pool model.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""} The result must look like a real photograph.
 
-PRIORITY 1 — BUILT INTO THE GROUND.
-This is an in-ground pool, excavated into the earth. The water surface sits at the same level as the surrounding lawn, and the ground runs naturally up to the water's edge. The pool casts and receives the same shadows as everything else in the scene, so it reads as permanently part of the garden — as if it had always been there. Nothing of the pool's shell, walls, or lip rises above the surrounding ground; from outside, only water and the ground around it are visible. A pool sitting on top of the grass like a container is the single worst possible failure.
+IN-GROUND — MOST IMPORTANT: the pool is dug INTO the earth. Water surface level with the lawn. No pool shell, wall, or lip visible above the ground. Never a pool sitting on top of the grass.
 
-PRIORITY 2 — REAL PHOTO, SAME SCENE.
-The result is the original photograph with one change: the pool. Keep every building, tree, hedge, fence, path, and object exactly as it is, and keep the photo's framing, aspect ratio, camera angle, lighting, and time of day. Place the pool only on open lawn. Photographic realism only — never a render, illustration, or 3D look.
+${shapeLine}
+Size ${size} meters — keep the proportions. The pool stays clearly smaller than the house, with grass visible on all sides, never touching the photo edges.
 
-PRIORITY 3 — SHAPE AND SIZE.
-${shapeDesc}
-${shapeRule}
-The pool is ${size} meters — keep those proportions. Keep it modest in scale: roughly a fifth to a quarter of the visible open lawn, clearly smaller than the house, with open grass on every side, and never extending past any lawn edge, fence, or wall. The pool and its walkway also keep a clear distance from every edge of the photo itself — visible lawn remains between the camera and the near side of the pool, and the pool never touches or crowds the image borders.
+${orientationLine ? `PLACEMENT:\n${guideLines}\n${orientationLine}\n` : ""}
+${surroundLines}
 
-${orientationRule ? `PRIORITY 4 — PLACEMENT.\n${orientationRule}\n` : ""}
-SURROUND.
-${surroundRule}
-
-${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filter(Boolean).join("\n")}\n` : ""}
-FINAL CHECK — the image is wrong if any of these appear:
-- the pool or its shell raised above the ground in any way
-- a shape different from the pool reference${isRoma ? " (sharp corners or straight rigid edges are wrong for the Roma — its outline is a flowing freeform oval)" : ""}, or an empty basin without the built-in steps
-- the pool angled diagonally or turned against the selected placement
-- any magenta marking left in the image
-- a band, frame, or rim between the water and its surround — in any color, any shade, lighter or darker${hasSurround ? `
-- paving or decking beyond the thin outer guide line, or a walkway surface raised above the lawn` : ""}
-- anything in the original photo changed besides adding the pool
+${equipLines ? `${equipLines}\n` : ""}
+Keep everything else in the photo unchanged: buildings, trees, fences, framing, camera angle, lighting. Photorealistic only — never a render or illustration.
   `.trim();
 }
