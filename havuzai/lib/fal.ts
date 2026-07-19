@@ -53,7 +53,8 @@ async function createOrientationGuide(
   sourceBuffer: Buffer,
   width: number,
   height: number,
-  orientation: "horizontal" | "vertical"
+  orientation: "horizontal" | "vertical",
+  withWalkwayBoundary: boolean
 ): Promise<string> {
   const guideWidth =
     orientation === "horizontal"
@@ -67,6 +68,20 @@ async function createOrientationGuide(
   const y = Math.round(height * 0.56 - guideHeight / 2);
   const strokeWidth = Math.max(8, Math.round(Math.min(width, height) * 0.012));
   const dashStroke = Math.max(4, Math.round(strokeWidth / 2));
+
+  // Yürüme yolu dış sınırı: havuz kutusundan her yönde ~%30 (kısa kenara göre)
+  // dışarıda ince bir ikinci dikdörtgen. Model 1.2m'yi kelimeden anlamıyor
+  // ama çizili sınırı takip edebiliyor.
+  const offset = Math.round(0.3 * Math.min(guideWidth, guideHeight));
+  const outerRect = withWalkwayBoundary
+    ? `<rect
+        x="${x - offset}" y="${y - offset}"
+        width="${guideWidth + offset * 2}" height="${guideHeight + offset * 2}"
+        fill="none"
+        stroke="#ff00ff"
+        stroke-width="${Math.max(3, Math.round(strokeWidth / 2))}"
+      />`
+    : "";
 
   // Uzun eksen çizgisi orientation'a göre yön değiştirir:
   // yatayda soldan sağa, dikeyde yukarıdan aşağıya.
@@ -83,6 +98,7 @@ async function createOrientationGuide(
 
   const guideSvg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      ${outerRect}
       <rect
         x="${x}" y="${y}"
         width="${guideWidth}" height="${guideHeight}"
@@ -145,7 +161,8 @@ export async function generatePoolVisualization(
         customerBuffer,
         width,
         height,
-        config.poolOrientation as "horizontal" | "vertical"
+        config.poolOrientation as "horizontal" | "vertical",
+        Boolean(config.ceramic || config.deck)
       )
     : customerPhotoUrl;
 
