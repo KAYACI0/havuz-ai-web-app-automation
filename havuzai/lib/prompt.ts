@@ -32,10 +32,26 @@ export function buildPoolPrompt(
 
   const isRoma = model.toUpperCase() === "ROMA";
 
+  // Config'teki renk adları Türkçe olabilir; İngilizce prompt içinde model
+  // bunları renk olarak tanımayabiliyor (örn. "Mavi tiles" → kırmızı tuğla).
+  const COLOR_EN: Record<string, string> = {
+    mavi: "blue", beyaz: "white", gri: "gray", "açık gri": "light gray",
+    "koyu gri": "dark gray", antrasit: "anthracite gray", bej: "beige",
+    krem: "cream", kahverengi: "brown", "açık kahve": "light brown",
+    siyah: "black", yeşil: "green", turkuaz: "turquoise", kum: "sand",
+  };
+  const toEnColor = (name: string) =>
+    COLOR_EN[name.trim().toLowerCase()] ?? name;
+
+  const ceramicColorEn = ceramicColor ? toEnColor(ceramicColor.name) : "";
+  const deckColorEn = deckColor ? toEnColor(deckColor.name) : "";
+
   // ---- Shape (delegated to Image 2, one clarifying line for Roma) ----
   const shapeRule = isRoma
-    ? `Copy the EXACT silhouette of the pool in Image 2. The Roma is an asymmetric teardrop: one wide rounded end, one narrower tapered end, gently curving sides. It is never a rectangle and never a rounded rectangle.`
-    : `Copy the EXACT silhouette of the pool in Image 2: a clean rectangle with straight sides and square corners.`;
+    ? `Copy the EXACT silhouette of the pool in Image 2. The Roma is an asymmetric teardrop: one wide rounded end, one narrower tapered end, gently curving sides. It is never a rectangle and never a rounded rectangle.
+Copy the pool's INTERIOR from Image 2 as well: the Roma has built-in molded fiberglass steps at its WIDE end — broad curved steps following the rounded shape, molded from the same material and color as the pool shell. The steps are clearly visible through the water, with light and gentle shadows defining each step edge underwater.`
+    : `Copy the EXACT silhouette of the pool in Image 2: a clean rectangle with straight sides and square corners.
+Copy the pool's INTERIOR from Image 2 as well: the model has built-in molded fiberglass entry steps at one short end — full-width steps molded from the same material and color as the pool shell, exactly as shown in Image 2. The steps are clearly visible through the water, with light and gentle shadows defining each step edge underwater.`;
 
   // ---- Placement guide (drawn by fal.ts when an orientation is selected) ----
   const guideText = `Image 1 contains a temporary magenta rectangle with a dashed center line. That rectangle is the pool's exact footprint; the dashed line is the pool's long axis. Build the pool precisely inside it — same position, same size, same direction as drawn on the image. The magenta marking is construction tape: it must be fully replaced and never visible in the result.`;
@@ -57,9 +73,9 @@ PRECISION: the pool's long axis lines up with the guide's dashed line exactly as
 
   // ---- Surround ----
   const surroundRule = ceramicColor
-    ? `Surround the pool on all four sides with a narrow walkway of ${ceramicColor.name} ceramic tiles, about 1.2m wide (two rows per side). Each tile is RECTANGULAR, 33cm x 66cm — exactly twice as long as it is wide, like an elongated brick. Square tiles are wrong. Lay them with the 66cm long side parallel to the pool edge, so the grout lines form a clear brick pattern of long rectangles, with thin grout lines between them. The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. Every tile is the same ${ceramicColor.name} color, including the row at the water — the water meets tile directly, with only a thin natural shadow at the waterline.`
+    ? `Surround the pool on all four sides with a NARROW walkway of ${ceramicColorEn} ceramic tiles. The walkway is a thin frame, not a patio: exactly TWO tile rows per side, about 1.2m total — noticeably narrower than the pool itself. Each tile is RECTANGULAR, 33cm x 66cm — exactly twice as long as it is wide, like an elongated brick. Square tiles are wrong. Lay them with the 66cm long side parallel to the pool edge, so the grout lines form a clear brick pattern of long rectangles, with thin grout lines between them. Every single tile is ${ceramicColorEn} — solid ${ceramicColorEn} ceramic, never red brick, never terracotta, never any other paving color or pattern. The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. The water meets tile directly, with only a thin natural shadow at the waterline. The tile surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures on the tiles.`
     : deckColor
-    ? `Surround the pool on all four sides with a narrow ${deckColor.name} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping.`
+    ? `Surround the pool on all four sides with a narrow ${deckColorEn} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
     : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
 
   // ---- Equipment ----
@@ -92,10 +108,14 @@ ${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filte
 FINAL CHECK — the image is wrong if any of these appear:
 - the pool or its shell raised above the ground in any way
 - a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}
+- a plain empty pool basin — the built-in steps from Image 2 must be visible underwater
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
 - a wide band or rim of any color separating the water from its surround${ceramicColor ? `
-- square tiles in the walkway — every tile must read as a 2:1 elongated brick` : ""}
+- square tiles in the walkway — every tile must read as a 2:1 elongated brick
+- tiles in any color other than ${ceramicColorEn} (red brick or terracotta paving is wrong)
+- a walkway wider than two tile rows per side
+- any cover, plate, or fixture sitting on the walkway surface` : ""}
 - anything in the original photo changed besides adding the pool
   `.trim();
 }
