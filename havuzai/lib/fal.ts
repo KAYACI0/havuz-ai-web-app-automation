@@ -15,7 +15,7 @@ fal.config({ credentials: process.env.FAL_KEY! });
 
 // Görsel başına maliyeti belirleyen tek satır burası.
 // Kalite yetmezse "fal-ai/nano-banana-pro/edit" yap ($0.15/görsel).
-const FAL_MODEL = "fal-ai/nano-banana/edit";
+const FAL_MODEL = "fal-ai/nano-banana-pro/edit";
 
 // Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
 const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
