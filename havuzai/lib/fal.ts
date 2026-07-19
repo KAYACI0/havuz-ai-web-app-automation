@@ -66,8 +66,8 @@ async function createOrientationGuide(
       : Math.round(height * 0.4);
   const x = Math.round((width - guideWidth) / 2);
   const y = Math.round(height * 0.56 - guideHeight / 2);
-  const strokeWidth = Math.max(6, Math.round(Math.min(width, height) * 0.008));
-  const dashStroke = Math.max(3, Math.round(strokeWidth / 2));
+  const strokeWidth = Math.max(8, Math.round(Math.min(width, height) * 0.012));
+  const dashStroke = Math.max(4, Math.round(strokeWidth / 2));
 
   // Yürüme yolu dış sınırı: havuz kutusundan her yönde ~%30 (kısa kenara göre)
   // dışarıda ince bir ikinci dikdörtgen. Model 1.2m'yi kelimeden anlamıyor
@@ -102,7 +102,7 @@ async function createOrientationGuide(
       <rect
         x="${x}" y="${y}"
         width="${guideWidth}" height="${guideHeight}"
-        fill="rgba(255, 0, 255, 0.10)"
+        fill="rgba(255, 0, 255, 0.18)"
         stroke="#ff00ff"
         stroke-width="${strokeWidth}"
       />
