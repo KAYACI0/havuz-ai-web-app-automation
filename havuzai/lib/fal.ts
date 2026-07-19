@@ -1,8 +1,9 @@
 // ============================================================
 // NİHAİ VERSİYON — tek kaynak bu dosya olsun.
 // Model: fal-ai/nano-banana/edit (klasik) → $0.039/görsel
-// Özellikler: magenta yerleşim kılavuzu + çıktı oranı sabitleme
-// Prompt tarafı: placementGuide bloklu son prompt.ts ile uyumlu
+// Özellikler: OPAK magenta yerleşim kılavuzu (ölçeğe kilitli oran)
+//             + çıktı oranı sabitleme + magenta tespiti/retry sigortası
+// Prompt tarafı: solid-block dilli son prompt.ts ile uyumlu
 // Gereksinim: npm install sharp
 // ============================================================
 
@@ -46,32 +47,72 @@ function closestAspectRatio(width: number, height: number): string {
   return supported[0][0];
 }
 
+// YENİ (S2/S5): "8x4", "8 x 4", "8,5x4" gibi metinlerden uzun/kısa kenar
+// oranını çıkarır. Kılavuz kutusu artık bu orana kilitli çiziliyor —
+// önceden kutu her zaman sabit ~3:1 (yatay) / ~1:2 (dikey) idi, config.size
+// ne olursa olsun; bu, prompt'taki "Size 8x4 meters" metniyle kutunun
+// şekli arasında bir tutarsızlık yaratıyordu.
+function parsePoolAspect(size: string): number | null {
+  const match = size.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)/i);
+  if (!match) return null;
+  const a = parseFloat(match[1].replace(",", "."));
+  const b = parseFloat(match[2].replace(",", "."));
+  if (!a || !b) return null;
+  const ratio = Math.max(a, b) / Math.min(a, b);
+  // Aşırı uç oranlarda kutu görsel olarak anlamsızlaşmasın diye sınırla.
+  return Math.min(Math.max(ratio, 1.15), 3.5);
+}
+
 // Müşteri fotoğrafının üstüne magenta yerleşim kılavuzu çizer.
 // prompt.ts'teki PLACEMENT GUIDE talimatı bu çizimle birebir eşleşir:
 // kutu = havuz ayak izi, kesikli çizgi = uzun eksen yönü.
+//
+// S1 DEĞİŞİKLİĞİ: su alanı kutusu artık TAM OPAK dolgu ile çiziliyor
+// (önceden %18 saydamdı, çim hafifçe görünüyordu). Amaç: modelin bunu
+// "çime binmiş pembe ton" değil, "değiştirilmesi gereken bir yer tutucu
+// nesne" olarak görmesi. prompt.ts'teki guideLines bu değişikliğe göre
+// güncellendi ("solid block / replace" çerçevesi).
+//
+// S2/S5 DEĞİŞİKLİĞİ: guideWidth/guideHeight artık parsePoolAspect'ten
+// gelen gerçek havuz oranına kilitli; parse edilemezse eski sabit
+// oranlara (0.46/0.15 yatay, 0.2/0.4 dikey) düşülüyor — geriye dönük
+// uyumluluk korunuyor.
 async function createOrientationGuide(
   sourceBuffer: Buffer,
   width: number,
   height: number,
   orientation: "horizontal" | "vertical",
-  withWalkwayBoundary: boolean
+  withWalkwayBoundary: boolean,
+  poolSize: string
 ): Promise<string> {
-  const guideWidth =
-    orientation === "horizontal"
-      ? Math.round(width * 0.46)
+  const poolAspect = parsePoolAspect(poolSize);
+
+  let guideWidth: number;
+  let guideHeight: number;
+
+  if (orientation === "horizontal") {
+    // Taban ölçek çapası aynı kaldı (%46 genişlik) — kutunun "ne kadar
+    // büyük dursun" heuristiği bu; sadece ŞEKLİ artık gerçek orana uyuyor.
+    guideWidth = Math.round(width * 0.46);
+    guideHeight = poolAspect
+      ? Math.round(guideWidth / poolAspect)
+      : Math.round(height * 0.15);
+  } else {
+    guideHeight = Math.round(height * 0.4);
+    guideWidth = poolAspect
+      ? Math.round(guideHeight / poolAspect)
       : Math.round(width * 0.2);
-  const guideHeight =
-    orientation === "horizontal"
-      ? Math.round(height * 0.15)
-      : Math.round(height * 0.4);
+  }
+
   const x = Math.round((width - guideWidth) / 2);
   const y = Math.round(height * 0.56 - guideHeight / 2);
   const strokeWidth = Math.max(8, Math.round(Math.min(width, height) * 0.012));
   const dashStroke = Math.max(4, Math.round(strokeWidth / 2));
 
-  // Yürüme yolu dış sınırı: havuz kutusundan her yönde ~%30 (kısa kenara göre)
-  // dışarıda ince bir ikinci dikdörtgen. Model 1.2m'yi kelimeden anlamıyor
-  // ama çizili sınırı takip edebiliyor.
+  // Yürüme yolu / döşeme dış sınırı: havuz kutusundan her yönde ~%25
+  // (kısa kenara göre) dışarıda ince bir ikinci dikdörtgen. Bu, ince ve
+  // stroke-only kalmaya devam ediyor (döşeme alanı, "sil ve değiştir"
+  // değil "bu bandı döşemeyle kapla" anlamına geliyor).
   const offset = Math.round(0.25 * Math.min(guideWidth, guideHeight));
   const outerRect = withWalkwayBoundary
     ? `<rect
@@ -83,8 +124,6 @@ async function createOrientationGuide(
       />`
     : "";
 
-  // Uzun eksen çizgisi orientation'a göre yön değiştirir:
-  // yatayda soldan sağa, dikeyde yukarıdan aşağıya.
   const midX = Math.round(x + guideWidth / 2);
   const midY = Math.round(y + guideHeight / 2);
   const axisLine =
@@ -102,7 +141,7 @@ async function createOrientationGuide(
       <rect
         x="${x}" y="${y}"
         width="${guideWidth}" height="${guideHeight}"
-        fill="rgba(255, 0, 255, 0.18)"
+        fill="#ff00ff"
         stroke="#ff00ff"
         stroke-width="${strokeWidth}"
       />
@@ -152,6 +191,35 @@ async function createPoolReferenceBoard(
   return `data:image/png;base64,${board.toString("base64")}`;
 }
 
+// YENİ (S1 sigortası): üretilen görselde saf/yarı-opak magenta piksel
+// oranını ölçer. Küçültülmüş görsel üzerinde tarar (hız için). %0.1 üstü
+// = kılavuz kalıntısı var kabul edilir ve retry tetiklenir.
+async function detectMagentaResidue(imageUrl: string): Promise<boolean> {
+  const buffer = await fetchImageBuffer(imageUrl);
+  const { data, info } = await sharp(buffer)
+    .resize(300, undefined, { withoutEnlargement: true })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const channels = info.channels;
+  let magentaPixels = 0;
+  const totalPixels = info.width * info.height;
+
+  for (let i = 0; i < data.length; i += channels) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    // Saf ve yarı bozulmuş magenta tonlarını yakalar: R ve B yüksek,
+    // G düşük, R ile B birbirine yakın (mora/pembeye kaymış türevler dahil).
+    if (r > 170 && b > 170 && g < 110 && Math.abs(r - b) < 60) {
+      magentaPixels++;
+    }
+  }
+
+  const ratio = totalPixels > 0 ? magentaPixels / totalPixels : 0;
+  return ratio > 0.001;
+}
+
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
   config: PoolConfig,
@@ -195,7 +263,8 @@ export async function generatePoolVisualization(
         width,
         height,
         config.poolOrientation as "horizontal" | "vertical",
-        Boolean(config.ceramic || config.deck)
+        Boolean(config.ceramic || config.deck),
+        config.size
       )
     : customerPhotoUrl;
 
@@ -255,11 +324,10 @@ export async function generatePoolVisualization(
       },
     });
 
-  try {
-    let result;
+  const runOnce = async () => {
     if (aspectRatio) {
       try {
-        result = await subscribe({ ...baseInput, aspect_ratio: aspectRatio });
+        return await subscribe({ ...baseInput, aspect_ratio: aspectRatio });
       } catch (err: any) {
         // Klasik model aspect_ratio desteklemiyorsa (422/validation),
         // parametresiz otomatik yeniden dene — üretim durmasın.
@@ -268,19 +336,37 @@ export async function generatePoolVisualization(
           console.warn(
             "aspect_ratio bu endpoint'te desteklenmiyor, parametresiz yeniden deneniyor."
           );
-          result = await subscribe(baseInput);
-        } else {
-          throw err;
+          return await subscribe(baseInput);
         }
+        throw err;
       }
-    } else {
-      result = await subscribe(baseInput);
+    }
+    return await subscribe(baseInput);
+  };
+
+  try {
+    const result = await runOnce();
+    let finalUrl: string = result.data.images[0].url;
+    let retried = false;
+
+    // YENİ (S1 sigortası): sadece kılavuz çizildiyse magenta kontrolü
+    // anlamlı. Kalıntı bulunursa TEK SEFER yeniden üretim denenir —
+    // sonsuz döngüye girmiyoruz, ikinci denemede de kalıntı varsa kabul
+    // edip devam ediyoruz (üretim tamamen durmasın diye).
+    if (needsGuide) {
+      const hasResidue = await detectMagentaResidue(finalUrl);
+      if (hasResidue) {
+        console.warn("⚠️ Magenta kalıntısı tespit edildi, 1 kez yeniden üretiliyor...");
+        const retryResult = await runOnce();
+        finalUrl = retryResult.data.images[0].url;
+        retried = true;
+      }
     }
 
-    console.log("✅ BAŞARILI:", result.data.images[0].url);
+    console.log("✅ BAŞARILI:", finalUrl, retried ? "(retry sonrası)" : "");
 
     return {
-      aiImageUrl: result.data.images[0].url,
+      aiImageUrl: finalUrl,
       prompt,
     };
   } catch (error: any) {

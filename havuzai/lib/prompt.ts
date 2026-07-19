@@ -50,18 +50,25 @@ export function buildPoolPrompt(
   const waterfallImageNo = 3;
 
   // ---- Şekil (referansa devredilmiş, tek netleştirme satırı) ----
+  // ROMA: S-dalgası tarifi güçlendirildi (S4) — önceki "gently wavy" ifadesi
+  // modelin simetrik oval/stadyuma yuvarlamasına izin veriyordu.
   const shapeLine = isRoma
-    ? `Pool shape: copy the reference pool EXACTLY — a soft freeform oval, both ends rounded, one long side gently wavy. No sharp corners. Copy its molded interior too: wide steps at the rounded end, bench along one side, visible under the water.`
+    ? `Pool shape: copy the reference pool EXACTLY — a soft freeform oval, both ends rounded. This is explicitly NOT a symmetric ellipse or stadium shape: one long side has a pronounced outward bulge partway along its length, breaking the curve into a visible S-wave. If your output silhouette looks like a smooth symmetric oval, it is WRONG — exaggerate the bulge until it clearly departs from symmetry. Copy its molded interior too: wide steps at the rounded end, bench along one side, visible under the water.`
     : `Pool shape: copy the reference pool EXACTLY — a clean rectangle. Copy its molded interior too: the built-in steps in the SAME position as the reference (corner steps stay in the same corner), visible under the water.`;
 
   // ---- Kılavuz + yön ----
+  // S1: kılavuz artık fal.ts'te OPAK dolgu ile çiziliyor (yarı saydam değil).
+  // Buradaki dil buna göre "yer tutucu blok / değiştir" çerçevesine geçti —
+  // salt "üstünü boya" komutundan daha net bir "bu nesneyi değiştir" görevi.
+  // S2/S5: kutunun boyutu artık gerçek havuz ölçüsüne kilitli (fal.ts,
+  // parsePoolAspect) — bu yüzden "kesin ölçek" cümlesi eklendi.
   const guideLines = hasSurround
-    ? `Image 1 has magenta construction marks: THICK rectangle = the water area. THIN outer rectangle = outer edge of the paving. Dashed line = the pool's long axis.
-Water goes exactly inside the thick rectangle. Paving fills ONLY the ring between the two rectangles. The paving's outer edge is straight and rectangular; grass starts right at the thin line.
-PAINT OVER ALL MAGENTA COMPLETELY. Zero magenta in the final image.`
-    : `Image 1 has magenta construction marks: the rectangle = the pool's exact footprint, the dashed line = the pool's long axis.
-Build the pool exactly inside the rectangle, same direction as drawn.
-PAINT OVER ALL MAGENTA COMPLETELY. Zero magenta in the final image.`;
+    ? `Image 1 has a SOLID magenta rectangle: a placeholder block marking the water area at this photo's exact real-world scale — its size is a precise measurement, not a rough suggestion. The pool must fill this block edge-to-edge and never extend past it in any direction. A THIN magenta outline further out marks the outer edge of the paving. A dashed magenta line marks the pool's long axis.
+Paving fills ONLY the ring between the solid block and the thin outline; its outer edge is straight and rectangular, grass starts right at the thin outline.
+REPLACE THE ENTIRE SOLID MAGENTA BLOCK with the pool and REPLACE the thin outline/dashed line areas with paving/grass. Nothing pink, magenta, or purple may remain anywhere in the final image.`
+    : `Image 1 has a SOLID magenta rectangle: a placeholder block marking the pool's exact footprint at this photo's real-world scale — its size is a precise measurement, not a suggestion. A dashed magenta line marks the pool's long axis.
+Build the pool exactly inside this block, filling it edge-to-edge, same direction as drawn.
+REPLACE THE ENTIRE SOLID MAGENTA BLOCK with the pool. Nothing pink, magenta, or purple may remain anywhere in the final image.`;
 
   const orientationLine =
     poolOrientation === "horizontal"
