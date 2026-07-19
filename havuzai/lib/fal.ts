@@ -119,6 +119,39 @@ async function createOrientationGuide(
   return `data:image/png;base64,${guidedBuffer.toString("base64")}`;
 }
 
+// İki havuz referansını tek yan-yana görsele birleştirir.
+// Ucuz model çok sayıda referans görselde dağılıyor; tek güçlü
+// referans, şekil kopyalama sinyalini belirgin biçimde artırıyor.
+async function createPoolReferenceBoard(
+  primaryUrl: string,
+  secondaryUrl?: string
+): Promise<string> {
+  if (!secondaryUrl) return primaryUrl;
+
+  const [a, b] = await Promise.all([
+    fetchImageBuffer(primaryUrl),
+    fetchImageBuffer(secondaryUrl),
+  ]);
+
+  const panel = 1024;
+  const [pa, pb] = await Promise.all([
+    sharp(a).rotate().resize(panel, panel, { fit: "contain", background: "#ffffff" }).png().toBuffer(),
+    sharp(b).rotate().resize(panel, panel, { fit: "contain", background: "#ffffff" }).png().toBuffer(),
+  ]);
+
+  const board = await sharp({
+    create: { width: panel * 2, height: panel, channels: 4, background: "#ffffff" },
+  })
+    .composite([
+      { input: pa, left: 0, top: 0 },
+      { input: pb, left: panel, top: 0 },
+    ])
+    .png()
+    .toBuffer();
+
+  return `data:image/png;base64,${board.toString("base64")}`;
+}
+
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
   config: PoolConfig,
@@ -166,13 +199,15 @@ export async function generatePoolVisualization(
       )
     : customerPhotoUrl;
 
-  // Referans görselleri topla
-  const imageUrls: string[] = [gardenImageForAi, poolRef];
+  // Havuz referans(lar)ı: ikinci görsel varsa tek board'a birleştirilir.
+  // Böylece havuz her zaman tek bir Image 2 olarak gider — model dağılmaz.
+  const poolReference = await createPoolReferenceBoard(
+    poolRef,
+    model?.reference_image_url_2
+  );
 
-  const poolRef2 = model?.reference_image_url_2;
-  if (poolRef2) {
-    imageUrls.push(poolRef2);
-  }
+  // Referans görselleri topla
+  const imageUrls: string[] = [gardenImageForAi, poolReference];
 
   if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);

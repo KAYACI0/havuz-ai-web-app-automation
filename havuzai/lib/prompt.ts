@@ -42,8 +42,12 @@ export function buildPoolPrompt(
   const deckColorEn = deckColor ? toEnColor(deckColor.name) : "";
 
   const hasRef2 = Boolean(poolModel?.reference_image_url_2);
-  const poolRefLabel = hasRef2 ? "Images 2 and 3 show" : "Image 2 shows";
-  const waterfallImageNo = hasRef2 ? 4 : 3;
+  // İkinci referans varsa fal.ts ikisini tek board'da birleştirip Image 2
+  // olarak gönderir — havuz her zaman Image 2, şelale her zaman Image 3.
+  const poolRefLabel = hasRef2
+    ? "Image 2 shows the pool model from two angles side by side (full view + close-up of the steps)"
+    : "Image 2 shows the pool model";
+  const waterfallImageNo = 3;
 
   // ---- Şekil (referansa devredilmiş, tek netleştirme satırı) ----
   const shapeLine = isRoma
@@ -89,7 +93,7 @@ The deck is SUNK INTO the lawn: its surface level with the grass, no visible thi
     .join("\n");
 
   return `
-Edit Image 1 (the customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed. ${poolRefLabel} the ${modelName} pool model.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""} The result must look like a real photograph.
+Edit Image 1 (the customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed. ${poolRefLabel} — the ${modelName}.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""} The result must look like a real photograph.
 
 IN-GROUND — MOST IMPORTANT: the pool is dug INTO the earth. Water surface level with the lawn. No pool shell, wall, or lip visible above the ground. Never a pool sitting on top of the grass.
 
