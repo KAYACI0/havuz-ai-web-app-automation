@@ -73,14 +73,14 @@ PRECISION: the pool's long axis lines up with the guide's dashed line exactly as
 
   // ---- Surround ----
   const surroundRule = ceramicColor
-    ? `Surround the pool on all four sides with a NARROW walkway of LARGE-FORMAT ${ceramicColorEn} porcelain paving slabs — outdoor terrace paving with a matte finish. The walkway is a thin frame, not a patio: exactly TWO slab rows per side, about 1.2m total — noticeably narrower than the pool itself. Each slab is BIG and RECTANGULAR, 33cm x 66cm — twice as long as it is wide, laid with the long side parallel to the pool edge, thin grout joints forming a clean brick pattern of large rectangles. This is NOT pool mosaic: no small square tiles, no glossy bathroom tiles, no tile grids — only large matte ${ceramicColorEn} paving slabs. The innermost slab row runs straight to the water and IS the pool coping — there is no separate border: no white frame, no white strip, no band of any other color between the water and the ${ceramicColorEn} slabs. The transition is water, a thin natural waterline shadow, then ${ceramicColorEn} slab. The walkway sits flush with the lawn like a real sunken patio, and its surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures.`
+    ? `Surround the pool on all four sides with a NARROW walkway of LARGE-FORMAT ${ceramicColorEn} porcelain paving slabs — outdoor terrace paving with a matte finish. The walkway is a thin frame, not a patio: exactly TWO slab rows per side, about 1.2m total — if the walkway looks wider than 1.2m, it is wrong. Each slab is BIG and RECTANGULAR, 33cm x 66cm — twice as long as it is wide, laid with the long side parallel to the pool edge, thin grout joints forming a clean brick pattern of large rectangles. This is NOT pool mosaic: no small square tiles, no glossy bathroom tiles — only large matte ${ceramicColorEn} paving slabs. The walkway is ONE CONTINUOUS SURFACE in ONE COLOR: the slab row touching the water is identical in color, size, and material to every other row — it is not lighter, not whiter, not a separate ring. The innermost slabs run straight to the water and ARE the pool coping; the transition is water, a thin natural waterline shadow, then ${ceramicColorEn} slab. The walkway sits flush with the lawn like a real sunken patio, and its surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures.`
     : deckColor
-    ? `Surround the pool on all four sides with a narrow ${deckColorEn} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping — no white strip or border between water and boards. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
+    ? `Surround the pool on all four sides with a ${deckColorEn} composite wood deck walkway, about 1.2m wide — six 20cm boards per side, laid parallel to the pool edge, wide enough to comfortably walk on. The deck sits flush with the lawn and reaches the water directly, acting as the pool coping — no white strip or border between water and boards, and the board row at the water is identical to all the others. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
     : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
 
   // ---- Equipment ----
   const ladderRule = config.hasStairs
-    ? `Install exactly one 3-step polished stainless steel entry ladder on one short end of the pool, steps going down into the water. One ladder in the whole image — never two.`
+    ? `Install exactly one 3-step polished stainless steel entry ladder on the short end OPPOSITE the pool's built-in steps — the ladder and the molded steps are at different ends of the pool, never at the same end, never overlapping. Steps of the ladder go down into the water. One ladder in the whole image — never two.`
     : "";
   const waterfallRule = config.hasWaterfall
     ? `Install exactly one small stainless steel cobra waterfall blade (about 35cm wide) on the middle of one long side, pouring a smooth sheet of water into the pool. One waterfall in the whole image — never two.`
@@ -98,7 +98,7 @@ The result is the original photograph with one change: the pool. Keep every buil
 PRIORITY 3 — SHAPE AND SIZE.
 ${shapeDesc}
 ${shapeRule}
-The pool is ${size} meters — keep those proportions. Keep it modest in scale: roughly a fifth to a quarter of the visible open lawn, clearly smaller than the house, with open grass on every side, and never extending past any lawn edge, fence, or wall.
+The pool is ${size} meters — keep those proportions. Keep it modest in scale: roughly a fifth to a quarter of the visible open lawn, clearly smaller than the house, with open grass on every side, and never extending past any lawn edge, fence, or wall. The pool and its walkway also keep a clear distance from every edge of the photo itself — visible lawn remains between the camera and the near side of the pool, and the pool never touches or crowds the image borders.
 
 ${orientationRule ? `PRIORITY 4 — PLACEMENT.\n${orientationRule}\n` : ""}
 SURROUND.
@@ -108,7 +108,9 @@ ${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filte
 FINAL CHECK — the image is wrong if any of these appear:
 - the pool or its shell raised above the ground in any way
 - a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}
-- a plain empty pool basin — the built-in steps from Image 2 must be visible underwater
+- a plain empty pool basin — the built-in steps from Image 2 must be visible underwater${config.hasStairs ? `
+- the ladder placed at the same end as the built-in steps — they belong at opposite ends` : ""}
+- the pool touching or crowding the edges of the photo — clear lawn must remain on all sides and in the foreground
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
 - a wide band or rim of any color separating the water from its surround${ceramicColor ? `
