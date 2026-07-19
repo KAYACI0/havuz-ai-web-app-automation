@@ -48,10 +48,10 @@ export function buildPoolPrompt(
 
   // ---- Shape (delegated to Image 2, one clarifying line for Roma) ----
   const shapeRule = isRoma
-    ? `Copy the EXACT silhouette of the pool in Image 2. The Roma is an asymmetric teardrop: one wide rounded end, one narrower tapered end, gently curving sides. It is never a rectangle and never a rounded rectangle.
-Copy the pool's INTERIOR from Image 2 as well: the Roma has built-in molded fiberglass steps at its WIDE end — broad curved steps following the rounded shape, molded from the same material and color as the pool shell. The steps are clearly visible through the water, with light and gentle shadows defining each step edge underwater.`
+    ? `Copy the EXACT silhouette of the pool shown in the reference images: the Roma is a soft FREEFORM OVAL — both ends fully rounded, sides gently curving, and one long side flowing with a subtle wave (a soft S-curve that dips inward and back out). No sharp corners anywhere and no straight machine-drawn edges — the whole outline is organic and flowing, exactly as in the reference.
+Copy the pool's INTERIOR from the reference as well: wide molded steps spanning the width of one rounded end, and a long molded bench ledge running along one side — same position, same form, same count as shown, molded from the same material and color as the pool shell. The steps and bench are clearly visible through the water, each edge defined underwater by light and gentle shadow.`
     : `Copy the EXACT silhouette of the pool in Image 2: a clean rectangle with straight sides and square corners.
-Copy the pool's INTERIOR from Image 2 as well: the model has built-in molded fiberglass entry steps at one short end — full-width steps molded from the same material and color as the pool shell, exactly as shown in Image 2. The steps are clearly visible through the water, with light and gentle shadows defining each step edge underwater.`;
+Copy the pool's INTERIOR from Image 2 as well — the built-in molded steps, benches, and ledges, in the same position, same form, and same count as shown there (for example corner steps stay corner steps, in the same corner), molded from the same material and color as the pool shell. The steps are clearly visible through the water, each step edge defined underwater by light and gentle shadow.`;
 
   // ---- Placement guide (drawn by fal.ts when an orientation is selected) ----
   const hasSurround = Boolean(ceramicColor || deckColor);
@@ -83,14 +83,18 @@ PRECISION: the pool's long axis lines up with the guide's dashed line exactly as
 
   // ---- Equipment ----
   const ladderRule = config.hasStairs
-    ? `Install exactly one 3-step polished stainless steel entry ladder on the short end OPPOSITE the pool's built-in steps — the ladder and the molded steps are at different ends of the pool, never at the same end, never overlapping. Steps of the ladder go down into the water. One ladder in the whole image — never two.`
+    ? `Install exactly one 3-step polished stainless steel entry ladder at the end of the pool FARTHEST from the built-in molded steps — ladder and molded steps never share the same end and never overlap. Steps of the ladder go down into the water. One ladder in the whole image — never two.`
     : "";
   const waterfallRule = config.hasWaterfall
     ? `Install exactly one small stainless steel cobra waterfall blade (about 35cm wide) on the middle of one long side, pouring a smooth sheet of water into the pool. One waterfall in the whole image — never two.`
     : "";
 
+  const hasRef2 = Boolean(poolModel?.reference_image_url_2);
+  const poolRefLabel = hasRef2 ? "Images 2 and 3 show" : "Image 2 shows";
+  const waterfallImageNo = hasRef2 ? 4 : 3;
+
   return `
-You are a professional architectural visualization AI. Edit Image 1 (the customer's garden photo) so it looks like a real photograph taken after a luxury fiberglass pool was professionally installed. Image 2 shows the ${modelName} pool model whose shape must be copied exactly.${config.hasWaterfall ? " Image 3 shows the waterfall style." : ""}
+You are a professional architectural visualization AI. Edit Image 1 (the customer's garden photo) so it looks like a real photograph taken after a luxury fiberglass pool was professionally installed. ${poolRefLabel} the ${modelName} pool model whose shape must be copied exactly.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""}
 
 PRIORITY 1 — BUILT INTO THE GROUND.
 This is an in-ground pool, excavated into the earth. The water surface sits at the same level as the surrounding lawn, and the ground runs naturally up to the water's edge. The pool casts and receives the same shadows as everything else in the scene, so it reads as permanently part of the garden — as if it had always been there. Nothing of the pool's shell, walls, or lip rises above the surrounding ground; from outside, only water and the ground around it are visible. A pool sitting on top of the grass like a container is the single worst possible failure.
@@ -110,7 +114,7 @@ ${surroundRule}
 ${ladderRule || waterfallRule ? `EQUIPMENT.\n${[ladderRule, waterfallRule].filter(Boolean).join("\n")}\n` : ""}
 FINAL CHECK — the image is wrong if any of these appear:
 - the pool or its shell raised above the ground in any way
-- a shape different from Image 2${isRoma ? " (any rounded rectangle is wrong for the Roma)" : ""}, or an empty basin without the built-in steps
+- a shape different from the pool reference${isRoma ? " (sharp corners or straight rigid edges are wrong for the Roma — its outline is a flowing freeform oval)" : ""}, or an empty basin without the built-in steps
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
 - a band, frame, or rim between the water and its surround — in any color, any shade, lighter or darker${hasSurround ? `
