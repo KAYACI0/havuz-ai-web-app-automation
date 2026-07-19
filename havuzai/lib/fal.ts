@@ -58,12 +58,12 @@ async function createOrientationGuide(
 ): Promise<string> {
   const guideWidth =
     orientation === "horizontal"
-      ? Math.round(width * 0.62)
-      : Math.round(width * 0.24);
+      ? Math.round(width * 0.46)
+      : Math.round(width * 0.2);
   const guideHeight =
     orientation === "horizontal"
-      ? Math.round(height * 0.19)
-      : Math.round(height * 0.48);
+      ? Math.round(height * 0.15)
+      : Math.round(height * 0.4);
   const x = Math.round((width - guideWidth) / 2);
   const y = Math.round(height * 0.56 - guideHeight / 2);
   const strokeWidth = Math.max(8, Math.round(Math.min(width, height) * 0.012));
@@ -72,7 +72,7 @@ async function createOrientationGuide(
   // Yürüme yolu dış sınırı: havuz kutusundan her yönde ~%30 (kısa kenara göre)
   // dışarıda ince bir ikinci dikdörtgen. Model 1.2m'yi kelimeden anlamıyor
   // ama çizili sınırı takip edebiliyor.
-  const offset = Math.round(0.3 * Math.min(guideWidth, guideHeight));
+  const offset = Math.round(0.25 * Math.min(guideWidth, guideHeight));
   const outerRect = withWalkwayBoundary
     ? `<rect
         x="${x - offset}" y="${y - offset}"
@@ -178,10 +178,9 @@ export async function generatePoolVisualization(
     imageUrls.push(WATERFALL_REF);
   }
 
-  const stairRef = clientConfig.features?.stair_reference_url;
-  if (config.hasStairs && stairRef) {
-    imageUrls.push(stairRef);
-  }
+  // Merdiven stil referansı bilinçli olarak GÖNDERİLMİYOR:
+  // fazladan her referans görsel, modelin havuz şeklini (Image 2) kopyalama
+  // gücünü sulandırıyor. Merdiven zaten prompt tarifiyle sorunsuz çıkıyor.
 
   console.log("=== FAL.AI DEBUG ===");
   console.log("Endpoint:", FAL_MODEL);
