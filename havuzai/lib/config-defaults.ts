@@ -15,11 +15,37 @@ import type {
  *  1. Bir firmanın client_configs kaydı yoksa/eksikse fallback (regresyon = 0).
  *  2. Mevcut firma (havuzyaptir) için seed verisi üretmek.
  *
- * Referans görsel URL'leri şu an env'de (NEXT_PUBLIC_*_REFERENCE_URL). Bunlar hem client
- * hem server tarafında okunabilir (NEXT_PUBLIC öneki).
+ * Referans görsel URL'leri: public/pools/ altındaki dosyalar, NEXT_PUBLIC_SITE_URL ile
+ * birleştirilip TAM (absolute) URL olarak üretiliyor. fal.ts bu URL'leri server-side
+ * fetch() ile indiriyor — göreceli yol ("/pools/...") ÇALIŞMAZ, mutlaka tam domain gerekir.
+ *
+ * Eski davranışla geriye dönük uyumluluk için: NEXT_PUBLIC_*_REFERENCE_URL env var'ları
+ * hâlâ set edilmişse, onlar öncelikli olur (override). Set değilse, aşağıdaki yerel
+ * dosyalara düşülür.
  */
 
+// Sitenin yayındaki tam adresi. Vercel'e deploy ediyorsan Project → Settings →
+// Environment Variables kısmına ekle. Örn: https://havuzai.vercel.app
+// veya kendi alan adın: https://havuzyaptir.com
+// BOŞ KALIRSA aşağıdaki pool referansları çalışmaz (relatif path fetch edilemez) —
+// bu durumda konsola uyarı basılır.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+
+if (!SITE_URL) {
+  console.warn(
+    "[config-defaults] NEXT_PUBLIC_SITE_URL tanımlı değil — public/pools/ altındaki " +
+      "referans görselleri fal.ai'ye gönderilemeyecek (relatif URL fetch edilemez)."
+  );
+}
+
+/** public/pools/ altındaki bir dosyayı tam URL'e çevirir. */
+function poolAsset(filename: string): string {
+  return `${SITE_URL}/pools/${encodeURIComponent(filename)}`;
+}
+
 // Prompt'ta kullanılan detaylı şekil açıklamaları (eski lib/prompt.ts'ten aynen).
+// NOT: prompt.ts şu an bu alanı OKUMUYOR (hardcode kendi shapeLine mantığını
+// kullanıyor) — bu metinler şu an etkisiz. Test turu bitince ayrı ele alınacak.
 const RELAX_SHAPE = `STRICTLY RECTANGULAR fiberglass pool.
 Perfectly straight parallel long sides.
 Sharp 90-degree corners (very slightly softened radius only).
@@ -47,7 +73,12 @@ export const DEFAULT_POOL_MODELS: PoolModel[] = [
       "dikdörtgen yapısıyla işlevsel ve sade bir tasarım sunan, her bahçeye kolaylıkla uyum sağlayan havuz modelidir.",
     prompt_description: RELAX_SHAPE,
     tag: "En Popüler",
-    reference_image_url: process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL || "",
+    // Birincil: açılı/perspektif çekim — basamakların gerçek 3D görünümünü taşıyor.
+    reference_image_url:
+      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL || poolAsset("buyuk-relax-model.jpg"),
+    // İkincil: tepeden çekim — basamağın tam pozisyon/genişlik bilgisini destekliyor.
+    reference_image_url_2:
+      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL_2 || poolAsset("kucuk-relax-model-3.jpg"),
     sizes: ["2.25x4.45x1.5", "3x5x1.5", "3x6x1.5", "3x7x1.5", "3x8x1.5"],
   },
   {
@@ -58,7 +89,12 @@ export const DEFAULT_POOL_MODELS: PoolModel[] = [
       "Yumuşak oval hatlarıyla doğal ve şık görünüm. Modern bahcelere mükemmel uyum sağlanması.",
     prompt_description: ROMA_SHAPE,
     tag: "Premium",
-    reference_image_url: process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL || "",
+    // Birincil: yandan çekim — tam silüet (S-dalgası dahil) burada görünüyor.
+    reference_image_url:
+      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL || poolAsset("roma-model-yandan.jpg"),
+    // İkincil: yakın plan — basamak detayı.
+    reference_image_url_2:
+      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL_2 || poolAsset("roma-model-yakin-plan.jpg"),
     sizes: ["3x6x1.5"],
   },
 ];
