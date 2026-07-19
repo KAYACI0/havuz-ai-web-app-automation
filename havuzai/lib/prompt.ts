@@ -73,9 +73,9 @@ PRECISION: the pool's long axis lines up with the guide's dashed line exactly as
 
   // ---- Surround ----
   const surroundRule = ceramicColor
-    ? `Surround the pool on all four sides with a NARROW walkway of ${ceramicColorEn} ceramic tiles. The walkway is a thin frame, not a patio: exactly TWO tile rows per side, about 1.2m total — noticeably narrower than the pool itself. Each tile is RECTANGULAR, 33cm x 66cm — exactly twice as long as it is wide, like an elongated brick. Square tiles are wrong. Lay them with the 66cm long side parallel to the pool edge, so the grout lines form a clear brick pattern of long rectangles, with thin grout lines between them. Every single tile is ${ceramicColorEn} — solid ${ceramicColorEn} ceramic, never red brick, never terracotta, never any other paving color or pattern. The walkway is set into the lawn like a real patio: its outer edge sits flush with the grass, and the inner row reaches the water and acts as the pool coping. The water meets tile directly, with only a thin natural shadow at the waterline. The tile surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures on the tiles.`
+    ? `Surround the pool on all four sides with a NARROW walkway of LARGE-FORMAT ${ceramicColorEn} porcelain paving slabs — outdoor terrace paving with a matte finish. The walkway is a thin frame, not a patio: exactly TWO slab rows per side, about 1.2m total — noticeably narrower than the pool itself. Each slab is BIG and RECTANGULAR, 33cm x 66cm — twice as long as it is wide, laid with the long side parallel to the pool edge, thin grout joints forming a clean brick pattern of large rectangles. This is NOT pool mosaic: no small square tiles, no glossy bathroom tiles, no tile grids — only large matte ${ceramicColorEn} paving slabs. The innermost slab row runs straight to the water and IS the pool coping — there is no separate border: no white frame, no white strip, no band of any other color between the water and the ${ceramicColorEn} slabs. The transition is water, a thin natural waterline shadow, then ${ceramicColorEn} slab. The walkway sits flush with the lawn like a real sunken patio, and its surface is clean and uninterrupted — no drain covers, lids, plates, lights, or any fixtures.`
     : deckColor
-    ? `Surround the pool on all four sides with a narrow ${deckColorEn} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
+    ? `Surround the pool on all four sides with a narrow ${deckColorEn} composite wood deck, about 60cm wide (three 20cm boards laid parallel to the pool edge). The deck sits flush with the lawn and reaches the water directly, acting as the pool coping — no white strip or border between water and boards. The deck surface is clean and uninterrupted — no covers, plates, or fixtures on the boards.`
     : `No surround: the existing ground continues right up to the water's edge. No tiles, no deck, no pavers, no added border of any kind.`;
 
   // ---- Equipment ----
@@ -112,9 +112,10 @@ FINAL CHECK — the image is wrong if any of these appear:
 - the pool angled diagonally or turned against the selected placement
 - any magenta marking left in the image
 - a wide band or rim of any color separating the water from its surround${ceramicColor ? `
-- square tiles in the walkway — every tile must read as a 2:1 elongated brick
-- tiles in any color other than ${ceramicColorEn} (red brick or terracotta paving is wrong)
-- a walkway wider than two tile rows per side
+- small square tiles or mosaic anywhere in the walkway — only large 2:1 rectangular slabs
+- a white frame or strip between the water and the ${ceramicColorEn} slabs
+- slabs in any color other than ${ceramicColorEn} (red brick or terracotta paving is wrong)
+- a walkway wider than two slab rows per side
 - any cover, plate, or fixture sitting on the walkway surface` : ""}
 - anything in the original photo changed besides adding the pool
   `.trim();
