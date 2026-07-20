@@ -44,7 +44,8 @@ async function createPlacementGuide(
 ): Promise<string> {
   const poolAspect = parsePoolAspect(poolSize);
 
-  // Bahçe fotoğrafının boyutuna göre yatay veya dikey mod seç
+  // Bahçe fotoğrafının kendi boyutuna göre yatay veya dikey mod seçilir —
+  // kullanıcı seçimi yok, karar tamamen fotoğrafın en-boy oranından gelir.
   const isLandscape = width >= height;
 
   let guideWidth: number;
@@ -157,7 +158,8 @@ export async function generatePoolVisualization(
     console.warn("Fotoğraf boyutları okunamadı, aspect_ratio gönderilmeyecek.");
   }
 
-  // Her zaman kılavuz çiz — bahçe boyutuna göre otomatik yön seçilir
+  // Her zaman kılavuz çiz — bahçe fotoğrafının kendi boyutuna göre otomatik
+  // yatay/dikey seçilir (kullanıcı seçimi devre dışı).
   const gardenImageForAi = width > 0 && height > 0
     ? await createPlacementGuide(
         customerBuffer, width, height,
