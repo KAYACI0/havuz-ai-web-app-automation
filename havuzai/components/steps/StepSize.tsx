@@ -89,37 +89,6 @@ export default function StepSize({ form, update, config }: Props) {
         >
           {sizes[0]} (Tek Ölçü)
         </div>
-
-        {/* Yatay / Dikey seçimi */}
-        <div className="mt-6">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--navy)" }}>
-            Havuz Yönü (İsteğe Bağlı)
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => update({ poolOrientation: form.poolOrientation === "horizontal" ? "" : "horizontal" })}
-              className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all"
-              style={{
-                border: `2px solid ${form.poolOrientation === "horizontal" ? "var(--pool)" : "#d1d5db"}`,
-                background: form.poolOrientation === "horizontal" ? "#EFF6FF" : "#ffffff",
-              }}
-            >
-              <div style={{ width: "52px", height: "28px", borderRadius: "6px", background: form.poolOrientation === "horizontal" ? "var(--pool)" : "#CBD5E1" }} />
-              <span className="text-xs font-bold" style={{ color: form.poolOrientation === "horizontal" ? "var(--pool)" : "#374151" }}>Yatay</span>
-            </button>
-            <button
-              onClick={() => update({ poolOrientation: form.poolOrientation === "vertical" ? "" : "vertical" })}
-              className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all"
-              style={{
-                border: `2px solid ${form.poolOrientation === "vertical" ? "var(--pool)" : "#d1d5db"}`,
-                background: form.poolOrientation === "vertical" ? "#EFF6FF" : "#ffffff",
-              }}
-            >
-              <div style={{ width: "28px", height: "52px", borderRadius: "6px", background: form.poolOrientation === "vertical" ? "var(--pool)" : "#CBD5E1" }} />
-              <span className="text-xs font-bold" style={{ color: form.poolOrientation === "vertical" ? "var(--pool)" : "#374151" }}>Dikey</span>
-            </button>
-          </div>
-        </div>
       </div>
     );
   }
@@ -135,7 +104,7 @@ export default function StepSize({ form, update, config }: Props) {
         Bahçenize uygun havuz boyutunu seçin.
       </p>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3">
         {sizes.map((size) => {
           const sel = form.poolSize === size;
           return (
@@ -154,37 +123,6 @@ export default function StepSize({ form, update, config }: Props) {
             </button>
           );
         })}
-      </div>
-
-      {/* Yatay / Dikey seçimi */}
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--navy)" }}>
-          Havuz Yönü (İsteğe Bağlı)
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => update({ poolOrientation: form.poolOrientation === "horizontal" ? "" : "horizontal" })}
-            className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all"
-            style={{
-              border: `2px solid ${form.poolOrientation === "horizontal" ? "var(--pool)" : "#d1d5db"}`,
-              background: form.poolOrientation === "horizontal" ? "#EFF6FF" : "#ffffff",
-            }}
-          >
-            <div style={{ width: "52px", height: "28px", borderRadius: "6px", background: form.poolOrientation === "horizontal" ? "var(--pool)" : "#CBD5E1" }} />
-            <span className="text-xs font-bold" style={{ color: form.poolOrientation === "horizontal" ? "var(--pool)" : "#374151" }}>Yatay</span>
-          </button>
-          <button
-            onClick={() => update({ poolOrientation: form.poolOrientation === "vertical" ? "" : "vertical" })}
-            className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all"
-            style={{
-              border: `2px solid ${form.poolOrientation === "vertical" ? "var(--pool)" : "#d1d5db"}`,
-              background: form.poolOrientation === "vertical" ? "#EFF6FF" : "#ffffff",
-            }}
-          >
-            <div style={{ width: "28px", height: "52px", borderRadius: "6px", background: form.poolOrientation === "vertical" ? "var(--pool)" : "#CBD5E1" }} />
-            <span className="text-xs font-bold" style={{ color: form.poolOrientation === "vertical" ? "var(--pool)" : "#374151" }}>Dikey</span>
-          </button>
-        </div>
       </div>
     </div>
   );
