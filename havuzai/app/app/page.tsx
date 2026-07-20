@@ -69,7 +69,7 @@ const STEPS = [
 function canProceed(step: number, form: FormData): boolean {
   if (step === 1) return !!form.photo;
   if (step === 2) return !!form.poolModel;
- if (step === 3) return !!form.poolSize && !!form.poolOrientation;
+ if (step === 3) return !!form.poolSize;
   if (step === 5) return !!(form.customerName && form.customerPhone && form.customerAddress);
   return true;
 }
