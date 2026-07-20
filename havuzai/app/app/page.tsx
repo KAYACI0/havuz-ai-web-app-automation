@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,70 +13,47 @@ import LoadingScreen from "@/components/LoadingScreen";
 import HowToUse from "@/components/HowToUse";
 
 const FORM_GUIDE = [
-  {
-    icon: "📷",
-    title: "Fotoğraf Yükleyin",
-    desc: "Bahçenizi veya arka bahçenizi net şekilde gösteren bir fotoğraf seçin. Fotoğrafı sürükleyip bırakabilir ya da 'Dosya Seç' butonuna tıklayabilirsiniz.",
-  },
-  {
-    icon: "🏊",
-    title: "Havuz Modelini Seçin",
-    desc: "Bahçenize en uygun havuz modelini seçin. Her kartta modelin görseli ve kısa açıklaması yer alır.",
-  },
-  {
-    icon: "📐",
-    title: "Ölçü Belirleyin",
-    desc: "Bahçenizin büyüklüğüne uygun havuz boyutunu seçin. Her kartın üzerinde boyuta orantılı küçük bir görsel yer almaktadır.",
-  },
-  {
-    icon: "🌿",
-    title: "Çevre Tasarımını Ayarlayın",
-    desc: "Havuzun etrafındaki deck (ahşap zemin) rengini ve havuz içi seramik rengini seçin. Bu seçimler AI görselini doğrudan etkiler.",
-  },
-  {
-    icon: "👤",
-    title: "Bilgilerinizi Girin",
-    desc: "Ad, telefon ve adres bilgilerinizi girerek 'Görselimi Oluştur' butonuna tıklayın. AI ~15 saniye içinde havuzu bahçenize yerleştirir ve uzmanlarımız sizinle iletişime geçer.",
-  },
+  { icon: "📷", title: "Fotoğraf Yükleyin", desc: "Bahçenizi veya arka bahçenizi net şekilde gösteren bir fotoğraf seçin." },
+  { icon: "🏊", title: "Havuz Modelini Seçin", desc: "Bahçenize en uygun havuz modelini seçin." },
+  { icon: "📐", title: "Ölçü Belirleyin", desc: "Bahçenizin büyüklüğüne uygun havuz boyutunu seçin." },
+  { icon: "🌿", title: "Çevre Tasarımını Ayarlayın", desc: "Deck veya seramik rengini seçin." },
+  { icon: "👤", title: "Bilgilerinizi Girin", desc: "Ad, telefon ve adres bilgilerinizi girerek görselimi oluştur butonuna tıklayın." },
 ];
 
 export interface FormData {
-  photo:            File | null;
-  poolModel:        string;
-  poolSize:         string;
-  gardenLength:     string;
-  gardenWidth:      string;
-  poolOrientation:  "horizontal" | "vertical" | "";
-  deckType:         string;
-  ceramicType:      string;
-  customerName:     string;
-  customerPhone:    string;
-  customerAddress:  string;
-  hasWaterfall:     boolean;
-  hasStairs:        boolean;
-  stairType:        "corner" | "wide";
+  photo:           File | null;
+  poolModel:       string;
+  poolSize:        string;
+  gardenLength:    string;
+  gardenWidth:     string;
+  deckType:        string;
+  ceramicType:     string;
+  customerName:    string;
+  customerPhone:   string;
+  customerAddress: string;
+  hasWaterfall:    boolean;
+  hasStairs:       boolean;
+  stairType:       "corner" | "wide";
 }
 
-
 const STEPS = [
-  { n: 1, label: "Fotoğraf",  icon: "📷" },
-  { n: 2, label: "Model",     icon: "🏊" },
-  { n: 3, label: "Ölçü",      icon: "📐" },
-  { n: 4, label: "Çevre",     icon: "🌿" },
-  { n: 5, label: "İletişim",  icon: "👤" },
+  { n: 1, label: "Fotoğraf", icon: "📷" },
+  { n: 2, label: "Model",    icon: "🏊" },
+  { n: 3, label: "Ölçü",     icon: "📐" },
+  { n: 4, label: "Çevre",    icon: "🌿" },
+  { n: 5, label: "İletişim", icon: "👤" },
 ];
 
 function canProceed(step: number, form: FormData): boolean {
   if (step === 1) return !!form.photo;
   if (step === 2) return !!form.poolModel;
- if (step === 3) return !!form.poolSize;
+  if (step === 3) return !!form.poolSize;
   if (step === 5) return !!(form.customerName && form.customerPhone && form.customerAddress);
   return true;
 }
 
 interface Props { clientId?: string; isEmbed?: boolean; }
 
-/* ── Left decorative panel ── */
 function BrandPanel({ step, config }: { step: number; config: ClientConfig | null }) {
   const logoUrl = config?.brand?.logo_url || "/pools/havuzai-logo-şeffaf.png";
   const companyName = config?.brand?.company_name;
@@ -89,56 +66,23 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
   ];
 
   return (
-    <div
-      className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden"
-      style={{
-        background: "linear-gradient(150deg, #0C1F3F 0%, #1A3560 60%, #0D2E52 100%)",
-        minHeight: "100vh",
-      }}
-    >
-      {/* Background pattern */}
+    <div className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden"
+      style={{ background: "linear-gradient(150deg, #0C1F3F 0%, #1A3560 60%, #0D2E52 100%)", minHeight: "100vh" }}>
       <div className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #B8935A 1px, transparent 0)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      {/* Decorative pool shape */}
+        style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #B8935A 1px, transparent 0)`, backgroundSize: "40px 40px" }} />
       <div className="absolute bottom-20 right-0 w-80 h-80 opacity-10"
-        style={{
-          background: "radial-gradient(ellipse at center, #1D7BBF 0%, transparent 70%)",
-          transform: "translate(30%, 10%)",
-          animation: "poolWave 6s ease-in-out infinite",
-        }}
-      />
+        style={{ background: "radial-gradient(ellipse at center, #1D7BBF 0%, transparent 70%)", transform: "translate(30%, 10%)", animation: "poolWave 6s ease-in-out infinite" }} />
       <div className="absolute bottom-16 right-4 w-48 h-32 opacity-20 rounded-[40px]"
-        style={{
-          background: "linear-gradient(135deg, #1D7BBF 0%, #2E9BD4 100%)",
-          animation: "poolWave 4s ease-in-out infinite",
-        }}
-      />
+        style={{ background: "linear-gradient(135deg, #1D7BBF 0%, #2E9BD4 100%)", animation: "poolWave 4s ease-in-out infinite" }} />
 
-      {/* Logo */}
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-2">
-          <img
-            src={logoUrl}
-            alt={companyName || "HavuzAI"}
-            style={{
-              height: "80px", width: "auto", objectFit: "contain",
-              background: "white", borderRadius: "12px", padding: "8px 14px",
-            }}
-          />
+          <img src={logoUrl} alt={companyName || "HavuzAI"}
+            style={{ height: "80px", width: "auto", objectFit: "contain", background: "white", borderRadius: "12px", padding: "8px 14px" }} />
         </div>
-        {companyName && (
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px" }}>
-            {companyName}
-          </p>
-        )}
+        {companyName && <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px" }}>{companyName}</p>}
       </div>
 
-      {/* Center content */}
       <div className="relative z-10 flex-1 flex flex-col justify-center py-12">
         <div className="mb-6">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4"
@@ -146,39 +90,23 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
             Adım {step} / 5
           </span>
         </div>
-
-        <h2 className="font-display text-4xl font-bold leading-tight mb-6"
-          style={{ color: "#FFFFFF" }}>
+        <h2 className="font-display text-4xl font-bold leading-tight mb-6" style={{ color: "#FFFFFF" }}>
           {headlines[step - 1]}
         </h2>
-
         <div className="flex flex-col gap-3">
           {STEPS.map((s) => (
-            <div key={s.n}
-              className="flex items-center gap-3 transition-all duration-300"
+            <div key={s.n} className="flex items-center gap-3 transition-all duration-300"
               style={{ opacity: step === s.n ? 1 : step > s.n ? 0.5 : 0.3 }}>
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 transition-all"
                 style={{
-                  background: step > s.n
-                    ? "rgba(5,150,105,0.2)"
-                    : step === s.n
-                    ? "rgba(184,147,90,0.2)"
-                    : "rgba(255,255,255,0.05)",
-                  border: step > s.n
-                    ? "1px solid rgba(5,150,105,0.5)"
-                    : step === s.n
-                    ? "1px solid rgba(184,147,90,0.5)"
-                    : "1px solid rgba(255,255,255,0.1)",
+                  background: step > s.n ? "rgba(5,150,105,0.2)" : step === s.n ? "rgba(184,147,90,0.2)" : "rgba(255,255,255,0.05)",
+                  border: step > s.n ? "1px solid rgba(5,150,105,0.5)" : step === s.n ? "1px solid rgba(184,147,90,0.5)" : "1px solid rgba(255,255,255,0.1)",
                 }}>
                 {step > s.n
                   ? <span style={{ color: "#10B981", fontSize: "11px" }}>✓</span>
-                  : <span style={{ color: step === s.n ? "#D4AF7A" : "rgba(255,255,255,0.3)", fontSize: "11px" }}>
-                      {s.n}
-                    </span>
-                }
+                  : <span style={{ color: step === s.n ? "#D4AF7A" : "rgba(255,255,255,0.3)", fontSize: "11px" }}>{s.n}</span>}
               </div>
-              <span className="text-sm font-medium"
-                style={{ color: step === s.n ? "#FFFFFF" : "rgba(255,255,255,0.45)" }}>
+              <span className="text-sm font-medium" style={{ color: step === s.n ? "#FFFFFF" : "rgba(255,255,255,0.45)" }}>
                 {s.label}
               </span>
             </div>
@@ -186,13 +114,8 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
         </div>
       </div>
 
-      {/* Bottom trust badges */}
       <div className="relative z-10 flex flex-col gap-3">
-        {[
-          { icon: "⚡", text: "~15 saniyede sonuç" },
-          { icon: "🔒", text: "Fotoğraflarınız güvende" },
-          { icon: "📞", text: "Ücretsiz teklif" },
-        ].map((b) => (
+        {[{ icon: "⚡", text: "~15 saniyede sonuç" }, { icon: "🔒", text: "Fotoğraflarınız güvende" }, { icon: "📞", text: "Ücretsiz teklif" }].map((b) => (
           <div key={b.text} className="flex items-center gap-2">
             <span className="text-sm">{b.icon}</span>
             <span className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{b.text}</span>
@@ -203,25 +126,14 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
   );
 }
 
-/* ── Progress bar (mobile) ── */
 function MobileProgress({ step, config }: { step: number; config: ClientConfig | null }) {
   const logoUrl = config?.brand?.logo_url || "/pools/favicon-logo-havuzai.png";
   return (
     <div className="lg:hidden px-6 pt-6 pb-0">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <img
-            src={logoUrl}
-            alt={config?.brand?.company_name || "HavuzAI"}
-            style={{
-              height: "60px", width: "auto", objectFit: "contain",
-              background: "white", borderRadius: "10px", padding: "6px 10px",
-            }}
-          />
-        </div>
-        <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
-          {step} / 5
-        </span>
+        <img src={logoUrl} alt={config?.brand?.company_name || "HavuzAI"}
+          style={{ height: "60px", width: "auto", objectFit: "contain", background: "white", borderRadius: "10px", padding: "6px 10px" }} />
+        <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{step} / 5</span>
       </div>
       <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
         <div className="h-full rounded-full transition-all duration-500"
@@ -232,28 +144,25 @@ function MobileProgress({ step, config }: { step: number; config: ClientConfig |
 }
 
 function AppForm({ clientId: propClientId, isEmbed }: Props) {
-  const router        = useRouter();
-  const searchParams  = useSearchParams();
-  const urlClientId   = searchParams.get("client");
-  const clientId      = propClientId || urlClientId || null;
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const urlClientId  = searchParams.get("client");
+  const clientId     = propClientId || urlClientId || null;
 
-  const [step, setStep]       = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [step, setStep]           = useState(1);
+  const [loading, setLoading]     = useState(false);
   const [config, setConfig]       = useState<ClientConfig | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>({
-  photo: null, poolModel: "", poolSize: "",
-  gardenLength: "", gardenWidth: "",
-  poolOrientation: "",
-  deckType: "", ceramicType: "",
-  customerName: "", customerPhone: "", customerAddress: "",
-  hasWaterfall: false, hasStairs: false, stairType: "corner",
-});
+    photo: null, poolModel: "", poolSize: "",
+    gardenLength: "", gardenWidth: "",
+    deckType: "", ceramicType: "",
+    customerName: "", customerPhone: "", customerAddress: "",
+    hasWaterfall: false, hasStairs: false, stairType: "corner",
+  });
 
-  const updateForm = (data: Partial<FormData>) =>
-    setForm((prev) => ({ ...prev, ...data }));
+  const updateForm = (data: Partial<FormData>) => setForm((prev) => ({ ...prev, ...data }));
 
-  // Firma konfigürasyonunu yükle
   useEffect(() => {
     if (!clientId) return;
     let cancelled = false;
@@ -266,17 +175,12 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
         if (d.success && d.config) setConfig(d.config);
         else setConfigError(d.error || "Konfigürasyon yüklenemedi.");
       })
-      .catch(() => {
-        if (!cancelled) setConfigError("Bağlantı hatası.");
-      });
+      .catch(() => { if (!cancelled) setConfigError("Bağlantı hatası."); });
     return () => { cancelled = true; };
   }, [clientId]);
 
   const handleSubmit = async () => {
-    if (!canProceed(5, form)) {
-      toast.error("Lütfen tüm alanları doldurun.");
-      return;
-    }
+    if (!canProceed(5, form)) { toast.error("Lütfen tüm alanları doldurun."); return; }
     setLoading(true);
     try {
       const fd = new FormData();
@@ -292,7 +196,6 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("hasWaterfall",    String(form.hasWaterfall));
       fd.append("hasStairs",       String(form.hasStairs));
       fd.append("stairType",       form.stairType);
-      fd.append("poolOrientation", form.poolOrientation);
       fd.append("source",          isEmbed ? "widget" : "direct");
 
       const res  = await fetch("/api/generate", { method: "POST", body: fd });
@@ -300,9 +203,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
 
       if (data.success) {
         if (isEmbed) window.parent.postMessage("HAVUZAI_SUCCESS", "*");
-        router.push(
-          `/result/${data.orderId}?ai=${encodeURIComponent(data.aiPhoto)}&orig=${encodeURIComponent(data.original)}`
-        );
+        router.push(`/result/${data.orderId}?ai=${encodeURIComponent(data.aiPhoto)}&orig=${encodeURIComponent(data.original)}`);
       } else {
         toast.error(data.error || "Bir hata oluştu.");
         setLoading(false);
@@ -313,65 +214,39 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     }
   };
 
-  if (!clientId) {
-    return (
-      <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
-        <h2 style={{ color: "#cc0000" }}>Geçersiz bağlantı</h2>
-        <p>Bu sayfaya doğrudan erişilemez. Lütfen yetkili bir bayi bağlantısından giriş yapın.</p>
-      </div>
-    );
-  }
+  if (!clientId) return (
+    <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
+      <h2 style={{ color: "#cc0000" }}>Geçersiz bağlantı</h2>
+      <p>Bu sayfaya doğrudan erişilemez. Lütfen yetkili bir bayi bağlantısından giriş yapın.</p>
+    </div>
+  );
 
-  if (configError) {
-    return (
-      <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
-        <h2 style={{ color: "#cc0000" }}>Form açılamadı</h2>
-        <p>{configError}</p>
-      </div>
-    );
-  }
+  if (configError) return (
+    <div style={{ padding: 40, textAlign: "center", fontFamily: "sans-serif" }}>
+      <h2 style={{ color: "#cc0000" }}>Form açılamadı</h2>
+      <p>{configError}</p>
+    </div>
+  );
 
   if (loading || !config) return <LoadingScreen />;
 
   const brandColor = config.brand?.primary_color || "#1D7BBF";
 
   return (
-    <div
-      className="min-h-screen lg:grid"
-      style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)", ["--pool" as string]: brandColor }}
-    >
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontFamily: "var(--font-jakarta), sans-serif",
-            fontSize: "14px",
-            borderRadius: "10px",
-            background: "var(--navy)",
-            color: "#fff",
-          },
-        }}
-      />
+    <div className="min-h-screen lg:grid"
+      style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)", ["--pool" as string]: brandColor }}>
+      <Toaster position="top-center" toastOptions={{ style: { fontFamily: "var(--font-jakarta), sans-serif", fontSize: "14px", borderRadius: "10px", background: "var(--navy)", color: "#fff" } }} />
 
-      {/* Left brand panel */}
       <BrandPanel step={step} config={config} />
 
-      {/* Right form area */}
       <div className="flex flex-col min-h-screen" style={{ background: "var(--sand)" }}>
         <MobileProgress step={step} config={config} />
 
         <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full" style={{ maxWidth: "520px" }}>
-
-            {/* Form card */}
             <div className="animate-fadeUp rounded-2xl overflow-hidden"
-              style={{
-                background: "var(--white)",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 12px 40px rgba(12,31,63,0.08)",
-                border: "1px solid var(--border-soft)",
-              }}>
+              style={{ background: "var(--white)", boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 12px 40px rgba(12,31,63,0.08)", border: "1px solid var(--border-soft)" }}>
 
-              {/* Step content */}
               <div className="p-8">
                 {step === 1 && <StepPhoto       form={form} update={updateForm} />}
                 {step === 2 && <StepModel       form={form} update={updateForm} config={config} />}
@@ -380,52 +255,29 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
                 {step === 5 && <StepContact     form={form} update={updateForm} />}
               </div>
 
-              {/* Navigation footer */}
               <div className="px-8 pb-8 flex items-center justify-between gap-4">
                 {step > 1 ? (
-                  <button className="btn-secondary" onClick={() => setStep((s) => s - 1)}>
-                    ← Geri
-                  </button>
-                ) : (
-                  <div />
-                )}
+                  <button className="btn-secondary" onClick={() => setStep((s) => s - 1)}>← Geri</button>
+                ) : <div />}
 
                 {step < 5 ? (
-                  <button
-                    className="btn-primary"
-                    onClick={() => {
-                      if (!canProceed(step, form)) {
-                        toast.error(step === 1 ? "Lütfen bir fotoğraf yükleyin." : "Lütfen bir seçim yapın.");
-                        return;
-                      }
-                      setStep((s) => s + 1);
-                    }}
-                  >
-                    İleri →
-                  </button>
+                  <button className="btn-primary" onClick={() => {
+                    if (!canProceed(step, form)) {
+                      toast.error(step === 1 ? "Lütfen bir fotoğraf yükleyin." : "Lütfen bir seçim yapın.");
+                      return;
+                    }
+                    setStep((s) => s + 1);
+                  }}>İleri →</button>
                 ) : (
-                  <button className="btn-gold" onClick={handleSubmit}>
-                    ✨ Görselimi Oluştur
-                  </button>
+                  <button className="btn-gold" onClick={handleSubmit}>✨ Görselimi Oluştur</button>
                 )}
               </div>
             </div>
 
-            {/* Step dots (desktop bottom) */}
             <div className="hidden lg:flex justify-center gap-2 mt-6">
               {STEPS.map((s) => (
-                <div key={s.n}
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    width:   step === s.n ? "24px" : "8px",
-                    height:  "8px",
-                    background: step === s.n
-                      ? "var(--gold)"
-                      : step > s.n
-                      ? "var(--gold-pale)"
-                      : "var(--border)",
-                  }}
-                />
+                <div key={s.n} className="rounded-full transition-all duration-300"
+                  style={{ width: step === s.n ? "24px" : "8px", height: "8px", background: step === s.n ? "var(--gold)" : step > s.n ? "var(--gold-pale)" : "var(--border)" }} />
               ))}
             </div>
           </div>
