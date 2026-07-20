@@ -168,13 +168,31 @@ export async function generatePoolVisualization(
 
   const poolReference = await createPoolReferenceBoard(poolRef, model?.reference_image_url_2);
 
+  // Seçilen seramik/deck renginin referans görseli varsa Image 3 olarak gider.
+  // Kullanım: config'de ceramic_colors / deck_colors öğelerine opsiyonel
+  // reference_image_url alanı ekleyin (malzemenin net, yakın çekim fotoğrafı).
+  // Alan yoksa sistem eskisi gibi yalnızca renk adıyla çalışır.
+  const ceramicSel = config.ceramic
+    ? clientConfig.ceramic_colors.find((c) => c.id === config.ceramic)
+    : null;
+  const deckSel = config.deck
+    ? clientConfig.deck_colors.find((d) => d.id === config.deck)
+    : null;
+  const materialRef =
+    (ceramicSel as { reference_image_url?: string } | null)?.reference_image_url ||
+    (deckSel as { reference_image_url?: string } | null)?.reference_image_url ||
+    null;
+
   const imageUrls: string[] = [gardenImageForAi, poolReference];
+
+  if (materialRef) imageUrls.push(materialRef);
 
   if (config.hasWaterfall && WATERFALL_REF) imageUrls.push(WATERFALL_REF);
 
   console.log("=== FAL.AI DEBUG ===");
   console.log("Endpoint:", FAL_MODEL);
   console.log("Model:", config.model);
+  console.log("Malzeme referansı:", materialRef ? "VAR" : "yok");
   console.log("Aspect ratio (çıktı):", aspectRatio ?? "(otomatik)");
   console.log("Prompt uzunluğu:", prompt.length);
   console.log("Referans görsel sayısı:", imageUrls.length);

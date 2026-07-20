@@ -36,11 +36,22 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const deckColorEn    = deckColor    ? toEnColor(deckColor.name)    : "";
 
   // fal.ts iki havuz referansını tek yan-yana board'da birleştirir:
-  // havuz her zaman Image 2, şelale her zaman Image 3.
+  // havuz her zaman Image 2. Seçilen rengin referans görseli varsa Image 3,
+  // şelale ondan sonraki numara olur.
   const hasRef2 = Boolean(poolModel?.reference_image_url_2);
   const poolRefLabel = hasRef2
     ? "Image 2 shows the pool model from two angles side by side"
     : "Image 2 shows the pool model";
+  const hasMaterialRef = Boolean(
+    (ceramicColor as { reference_image_url?: string } | null)?.reference_image_url ||
+    (deckColor as { reference_image_url?: string } | null)?.reference_image_url
+  );
+  const waterfallImageNo = hasMaterialRef ? 4 : 3;
+  const materialLabel = hasMaterialRef
+    ? ceramicColor
+      ? `Image 3 shows the EXACT ${toEnColor(ceramicColor.name)} paving material — match its color, texture, and slab look precisely.`
+      : `Image 3 shows the EXACT ${deckColor ? toEnColor(deckColor.name) : ""} deck material — match its color, texture, and board look precisely.`
+    : "";
 
   // ---- Şekil: referansa devredilmiş, gerçek ürüne uygun tek netleştirme ----
   // DİKKAT: Roma "teardrop" DEĞİLDİR — gerçek referans fotoğrafıyla doğrulandı.
@@ -73,12 +84,12 @@ The deck is SUNK INTO the lawn: its surface level with the grass, no visible thi
       ? `Exactly ONE stainless steel 3-step ladder, at the end of the pool away from the molded steps. Never two ladders.`
       : "",
     config.hasWaterfall
-      ? `Exactly ONE small stainless cobra waterfall (about 35cm) on one long side, water pouring into the pool. Never two waterfalls. Image 3 shows the waterfall style.`
+      ? `Exactly ONE small stainless cobra waterfall (about 35cm) on one long side, water pouring into the pool. Never two waterfalls. Image ${waterfallImageNo} shows the waterfall style.`
       : "",
   ].filter(Boolean).join("\n");
 
   return `
-Edit Image 1 (the customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed. ${poolRefLabel} — the ${modelName}. The result must look like a real photograph.
+Edit Image 1 (the customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed. ${poolRefLabel} — the ${modelName}.${materialLabel ? ` ${materialLabel}` : ""} The result must look like a real photograph.
 
 IN-GROUND — MOST IMPORTANT: the pool is dug INTO the earth. Water surface level with the lawn. No pool shell, wall, or lip visible above the ground. Never a pool sitting on top of the grass.
 
