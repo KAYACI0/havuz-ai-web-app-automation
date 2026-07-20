@@ -62,10 +62,10 @@ REPLACE the entire solid magenta block with the pool. Nothing pink, magenta, or 
     ? `Paving: LARGE matte ${ceramicColorEn} porcelain slabs, each 33x66cm exactly — 2:1 rectangles laid long-side parallel to the pool. NOT mosaic, NOT small square tiles.
 Two rows per side, MAXIMUM 1.2m total width from pool edge outward — hard ceiling, never wider.
 One color everywhere — the row touching the water is IDENTICAL to the others, no white border row. Water meets slab directly.
-GROUND LEVEL — check this carefully: the slabs are flush with the surrounding lawn, at the SAME height, like a mat laid on top of the ground. There is NO raised platform, NO visible side wall, edge, lip, or step-down/step-up of any kind where the grass meets the paving — a ball rolling across the grass would roll straight onto the slabs without a bump. If your output shows a visible edge, curb, or the paving looking like a deck or platform sitting above the lawn, it is WRONG.`
+GROUND LEVEL — check this carefully: the slabs are flush with the surrounding lawn, at the SAME height, like a mat laid on top of the ground. There is NO raised platform, NO visible side wall, edge, lip, or step-down/step-up of any kind where the grass meets the paving — a ball rolling across the grass would roll straight onto the slabs without a bump. There must be NO gap, shadow strip, or sliver of daylight visible between the paving and the lawn anywhere along its edge — the paving physically touches and rests on the ground, it never floats above it. If your output shows a visible edge, curb, floating slab, or the paving looking like a deck or platform sitting above the lawn, it is WRONG.`
     : deckColor
     ? `Deck: ${deckColorEn} composite wood boards, 20cm wide, laid parallel to the pool. MAXIMUM 1.2m total width from pool edge outward per side — hard ceiling, never wider.
-GROUND LEVEL — check this carefully: the deck boards are flush with the surrounding lawn, at the SAME height, like a mat laid on top of the ground. There is NO raised platform, NO visible side wall, edge, lip, or step-down/step-up of any kind where the grass meets the deck — a ball rolling across the grass would roll straight onto the boards without a bump. Boards reach water directly — no white strip. If your output shows a visible edge, curb, or the deck looking like a platform sitting above the lawn, it is WRONG.`
+GROUND LEVEL — check this carefully: the deck boards are flush with the surrounding lawn, at the SAME height, like a mat laid on top of the ground. There is NO raised platform, NO visible side wall, edge, lip, or step-down/step-up of any kind where the grass meets the deck — a ball rolling across the grass would roll straight onto the boards without a bump. There must be NO gap, shadow strip, or sliver of daylight visible between the deck and the lawn anywhere along its edge — the deck physically touches and rests on the ground, it never floats above it. Boards reach water directly — no white strip. If your output shows a visible edge, curb, floating deck, or the deck looking like a platform sitting above the lawn, it is WRONG.`
     : `No paving, no deck: existing ground runs directly to the water's edge. Do not add any border.`;
 
   const equipLines = [
@@ -81,6 +81,8 @@ GROUND LEVEL — check this carefully: the deck boards are flush with the surrou
 Edit Image 1 (customer's garden photo): add ONE luxury fiberglass swimming pool, professionally installed in-ground. ${poolRefLabel} — the ${modelName}.${config.hasWaterfall ? ` Image ${waterfallImageNo} shows the waterfall style.` : ""} Result must look like a real photograph.
 
 IN-GROUND — MOST IMPORTANT: pool is dug INTO the earth. Water surface level with lawn. No pool shell, wall, or lip visible above ground. Never sitting on top of grass.
+
+PERSPECTIVE — MOST IMPORTANT, CHECK BEFORE FINISHING: everything you add must be drawn in the SAME camera perspective as the original photo — same viewpoint height, same vanishing point, same horizon line. If the photo was taken from standing height looking slightly down and away, the far edge of the pool/paving must appear smaller and higher in the frame than the near edge, exactly like the real grass and hedges do. Never draw the pool or paving as a flat, top-down, or face-on rectangle pasted onto the scene — it must recede into the photo's depth like a real object resting on that lawn. If the result looks like a flat image floating above the grass, disconnected from the ground and not following the photo's perspective lines, it is WRONG.
 
 ${shapeLine}
 Size ${size} meters — keep proportions. Pool stays clearly smaller than the house. Leave visible grass on every side beyond the paving/deck.
@@ -99,6 +101,8 @@ FORBIDDEN:
 - Wrong pool shape (must match Image 2)
 - Pool extending beyond garden boundaries
 - Cartoon or render style
+- Pool or paving floating above the lawn, with a visible gap or shadow strip underneath
+- Flat, top-down, or face-on geometry that ignores the photo's own camera perspective
 ${ceramicColor ? "- White border between water and tiles\n- Tile area raised above grass, or any visible edge/curb where grass meets tiles" : ""}
 ${deckColor ? "- White coping between water and deck\n- Deck raised above grass like a platform, or any visible edge/curb where grass meets deck" : ""}
 ${config.hasStairs ? "- More than one ladder" : ""}
