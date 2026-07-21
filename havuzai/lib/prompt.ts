@@ -33,7 +33,7 @@ export function buildPoolPrompt(
   const shapeDesc =
     poolModel?.prompt_description ||
     poolModel?.description ||
-    `${model} fiberglass pool`;
+    `${model} fiberglass pool model`;
 
   const deckColor = deck
     ? clientConfig.deck_colors.find((d) => d.id === deck)
@@ -45,18 +45,18 @@ export function buildPoolPrompt(
 
   const referenceGuide: string[] = [
     `Image ${refs.gardenIndex}: Customer garden photo. Main scene to place the pool.`,
-    `Image ${refs.poolPrimaryIndex}: Primary structural reference for ${modelName} pool shape.`,
+    `Image ${refs.poolPrimaryIndex}: Primary reference for internal shell shape, inner steps, and curves of ${modelName}.`,
   ];
 
   if (refs.poolSecondaryIndex) {
     referenceGuide.push(
-      `Image ${refs.poolSecondaryIndex}: Secondary angle/depth reference for ${modelName} pool shell, curves, internal steps, and proportions.`
+      `Image ${refs.poolSecondaryIndex}: Secondary angle reference for inner pool shell geometry and step placement.`
     );
   }
 
   if (refs.ceramicIndex && ceramicColor) {
     referenceGuide.push(
-      `Image ${refs.ceramicIndex}: Ceramic layout and tile pattern reference. Copy ONLY its tile geometry, rows, and grout layout. DO NOT copy its reference color.`
+      `Image ${refs.ceramicIndex}: Ceramic layout reference. Copy ONLY its tile grid/geometry. DO NOT copy its reference color.`
     );
   }
 
@@ -72,18 +72,17 @@ export function buildPoolPrompt(
     );
   }
 
+  // CERAMIC & SURROUND RULES (MAX 1-2 ROWS / SLIM BORDER)
   const surroundRule = ceramicColor
     ? `
-RULE 5 - CERAMIC TILE SURROUND - MANDATORY
+RULE 5 - NARROW CERAMIC TILE BORDER (STRICT LIMIT)
 
-Install a professional ceramic tile border on all four sides of the pool.
-
+Install a SLIM ceramic tile border around the pool rim.
 - Tile color MUST BE EXACTLY "${ceramicColor.name}".
-- Surround width: exactly 2 rows of ceramic tiles around the pool rim.
-- Tile Layout: Match the tile ratio, row placement, and grout grid of Image ${refs.ceramicIndex || refs.poolPrimaryIndex}.
-- Surface Level: The ceramic top surface MUST be 100% flush with the surrounding lawn/soil.
-- No Elevation: Zero raised edges, zero platform steps, zero visible side thickness, zero shadows under tiles.
-- Grass edge connects naturally with the ceramic border at the exact same ground level.
+- BORDER WIDTH: EXACTLY 1 OR 2 ROWS OF TILES MAXIMUM (approx 15-30 cm total width).
+- DO NOT COVER THE GARDEN. Do NOT create a large tiled patio or wide floor platform.
+- Surface Level: Tile top surface MUST be 100% flush with the surrounding grass/lawn plane. Zero height difference.
+- Grass edge connects directly and naturally to this narrow tile border at the exact same ground level.
 ${
   refs.ceramicIndex
     ? `- CRITICAL: Ignore any blue or turquoise color present in Image ${refs.ceramicIndex}. Render tiles strictly in "${ceramicColor.name}".`
@@ -92,29 +91,29 @@ ${
 `
     : deckColor
     ? `
-RULE 5 - COMPOSITE DECK SURROUND - MANDATORY
+RULE 5 - NARROW COMPOSITE DECK BORDER - MANDATORY
 
-Install a composite wood deck surround on all four sides of the pool.
-
+Install a slim composite wood deck border around the pool rim.
 - Deck color MUST BE EXACTLY "${deckColor.name}".
 - Use parallel deck boards recessed flush into the ground.
 - Deck top surface MUST be at the exact same ground height as the surrounding grass.
-- Absolutely NO raised platform, no visible deck thickness, no side fascia, no bottom gap or shadow.
+- Absolutely NO raised platform, no visible deck thickness, no bottom gap or shadow.
 `
     : `
 RULE 5 - NO EXTRA SURROUND
 
 - Grass/ground meets the thin pool coping directly.
-- No raised walls or elevated deck/pavers.
+- No raised walls, pavers, or elevated platforms.
 `;
 
+  // ORIENTATION RULES (NO DIAGONALS)
   const orientationText = config.orientation
     ? config.orientation === "horizontal"
-      ? "Align pool long axis perfectly HORIZONTAL (0 degrees)."
+      ? "Align pool long axis strictly HORIZONTAL (0 degrees) parallel to the main house or garden axis."
       : config.orientation === "vertical"
-      ? "Align pool long axis perfectly VERTICAL (90 degrees)."
-      : "Align pool long axis at exactly 45 DEGREES."
-    : "Align pool length parallel to the house facade or main garden axis. Strictly pick 0, 45, or 90 degrees.";
+      ? "Align pool long axis strictly VERTICAL (90 degrees) perpendicular to the house facade."
+      : "Align pool long axis strictly parallel or perpendicular to the dominant garden lines. NO SLANTED TILTS."
+    : "Align pool length strictly parallel (0°) or perpendicular (90°) to the house facade or main garden axis.";
 
   return `
 You are a professional architectural visualization AI expert in pool construction rendering.
@@ -128,24 +127,24 @@ ${referenceGuide.map((line) => `- ${line}`).join("\n")}
 
 RULE 1 - ORIGINAL SCENE INTEGRATION
 - Preserve house, patio, furniture, trees, fences, and walls from Image ${refs.gardenIndex}.
-- Embed pool into the largest open, central lawn area without blocking doors or pathways.
+- Embed pool seamlessly into the largest open lawn area without blocking doors or pathways.
 
-RULE 2 - POOL MODEL (${modelName.toUpperCase()})
-- ${shapeDesc}
-- Match structural shape, shell geometry, corners, and internal steps from Image ${refs.poolPrimaryIndex}${
-    refs.poolSecondaryIndex ? ` and Image ${refs.poolSecondaryIndex}` : ""
-  }.
+RULE 2 - POOL MODEL REPRODUCTION (${modelName.toUpperCase()})
+- Model Details: ${shapeDesc}.
+- IGNORE THE EXTERNAL BLACK FIBERGLASS SHELL / OUTER BOX visible in Image ${refs.poolPrimaryIndex}${refs.poolSecondaryIndex ? ` and Image ${refs.poolSecondaryIndex}` : ""}.
+- Replicate ONLY the inner blue pool contours, internal entry steps, and top lip/rim shape.
 - Pool Dimensions: ${size} meters.
 
-RULE 3 - ORIENTATION & ALIGNMENT
+RULE 3 - STRICT PERPENDICULAR ALIGNMENT (ABSOLUTELY NO DIAGONALS)
 - ${orientationText}
-- Forbidden: Random or arbitrary diagonal tilts (e.g. 15°, 30°, 60°).
-- Pool, deck/tiles, waterfall, and ladder must share the exact same axis.
+- STRICTLY FORBIDDEN: NEVER place the pool at random or arbitrary diagonal tilts (e.g., 15°, 30°, 45°, 60°).
+- Pool, border tiles, waterfall, and ladder MUST share the exact same 0° or 90° axis.
 
-RULE 4 - IN-GROUND FLUSH CONSTRUCTION (MANDATORY)
+RULE 4 - 100% IN-GROUND FLUSH CONSTRUCTION (MANDATORY)
 - Pool is fully EXCAVATED and embedded INTO the ground.
-- Water level and pool coping are flush with the lawn plane.
-- ABSOLUTELY NO above-ground pool walls, raised decks, steps up, platform thickness, or floating gaps.
+- Water level and top coping rim MUST be completely FLUSH with the surrounding lawn plane.
+- ZERO ABOVE-GROUND WALLS: Absolute zero visible fiberglass height above grass.
+- No raised platforms, no step-up boxes, no floating gaps or bottom shadows.
 
 ${surroundRule}
 
@@ -171,6 +170,7 @@ RULE 7 - STAINLESS STEEL LADDER / STEPS
 
 PHOTOREALISM REQUIREMENTS:
 - Crystal-clear blue water reflections matching garden sunlight.
-- Sharp architectural details, natural soil/grass borders, photo-realistic output.
+- Clean soil/grass borders meeting the pool edge with zero gap.
+- High-end architectural rendering quality.
 `.trim();
 }
