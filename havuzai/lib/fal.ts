@@ -5,8 +5,11 @@ import type { ClientConfig } from "./config-types";
 
 fal.config({ credentials: process.env.FAL_KEY! });
 
+// Ucuz/klasik model — bütçe kısıtı nedeniyle burada kalınıyor.
+// Pro ($0.15/görsel) belirgin daha iyi sonuç veriyor ama varsayılan bu.
 const FAL_MODEL = "fal-ai/nano-banana/edit";
 
+// Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
 const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 
 async function fetchImageBuffer(url: string): Promise<Buffer> {
@@ -35,6 +38,8 @@ function parsePoolAspect(size: string): number | null {
   return Math.min(Math.max(ratio, 1.15), 3.5);
 }
 
+// Bahçe fotoğrafının üstüne, havuzun gerçek konum/ölçeğini işaretleyen
+// magenta kılavuz çizer. Modelin bu kutuyu havuzla DEĞİŞTİRMESİ beklenir.
 async function createPlacementGuide(
   sourceBuffer: Buffer,
   width: number,
@@ -44,8 +49,8 @@ async function createPlacementGuide(
 ): Promise<string> {
   const poolAspect = parsePoolAspect(poolSize);
 
-  // Bahçe fotoğrafının kendi boyutuna göre yatay veya dikey mod seçilir —
-  // kullanıcı seçimi yok, karar tamamen fotoğrafın en-boy oranından gelir.
+  // Bahçe fotoğrafının kendi boyutuna göre yatay/dikey mod seçilir —
+  // kullanıcı seçimi yok, karar fotoğrafın en-boy oranından gelir.
   const isLandscape = width >= height;
 
   let guideWidth: number;
@@ -96,6 +101,9 @@ async function createPlacementGuide(
   return `data:image/png;base64,${guidedBuffer.toString("base64")}`;
 }
 
+// Havuz modelinin 2. referans fotoğrafı (basamak yakın çekimi) varsa,
+// şekil sinyalinin sulanmaması için ayrı görsel yerine TEK bir board'da
+// birleştirilir (daha önce ayrı ayrı gönderme denendi, sinyal zayıfladı).
 async function createPoolReferenceBoard(primaryUrl: string, secondaryUrl?: string): Promise<string> {
   if (!secondaryUrl) return primaryUrl;
 
@@ -170,31 +178,30 @@ export async function generatePoolVisualization(
 
   const poolReference = await createPoolReferenceBoard(poolRef, model?.reference_image_url_2);
 
-  // Seçilen seramik/deck renginin referans görseli varsa Image 3 olarak gider.
-  // Kullanım: config'de ceramic_colors / deck_colors öğelerine opsiyonel
-  // reference_image_url alanı ekleyin (malzemenin net, yakın çekim fotoğrafı).
-  // Alan yoksa sistem eskisi gibi yalnızca renk adıyla çalışır.
   const ceramicSel = config.ceramic
     ? clientConfig.ceramic_colors.find((c) => c.id === config.ceramic)
     : null;
   const deckSel = config.deck
     ? clientConfig.deck_colors.find((d) => d.id === config.deck)
     : null;
-  const materialRef =
-    (ceramicSel as { reference_image_url?: string } | null)?.reference_image_url ||
-    (deckSel as { reference_image_url?: string } | null)?.reference_image_url ||
-    null;
+  const materialRef = ceramicSel?.reference_image_url || deckSel?.reference_image_url || null;
 
+  const stairRef = clientConfig.features?.stair_reference_url;
+
+  // SIRA prompt.ts'teki numaralandırmayla BİREBİR aynı olmalı:
+  // 1: bahçe (kılavuzlu), 2: havuz referans board'u,
+  // sonra (varsa) malzeme -> şelale -> merdiven.
   const imageUrls: string[] = [gardenImageForAi, poolReference];
 
   if (materialRef) imageUrls.push(materialRef);
-
   if (config.hasWaterfall && WATERFALL_REF) imageUrls.push(WATERFALL_REF);
+  if (config.hasStairs && stairRef) imageUrls.push(stairRef);
 
   console.log("=== FAL.AI DEBUG ===");
   console.log("Endpoint:", FAL_MODEL);
   console.log("Model:", config.model);
   console.log("Malzeme referansı:", materialRef ? "VAR" : "yok");
+  console.log("Merdiven referansı:", (config.hasStairs && stairRef) ? "VAR" : "yok");
   console.log("Aspect ratio (çıktı):", aspectRatio ?? "(otomatik)");
   console.log("Prompt uzunluğu:", prompt.length);
   console.log("Referans görsel sayısı:", imageUrls.length);
