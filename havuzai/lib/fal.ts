@@ -9,8 +9,7 @@ const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 // Bu görsel sadece 33x66 dikdörtgen karo formu, sıra düzeni ve derzler içindir.
 // Rengi ASLA kopyalanmaz; prompt içindeki seçili seramik rengi kullanılır.
 const CERAMIC_REFERENCE =
-  process.env.NEXT_PUBLIC_SERAMIK_REFERENCE_URL ||
-  process.env.NEXT_PUBLIC_CERAMIC_REFERENCE_URL;
+  "https://havuz-ai-web-app-automation.vercel.app/pools/Seramik-turkuaz-perspektif.png";
 
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
@@ -26,11 +25,7 @@ export async function generatePoolVisualization(
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  if (config.ceramic && !CERAMIC_REFERENCE) {
-    throw new Error(
-      "Seramik seçildi ancak NEXT_PUBLIC_SERAMIK_REFERENCE_URL tanımlı değil."
-    );
-  }
+  
 
   const imageUrls: string[] = [
     customerPhotoUrl, // Image 1: Bahçe fotoğrafı
