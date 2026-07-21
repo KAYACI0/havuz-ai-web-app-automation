@@ -6,7 +6,6 @@ import type { ClientConfig } from "./config-types";
 fal.config({ credentials: process.env.FAL_KEY! });
 
 // Ucuz/klasik model — bütçe kısıtı nedeniyle burada kalınıyor.
-// Pro ($0.15/görsel) belirgin daha iyi sonuç veriyor ama varsayılan bu.
 const FAL_MODEL = "fal-ai/nano-banana/edit";
 
 // Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
@@ -39,7 +38,9 @@ function parsePoolAspect(size: string): number | null {
 }
 
 // Bahçe fotoğrafının üstüne, havuzun gerçek konum/ölçeğini işaretleyen
-// magenta kılavuz çizer. Modelin bu kutuyu havuzla DEĞİŞTİRMESİ beklenir.
+// GERÇEK bir magenta kılavuz çizer (eskiden burada bu adım hiç yoktu —
+// prompt "magenta dikdörtgen var" diyordu ama görselde hiç çizilmiyordu,
+// bu da modelin pembe bir alan uydurmasına yol açıyordu).
 async function createPlacementGuide(
   sourceBuffer: Buffer,
   width: number,
@@ -48,9 +49,6 @@ async function createPlacementGuide(
   poolSize: string
 ): Promise<string> {
   const poolAspect = parsePoolAspect(poolSize);
-
-  // Bahçe fotoğrafının kendi boyutuna göre yatay/dikey mod seçilir —
-  // kullanıcı seçimi yok, karar fotoğrafın en-boy oranından gelir.
   const isLandscape = width >= height;
 
   let guideWidth: number;
@@ -101,9 +99,9 @@ async function createPlacementGuide(
   return `data:image/png;base64,${guidedBuffer.toString("base64")}`;
 }
 
-// Havuz modelinin 2. referans fotoğrafı (basamak yakın çekimi) varsa,
-// şekil sinyalinin sulanmaması için ayrı görsel yerine TEK bir board'da
-// birleştirilir (daha önce ayrı ayrı gönderme denendi, sinyal zayıfladı).
+// Havuzun 2. referans fotoğrafı (basamak yakın çekimi) varsa AYRI göndermek
+// yerine tek board'da birleştiriyoruz — ayrı göndermek daha önce şekil
+// sinyalini zayıflattığı için denenip elenmişti.
 async function createPoolReferenceBoard(primaryUrl: string, secondaryUrl?: string): Promise<string> {
   if (!secondaryUrl) return primaryUrl;
 
@@ -123,6 +121,8 @@ async function createPoolReferenceBoard(primaryUrl: string, secondaryUrl?: strin
   return `data:image/png;base64,${board.toString("base64")}`;
 }
 
+// Üretim sonrası çıktıda pembe/magenta piksel taraması — varsa 1 kez
+// otomatik yeniden üretim (kılavuz düzgün silinmemişse sigorta).
 async function detectMagentaResidue(imageUrl: string): Promise<boolean> {
   const buffer = await fetchImageBuffer(imageUrl);
   const { data, info } = await sharp(buffer)
@@ -154,7 +154,9 @@ export async function generatePoolVisualization(
 
   const model = clientConfig.pool_models.find((m) => m.id === config.model);
   const poolRef = model?.reference_image_url;
-  if (!poolRef) throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
+  if (!poolRef) {
+    throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
+  }
 
   const customerBuffer = await fetchImageBuffer(customerPhotoUrl);
   const { width = 0, height = 0 } = await sharp(customerBuffer).rotate().metadata();
@@ -166,8 +168,8 @@ export async function generatePoolVisualization(
     console.warn("Fotoğraf boyutları okunamadı, aspect_ratio gönderilmeyecek.");
   }
 
-  // Her zaman kılavuz çiz — bahçe fotoğrafının kendi boyutuna göre otomatik
-  // yatay/dikey seçilir (kullanıcı seçimi devre dışı).
+  // Artık gerçekten kılavuz çiziliyor — prompt'un tarif ettiği magenta
+  // dikdörtgen gerçekten görselde var oluyor.
   const gardenImageForAi = width > 0 && height > 0
     ? await createPlacementGuide(
         customerBuffer, width, height,
@@ -188,7 +190,7 @@ export async function generatePoolVisualization(
 
   const stairRef = clientConfig.features?.stair_reference_url;
 
-  // SIRA prompt.ts'teki numaralandırmayla BİREBİR aynı olmalı:
+  // Sıra prompt.ts'teki numaralandırmayla BİREBİR aynı olmalı:
   // 1: bahçe (kılavuzlu), 2: havuz referans board'u,
   // sonra (varsa) malzeme -> şelale -> merdiven.
   const imageUrls: string[] = [gardenImageForAi, poolReference];
