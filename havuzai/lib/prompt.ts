@@ -3,16 +3,27 @@ import type { ClientConfig } from "./config-types";
 export interface PoolConfig {
   model: string;
   size: string;
-  deck: string;
-  ceramic: string;
-  hasWaterfall: boolean;
-  hasStairs: boolean;
-  stairType: "corner" | "wide";
+  deck?: string;
+  ceramic?: string;
+  hasWaterfall?: boolean;
+  hasStairs?: boolean;
+  stairType?: "corner" | "wide";
+  orientation?: "horizontal" | "vertical" | "diagonal";
+}
+
+export interface PromptImageReferences {
+  gardenIndex: number;
+  poolPrimaryIndex: number;
+  poolSecondaryIndex?: number;
+  ceramicIndex?: number;
+  waterfallIndex?: number;
+  stairIndex?: number;
 }
 
 export function buildPoolPrompt(
   config: PoolConfig,
-  clientConfig: ClientConfig
+  clientConfig: ClientConfig,
+  refs: PromptImageReferences
 ): string {
   const { model, size, ceramic, deck } = config;
 
@@ -32,44 +43,32 @@ export function buildPoolPrompt(
     ? clientConfig.ceramic_colors.find((c) => c.id === ceramic)
     : null;
 
-  // Seramik referansı yalnız form, ölçü, derz ve döşeme düzeni içindir.
-  const ceramicLayoutRef = clientConfig.ceramic_colors.find(
-    (color) => color.reference_image_url
-  )?.reference_image_url;
-
-  const hasCeramicReference = Boolean(ceramicColor && ceramicLayoutRef);
-
-  let imageNumber = 3;
-
-  const referenceGuide = [
-    "Image 1: Customer garden photo. This is the only scene to edit.",
-    `Image 2: ${modelName} pool reference. This is the exact primary pool shape reference.`,
+  const referenceGuide: string[] = [
+    `Image ${refs.gardenIndex}: Customer garden photo. Main scene to place the pool.`,
+    `Image ${refs.poolPrimaryIndex}: Primary structural reference for ${modelName} pool shape.`,
   ];
 
-  if (poolModel?.reference_image_url_2) {
+  if (refs.poolSecondaryIndex) {
     referenceGuide.push(
-      `Image ${imageNumber}: Second ${modelName} pool reference. Use it to confirm the exact silhouette, curves, corners, shell details, internal steps and proportions.`
+      `Image ${refs.poolSecondaryIndex}: Secondary angle/depth reference for ${modelName} pool shell, curves, internal steps, and proportions.`
     );
-    imageNumber++;
   }
 
-  if (hasCeramicReference) {
+  if (refs.ceramicIndex && ceramicColor) {
     referenceGuide.push(
-      `Image ${imageNumber}: Ceramic installation reference. Use ONLY its rectangular tile format, tile ratio, tile rows and grout pattern. Never copy its turquoise color.`
+      `Image ${refs.ceramicIndex}: Ceramic layout and tile pattern reference. Copy ONLY its tile geometry, rows, and grout layout. DO NOT copy its reference color.`
     );
-    imageNumber++;
   }
 
-  if (config.hasWaterfall) {
+  if (refs.waterfallIndex && config.hasWaterfall) {
     referenceGuide.push(
-      `Image ${imageNumber}: Waterfall reference. Use this exact waterfall style.`
+      `Image ${refs.waterfallIndex}: Waterfall reference. Replicate this exact waterfall design on the pool edge.`
     );
-    imageNumber++;
   }
 
-  if (config.hasStairs && clientConfig.features?.stair_reference_url) {
+  if (refs.stairIndex && config.hasStairs) {
     referenceGuide.push(
-      `Image ${imageNumber}: Ladder reference. Use this stainless-steel ladder style.`
+      `Image ${refs.stairIndex}: Ladder/stair reference. Install this exact style.`
     );
   }
 
@@ -77,201 +76,101 @@ export function buildPoolPrompt(
     ? `
 RULE 5 - CERAMIC TILE SURROUND - MANDATORY
 
-Install a ceramic tile surround on all four sides of the pool.
+Install a professional ceramic tile border on all four sides of the pool.
 
-- Tile color MUST be ${ceramicColor.name}.
-- Use exactly 2 rows of ceramic tiles around every pool side.
-- Every tile MUST be a 33cm x 66cm RECTANGLE with an exact 2:1 ratio.
-- Never use square tiles, 60x60 tiles, pavers or irregular stones.
-- The 66cm long side of every tile runs parallel to the nearest pool edge.
-- Total ceramic surround width is exactly 66cm.
-- Use thin, realistic 2-3mm grout lines.
-- The ceramic surface MUST be perfectly flush with the surrounding grass and soil.
-- The ceramic is built into the terrain, not laid on top of the lawn.
-- There must be NO raised ceramic edge, vertical side, step, platform, visible thickness, shadow underneath or floating appearance.
-- Grass must naturally meet the ceramic edge at the same height.
+- Tile color MUST BE EXACTLY "${ceramicColor.name}".
+- Surround width: exactly 2 rows of ceramic tiles around the pool rim.
+- Tile Layout: Match the tile ratio, row placement, and grout grid of Image ${refs.ceramicIndex || refs.poolPrimaryIndex}.
+- Surface Level: The ceramic top surface MUST be 100% flush with the surrounding lawn/soil.
+- No Elevation: Zero raised edges, zero platform steps, zero visible side thickness, zero shadows under tiles.
+- Grass edge connects naturally with the ceramic border at the exact same ground level.
 ${
-  hasCeramicReference
-    ? `
-- The ceramic reference image is ONLY for tile geometry, tile rows and grout.
-- Ignore turquoise color from the reference completely.
-- Apply ${ceramicColor.name} color instead.
-`
+  refs.ceramicIndex
+    ? `- CRITICAL: Ignore any blue or turquoise color present in Image ${refs.ceramicIndex}. Render tiles strictly in "${ceramicColor.name}".`
     : ""
 }
 `
     : deckColor
-      ? `
+    ? `
 RULE 5 - COMPOSITE DECK SURROUND - MANDATORY
 
-Install a composite wood deck around all four sides of the pool.
+Install a composite wood deck surround on all four sides of the pool.
 
-- Deck color MUST be ${deckColor.name}.
-- Use exactly 3 deck boards around every pool side.
-- Every board is 20cm wide; total deck surround width is 60cm.
-- Deck boards run parallel to the nearest pool edge.
-- Deck boards and pool must use the exact same orientation.
-- The deck top surface MUST be exactly flush with the surrounding grass and soil.
-- The deck is recessed into the terrain, never installed above the lawn.
-- There must be NO visible deck side, fascia, deck thickness, vertical platform edge, gap, step, shadow below the deck or floating appearance.
-- Grass must naturally meet the deck edge at the same height.
-- The deck must look permanently built into the ground.
+- Deck color MUST BE EXACTLY "${deckColor.name}".
+- Use parallel deck boards recessed flush into the ground.
+- Deck top surface MUST be at the exact same ground height as the surrounding grass.
+- Absolutely NO raised platform, no visible deck thickness, no side fascia, no bottom gap or shadow.
 `
-      : `
-RULE 5 - NO SURROUND MATERIAL
+    : `
+RULE 5 - NO EXTRA SURROUND
 
-- Existing grass or ground meets the pool edge directly.
-- Do not add ceramic, tile, pavers, stone, deck, walkway or border.
-- Do not create raised edges, platforms or visible pool exterior walls.
-- Only a very thin realistic pool coping may be visible.
+- Grass/ground meets the thin pool coping directly.
+- No raised walls or elevated deck/pavers.
 `;
 
+  const orientationText = config.orientation
+    ? config.orientation === "horizontal"
+      ? "Align pool long axis perfectly HORIZONTAL (0 degrees)."
+      : config.orientation === "vertical"
+      ? "Align pool long axis perfectly VERTICAL (90 degrees)."
+      : "Align pool long axis at exactly 45 DEGREES."
+    : "Align pool length parallel to the house facade or main garden axis. Strictly pick 0, 45, or 90 degrees.";
+
   return `
-You are a professional architectural visualization AI.
+You are a professional architectural visualization AI expert in pool construction rendering.
 
-Place the selected luxury fiberglass swimming pool into the customer garden photo. The output must be a realistic professional photograph of a permanently built pool installation.
+TASK: Place the selected in-ground luxury fiberglass pool into the clear lawn area of the customer garden (Image ${refs.gardenIndex}).
 
-REFERENCE IMAGES:
+REFERENCE IMAGE MAPPING:
 ${referenceGuide.map((line) => `- ${line}`).join("\n")}
 
 ---
 
-RULE 1 - PRESERVE THE ORIGINAL SCENE
+RULE 1 - ORIGINAL SCENE INTEGRATION
+- Preserve house, patio, furniture, trees, fences, and walls from Image ${refs.gardenIndex}.
+- Embed pool into the largest open, central lawn area without blocking doors or pathways.
 
-Keep the original garden photo unchanged except for the pool installation.
+RULE 2 - POOL MODEL (${modelName.toUpperCase()})
+- ${shapeDesc}
+- Match structural shape, shell geometry, corners, and internal steps from Image ${refs.poolPrimaryIndex}${
+    refs.poolSecondaryIndex ? ` and Image ${refs.poolSecondaryIndex}` : ""
+  }.
+- Pool Dimensions: ${size} meters.
 
-- Do not change, remove, move or redesign the house, roof, windows, patio, doors, trees, hedges, fences, walls, paths, furniture or landscaping.
-- Only add the selected pool and its selected deck or ceramic surround.
-- Do not block the house facade, patio, garden doors or the main view of the property.
-- Do not place the pool on paths, under trees, against fences or over existing objects.
+RULE 3 - ORIENTATION & ALIGNMENT
+- ${orientationText}
+- Forbidden: Random or arbitrary diagonal tilts (e.g. 15°, 30°, 60°).
+- Pool, deck/tiles, waterfall, and ladder must share the exact same axis.
 
----
-
-RULE 2 - EXACT SELECTED POOL MODEL: ${modelName.toUpperCase()}
-
-${shapeDesc}
-
-- The final pool MUST match the selected ${modelName} reference image or images exactly.
-- Do not invent a different pool shape.
-- Do not mix Roma and Relax shapes.
-- Preserve the exact silhouette, corners, curves, width-to-length ratio, shell shape and integrated step form from the selected model reference.
-- The selected model reference has priority over generic pool design assumptions.
-- Pool size: ${size} meters.
-- Keep the pool realistically scaled and visibly smaller than the house.
-- The pool should occupy about 20-25% of the usable visible lawn area.
-- Keep clear open space around the pool; do not crowd garden boundaries.
-
----
-
-RULE 3 - ORIENTATION - ABSOLUTELY MANDATORY
-
-The pool orientation must NEVER be random.
-
-Measure orientation relative to the photo frame:
-
-- Allowed orientation 1: pool long axis perfectly HORIZONTAL, 0 degrees.
-- Allowed orientation 2: pool long axis perfectly VERTICAL, 90 degrees.
-- Allowed orientation 3: pool long axis exactly 45 degrees.
-- Choose only the orientation that best matches the garden composition.
-- Prefer HORIZONTAL when the house facade is horizontal.
-- Pool shell, deck, ceramic tiles, ladder and waterfall must all follow the exact same pool orientation.
-
-ABSOLUTELY FORBIDDEN:
-- Any arbitrary diagonal angle.
-- Any angle between 1-44 degrees, 46-89 degrees, or other random rotation.
-- A pool rotated differently from its deck or ceramic surround.
-
----
-
-RULE 4 - BEST GARDEN PLACEMENT - MANDATORY
-
-First identify the largest clear, buildable and unobstructed lawn area.
-
-- Place the geometric center of the pool close to the visual center of that usable lawn area.
-- Create a balanced composition: visible open space should remain around the left, right, front and back sides of the pool.
-- Keep the pool centered and elegant in the garden, not randomly pushed into a corner.
-- Keep a clean sightline between the pool and the house.
-- Prefer the lawn area closest to the main patio, terrace or garden-facing side of the house.
-- Do not place the pool too close to the camera, fence, tree, path, wall or garden boundary.
-- Only move away from the lawn center if the center contains an existing object, path, tree or other obstruction.
-- Maintain the original photo's realistic camera perspective, sunlight direction and shadows.
-
----
-
-RULE 5 - PROFESSIONAL IN-GROUND INSTALLATION - ABSOLUTELY MANDATORY
-
-This is a permanent IN-GROUND swimming pool installation.
-
-- Excavate the ground before installing the pool, deck or ceramic.
-- Pool water surface must be at the same level as the surrounding finished ground.
-- Pool shell goes down into the earth.
-- Only a thin realistic coping or rim may be visible at ground level.
-- Surrounding grass, deck or ceramic must connect naturally to the pool.
-
-ABSOLUTELY FORBIDDEN:
-- Above-ground pool.
-- Raised pool walls.
-- Pool sitting on top of the lawn.
-- Raised deck or raised ceramic.
-- Visible deck side, platform edge, deck thickness or ceramic thickness.
-- Gap, step, dark shadow under the deck, floating appearance or container appearance.
-
----
-
-RULE 6 - REALISTIC WATER
-
-- Clear premium bright-blue fiberglass pool water.
-- Realistic water depth, light shimmer, reflections and subtle color variation.
-- Pool interior visibly descends below ground.
-- Match the garden photo lighting and shadow direction.
-- Real photograph quality only.
-
----
+RULE 4 - IN-GROUND FLUSH CONSTRUCTION (MANDATORY)
+- Pool is fully EXCAVATED and embedded INTO the ground.
+- Water level and pool coping are flush with the lawn plane.
+- ABSOLUTELY NO above-ground pool walls, raised decks, steps up, platform thickness, or floating gaps.
 
 ${surroundRule}
 
 ${
-  config.hasStairs
+  config.hasWaterfall && refs.waterfallIndex
     ? `
-RULE 7 - STAINLESS STEEL LADDER - MANDATORY
-
-- Include one polished stainless-steel 3-step pool ladder.
-- Mount it on one short end of the pool.
-- Ladder steps descend naturally into the water.
-- Ladder must follow the exact selected pool orientation.
+RULE 6 - WATERFALL BLADE
+- Install a stainless steel cobra waterfall blade matching Image ${refs.waterfallIndex} on the main pool coping edge.
+- Water flows smoothly into the pool.
 `
     : ""
 }
 
 ${
-  config.hasWaterfall
+  config.hasStairs && refs.stairIndex
     ? `
-RULE 8 - WATERFALL BLADE - MANDATORY
-
-- Include one elegant stainless-steel cobra waterfall blade.
-- Approximately 35cm wide and 40cm high.
-- Mount it directly on the pool coping edge on one long side.
-- Water must flow as a smooth sheet into the pool.
-- Waterfall must follow the selected pool orientation.
+RULE 7 - STAINLESS STEEL LADDER / STEPS
+- Install a stainless steel pool ladder / step entry matching Image ${refs.stairIndex}.
+- Steps descend smoothly into the water inside the shell.
 `
     : ""
 }
 
----
-
-ABSOLUTE PROHIBITIONS
-
-- No wrong Roma or Relax shape.
-- No arbitrary pool rotation.
-- No pool angle other than exactly 0, 45 or 90 degrees.
-- No floating pool, floating deck, floating ceramic or raised platform.
-- No visible deck side, ceramic side, pool exterior wall or gap below the installation.
-- No square tiles when ceramic is selected.
-- No turquoise ceramic unless Turkuaz is the selected ceramic color.
-- No placing the pool randomly in a corner when a clear centered lawn area exists.
-- No blocked view of the house.
-- No altered building, path, tree, fence or landscaping.
-- No cartoon, illustration, CGI or generic 3D render style.
-- Output must look like a real professional photograph.
+PHOTOREALISM REQUIREMENTS:
+- Crystal-clear blue water reflections matching garden sunlight.
+- Sharp architectural details, natural soil/grass borders, photo-realistic output.
 `.trim();
 }
