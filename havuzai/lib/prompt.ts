@@ -22,10 +22,10 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
   const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
 
-  const isRoma = model.toUpperCase() === "ROMA";
-  const shapeRule = isRoma
-    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
-    : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
+  // NOT: Daha önce burada Roma için ayrı, çelişkili bir "OVAL/TEARDROP" shapeRule
+  // tanımı vardı. Bu, ROMA_SHAPE (config-defaults.ts, doğru: rounded rectangle /
+  // pill shape) ile aynı prompt içinde çakışıyordu ve model referans görsele değil
+  // bu çelişkili son cümleye ağırlık veriyordu. Kaldırıldı — shapeDesc tek kaynak.
 
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
@@ -68,12 +68,21 @@ Keep EVERYTHING in the original photo exactly as it is:
 
 RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
-Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
 The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
 The pool must be clearly SMALLER than the house/building.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
 DO NOT fill the garden with the pool.
+
+---
+
+RULE 2b — OPTIMAL PLACEMENT (MANDATORY)
+Choose the placement and camera-relative position a professional real-estate photographer would choose for the most flattering composition:
+- Place the pool in the clearest, most unobstructed open lawn area with the best sightline to the house
+- Do NOT overlap, block, or crowd existing objects — swing sets, furniture, hot tubs, trees, paths
+- Angle and position the pool so both the pool and the house are attractively framed together in the same shot
+- Prefer the spot with the most even, flattering light and the least visual clutter around it
+- If multiple open areas exist, pick the one closest to the house's main outdoor-facing side (patio, terrace, or garden doors)
 
 ---
 
@@ -87,13 +96,11 @@ The pool interior goes visibly deep into the ground.
 ${ceramicColor ? `
 RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
 Add a ceramic tile walkway around ALL 4 sides of the pool.
-- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
-- Tile size: RECTANGULAR — width 33cm, length 66cm (2:1 ratio, twice as long as wide)
-- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio.
-- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
-- Each tile is TWICE as long as it is wide — like a brick shape
-- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
-- Visible grout lines between all tiles
+- Exactly 2 rows of rectangular ceramic tiles on each side
+- Each tile: 33cm (short side) x 66cm (long side) — a 2:1 ratio, twice as long as wide
+- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio, NOT 60x60.
+- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge — so each row extends 33cm outward from the pool
+- Total surround width across both rows: 66cm (2 rows x 33cm)
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
@@ -157,6 +164,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
+❌ Placing the pool in a cluttered, awkward, or poorly framed spot
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
