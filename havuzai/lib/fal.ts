@@ -1,102 +1,66 @@
 import { fal } from "@fal-ai/client";
-import { buildPoolPrompt, PromptImageReferences, PoolConfig } from "./prompt";
+import { buildPoolPrompt, PoolConfig } from "./prompt";
 import type { ClientConfig } from "./config-types";
 
-// API Key kontrolü
-const apiKey = process.env.FAL_KEY || process.env.NEXT_PUBLIC_FAL_KEY;
-if (apiKey) {
-  fal.config({ credentials: apiKey });
-}
+fal.config({ credentials: process.env.FAL_KEY! });
 
-const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL || "";
+// Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
+const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
   config: PoolConfig,
   clientConfig: ClientConfig
 ) {
-  if (!apiKey) {
-    throw new Error("FAL API Key bulunamadı. Lütfen FAL_KEY ortam değişkenini kontrol edin.");
-  }
+  const prompt = buildPoolPrompt(config, clientConfig);
 
-  if (!clientConfig?.pool_models) {
-    throw new Error("Client konfigürasyonundaki 'pool_models' yüklenemedi.");
-  }
-
+  // Seçilen modelin referans görseli firma config'inden gelir.
   const model = clientConfig.pool_models.find((m) => m.id === config.model);
   const poolRef = model?.reference_image_url;
-
   if (!poolRef) {
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  // --- Görsel Dizisini & İndeks Eşleşmelerini Dinamik Oluşturma ---
-  const imageUrls: string[] = [];
+  // Referans görselleri topla
+  const imageUrls: string[] = [
+  customerPhotoUrl,
+  poolRef,
+];
 
-  // 1. Müşteri Bahçe Fotoğrafı (Index: 1)
-  imageUrls.push(customerPhotoUrl);
-  const gardenIndex = imageUrls.length;
-
-  // 2. Seçilen Model Ana Referansı (Index: 2)
-  imageUrls.push(poolRef);
-  const poolPrimaryIndex = imageUrls.length;
-
-  // 3. Seçilen Model İkinci Açı Referansı
-  let poolSecondaryIndex: number | undefined;
-  if (model?.reference_image_url_2) {
-    imageUrls.push(model.reference_image_url_2);
-    poolSecondaryIndex = imageUrls.length;
-  }
-
-  // 4. Seramik Referansı
-  let ceramicIndex: number | undefined;
-  if (config.ceramic) {
-    const ceramicLayoutRef = clientConfig.ceramic_colors?.find(
-      (color) => Boolean(color.reference_image_url)
-    )?.reference_image_url;
-
-    if (ceramicLayoutRef) {
-      imageUrls.push(ceramicLayoutRef);
-      ceramicIndex = imageUrls.length;
-    }
-  }
-
-  // 5. Şelale Referansı
-  let waterfallIndex: number | undefined;
+// İkinci referans görsel varsa ekle
+const poolRef2 = model?.reference_image_url_2;
+if (poolRef2) {
+  imageUrls.push(poolRef2);
+}
+  // Şelale seçildiyse referansı ekle
   if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);
-    waterfallIndex = imageUrls.length;
   }
 
-  // 6. Merdiven Referansı
-  let stairIndex: number | undefined;
+  // Merdiven seçildiyse ladder stil referansını ekle
   const stairRef = clientConfig.features?.stair_reference_url;
   if (config.hasStairs && stairRef) {
     imageUrls.push(stairRef);
-    stairIndex = imageUrls.length;
   }
 
-  // Prompt için indeks haritasını oluştur (3. parametre)
-  const refs: PromptImageReferences = {
-    gardenIndex,
-    poolPrimaryIndex,
-    poolSecondaryIndex,
-    ceramicIndex,
-    waterfallIndex,
-    stairIndex,
-  };
-
-  // ✅ ARTIK 3 PARAMETRE İLE ÇAĞRILIYOR - HATA ÇÖZÜLDÜ!
-  const prompt = buildPoolPrompt(config, clientConfig, refs);
-
   console.log("=== FAL.AI DEBUG ===");
-  console.log("Seçilen Model:", config.model);
-  console.log("İndeks Eşleşmeleri (refs):", refs);
-  console.log("Gönderilen Görseller:", JSON.stringify(imageUrls, null, 2));
+  console.log("Model:", config.model);
+  console.log("Prompt uzunluğu:", prompt.length);
+  console.log("Prompt ilk 200 karakter:", prompt.slice(0, 200));
+  console.log("Image URLs:", JSON.stringify(imageUrls, null, 2));
   console.log("====================");
 
+  for (const url of imageUrls) {
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      console.log(`URL kontrol: ${url} → ${res.status}`);
+    } catch (e) {
+      console.log(`URL HATASI: ${url} → erişilemiyor`);
+    }
+  }
+
   try {
-    const result = await fal.subscribe("fal-ai/nano-banana/edit", {
+    const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
       input: {
         prompt,
         image_urls: imageUrls,
@@ -104,27 +68,24 @@ export async function generatePoolVisualization(
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          update.logs?.forEach((log) => console.log("[fal.ai]", log.message));
+          update.logs?.forEach((log) =>
+            console.log("[fal.ai]", log.message)
+          );
         }
       },
     });
 
-    const responseData = result.data as { images?: { url: string }[] };
-    const aiImageUrl = responseData?.images?.[0]?.url;
-
-    if (!aiImageUrl) {
-      throw new Error("Fal AI başarılı yanıt döndü fakat görsel URL'i bulunamadı.");
-    }
+    console.log("✅ BAŞARILI:", result.data.images[0].url);
 
     return {
-      aiImageUrl,
+      aiImageUrl: result.data.images[0].url,
       prompt,
     };
   } catch (error: any) {
-    console.error("❌ FAL.AI HATASI:", error?.message || error);
-    if (error?.body) {
-      console.error("Body:", JSON.stringify(error.body, null, 2));
-    }
+    console.error("❌ FAL.AI HATASI - tam detay:");
+    console.error("Status:", error?.status);
+    console.error("Body:", JSON.stringify(error?.body, null, 2));
+    console.error("Message:", error?.message);
     throw error;
   }
 }

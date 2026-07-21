@@ -27,17 +27,22 @@ function normalizeModel(m: Record<string, unknown>): PoolModel {
   };
 }
 
+
 function normalizeColor(c: Record<string, unknown>): ColorOption {
   return {
     id: String(c.id ?? ""),
     name: String(c.name ?? ""),
     hex: String(c.hex ?? ""),
-    reference_image_url: c.reference_image_url != null ? String(c.reference_image_url) : undefined,
   };
 }
 
 /**
  * Bir firmanın tam konfigürasyonunu döner.
+ *
+ * client_configs satırı yoksa → tam varsayılan katalog.
+ * Satır var ama bir alan boşsa (ör. henüz seed edilmemiş [] dizisi) → o alan için
+ * varsayılan devreye girer. Böylece config motoru devreye girene kadar mevcut firma
+ * birebir aynı çalışır (regresyon = 0).
  */
 export async function getClientConfig(clientId: string): Promise<ClientConfig> {
   const fallback = defaultConfig(clientId);
