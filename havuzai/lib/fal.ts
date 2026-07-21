@@ -4,8 +4,13 @@ import type { ClientConfig } from "./config-types";
 
 fal.config({ credentials: process.env.FAL_KEY! });
 
-// Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
 const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
+
+// Bu görsel sadece 33x66 dikdörtgen karo formu, sıra düzeni ve derzler içindir.
+// Rengi ASLA kopyalanmaz; prompt içindeki seçili seramik rengi kullanılır.
+const CERAMIC_REFERENCE =
+  process.env.NEXT_PUBLIC_SERAMIK_REFERENCE_URL ||
+  process.env.NEXT_PUBLIC_CERAMIC_REFERENCE_URL;
 
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
@@ -14,25 +19,39 @@ export async function generatePoolVisualization(
 ) {
   const prompt = buildPoolPrompt(config, clientConfig);
 
-  // Seçilen modelin referans görseli firma config'inden gelir.
   const model = clientConfig.pool_models.find((m) => m.id === config.model);
   const poolRef = model?.reference_image_url;
+
   if (!poolRef) {
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  // Referans görselleri topla
+  if (config.ceramic && !CERAMIC_REFERENCE) {
+    throw new Error(
+      "Seramik seçildi ancak NEXT_PUBLIC_SERAMIK_REFERENCE_URL tanımlı değil."
+    );
+  }
+
   const imageUrls: string[] = [
-    customerPhotoUrl,  // 1. Müşteri fotoğrafı (düzenlenecek)
-    poolRef,           // 2. Havuz şekli referansı
+    customerPhotoUrl, // Image 1: Bahçe fotoğrafı
+    poolRef, // Image 2: Birincil havuz referansı
   ];
 
-  // Şelale seçildiyse referansı ekle
+  // Roma / Relax modelinin ikinci açıdan referansını da gönder.
+  if (model?.reference_image_url_2) {
+    imageUrls.push(model.reference_image_url_2);
+  }
+
+  // Seçilen renkten bağımsız olarak turkuaz seramik görseli,
+  // sadece dikdörtgen karo biçimi ve döşeme düzeni için gönderilir.
+  if (config.ceramic && CERAMIC_REFERENCE) {
+    imageUrls.push(CERAMIC_REFERENCE);
+  }
+
   if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);
   }
 
-  // Merdiven seçildiyse ladder stil referansını ekle
   const stairRef = clientConfig.features?.stair_reference_url;
   if (config.hasStairs && stairRef) {
     imageUrls.push(stairRef);
@@ -41,18 +60,8 @@ export async function generatePoolVisualization(
   console.log("=== FAL.AI DEBUG ===");
   console.log("Model:", config.model);
   console.log("Prompt uzunluğu:", prompt.length);
-  console.log("Prompt ilk 200 karakter:", prompt.slice(0, 200));
   console.log("Image URLs:", JSON.stringify(imageUrls, null, 2));
   console.log("====================");
-
-  for (const url of imageUrls) {
-    try {
-      const res = await fetch(url, { method: "HEAD" });
-      console.log(`URL kontrol: ${url} → ${res.status}`);
-    } catch (e) {
-      console.log(`URL HATASI: ${url} → erişilemiyor`);
-    }
-  }
 
   try {
     const result = await fal.subscribe("fal-ai/nano-banana/edit", {
@@ -63,9 +72,9 @@ export async function generatePoolVisualization(
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          update.logs?.forEach((log) =>
-            console.log("[fal.ai]", log.message)
-          );
+          update.logs?.forEach((log) => {
+            console.log("[fal.ai]", log.message);
+          });
         }
       },
     });
