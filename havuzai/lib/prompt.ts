@@ -30,27 +30,6 @@ export function buildPoolPrompt(
   const poolModel = clientConfig.pool_models.find((m) => m.id === model);
   const modelName = poolModel?.name || model;
 
-  const isRoma = model.toUpperCase().includes("ROMA");
-
-  // ROMA MODELİ İÇİN ULTRA KATI ŞEKİL VE MERDİVEN TANIMI
-  const romaShapeDesc = `
-STRICT ROMA POOL GEOMETRY & INTERNAL STEPS (NON-NEGOTIABLE):
-- OVERALL SHAPE: CLASSIC ROMAN / CAPSULE / STADIUM SHAPE.
-  * Two long sides MUST be straight and parallel.
-  * BOTH SHORT ENDS MUST BE LARGE, PERFECT SEMICIRCLES (FULLY ROUNDED OVAL ENDS).
-  * STRICTLY FORBIDDEN: ABSOLUTELY NO RECTANGULAR CORNERS, NO BOX SHAPES, NO SQUARE ENDS.
-- INTEGRATED INTERNAL STEPS:
-  * Inside ONE of the rounded semicircle ends, render the broad, built-in curved/wide Roman entry steps descending directly into the water matching Image ${refs.poolPrimaryIndex}.
-  * These steps are PERMANENTLY MOLDED INSIDE the pool shell, NOT external, NOT stainless steel ladders.
-- SHELL COLOR & BODY:
-  * Render ONLY the clean blue interior shell and top rim submerged into the soil.
-  * IGNORE completely the outer black fiberglass structural casing shown in reference photos.
-`;
-
-  const shapeDesc = isRoma
-    ? romaShapeDesc
-    : poolModel?.prompt_description || poolModel?.description || `${model} fiberglass pool model`;
-
   const deckColor = deck
     ? clientConfig.deck_colors.find((d) => d.id === deck)
     : null;
@@ -60,102 +39,79 @@ STRICT ROMA POOL GEOMETRY & INTERNAL STEPS (NON-NEGOTIABLE):
     : null;
 
   const referenceGuide: string[] = [
-    `Image ${refs.gardenIndex}: Customer garden background scene.`,
-    `Image ${refs.poolPrimaryIndex}: EXACT ROMA POOL MODEL REFERENCE. Copy its exact oval/capsule outline, rounded ends, and internal steps.`,
+    `Image ${refs.gardenIndex}: Background garden. Place the pool in the OPEN CENTRAL LAWN area in the middle of the garden.`,
+    `Image ${refs.poolPrimaryIndex}: EXACT POOL MODEL (${modelName}). COPY ITS EXACT SILHOUETTE, SHELL CONTOURS, CURVES, AND INTERNAL BUILT-IN STEPS.`,
   ];
 
   if (refs.poolSecondaryIndex) {
     referenceGuide.push(
-      `Image ${refs.poolSecondaryIndex}: Secondary structural angle for internal Roma steps and curved wall depth.`
+      `Image ${refs.poolSecondaryIndex}: Secondary angle for internal steps and pool depth.`
     );
   }
 
   if (refs.ceramicIndex && ceramicColor) {
     referenceGuide.push(
-      `Image ${refs.ceramicIndex}: CERAMIC TILE PATTERN REFERENCE. Copy ONLY its tile grid pattern and grout lines.`
+      `Image ${refs.ceramicIndex}: Ceramic border texture and mosaic pattern reference.`
     );
   }
 
   if (refs.waterfallIndex && config.hasWaterfall) {
     referenceGuide.push(
-      `Image ${refs.waterfallIndex}: MANDATORY WATERFALL BLADE REFERENCE.`
+      `Image ${refs.waterfallIndex}: Cobra waterfall feature to install on the side coping.`
     );
   }
 
-  if (refs.stairIndex && config.hasStairs && !isRoma) {
-    referenceGuide.push(
-      `Image ${refs.stairIndex}: External ladder reference.`
-    );
-  }
-
-  // 1.2 METRELİK SERAMİK ALANI (KATI YASAKLARLA)
   const surroundRule = ceramicColor
     ? `
-RULE 4 - CERAMIC TILE SURROUND (EXACTLY 1.2 METERS WIDE) - MANDATORY
-
-Construct a paved ceramic tile walkway surrounding the entire Roman pool edge.
-- SURROUND WIDTH: EXACTLY 1.2 METERS WIDE (approx 4 feet wide flat walking deck around all edges).
-- MATERIAL & TEXTURE: Real glazed ceramic tiles with clearly defined square tile grout lines matching Image ${refs.ceramicIndex || refs.poolPrimaryIndex}.
-- TILE COLOR: MUST BE STRICTLY "${ceramicColor.name}".
-- FORBIDDEN: Do NOT render plain gray granite/concrete slabs. It MUST be a visible grid of ceramic tiles.
-- GROUND LEVEL: 100% flush with the lawn plane. Zero elevation, zero raised steps, zero floating platform.
+BORDER & SURROUND:
+- Add a 1.2-meter wide ceramic border flush with the lawn around the pool edge.
+- Tile color MUST BE "${ceramicColor.name}".
+- Natural mosaic/ceramic texture matching Image ${refs.ceramicIndex || refs.poolPrimaryIndex}. No huge unnatural bathroom floor tiles.
 `
     : deckColor
     ? `
-RULE 4 - COMPOSITE DECK SURROUND (EXACTLY 1.2 METERS WIDE)
-
-Construct a 1.2 meters wide composite wood deck walkway around all pool edges.
-- COLOR: STRICTLY "${deckColor.name}".
-- WIDTH: EXACTLY 1.2 METERS WIDE.
-- Ground level flush.
+BORDER & SURROUND:
+- Add a 1.2-meter wide composite deck border flush with the lawn.
+- Deck color MUST BE "${deckColor.name}".
 `
     : `
-RULE 4 - NO EXTRA SURROUND
-- Grass meets the Roman pool rim directly.
+BORDER & SURROUND:
+- Grass directly touches the thin pool edge coping.
 `;
 
-  // ŞELALE ZORUNLULUĞU
   const waterfallRule = (config.hasWaterfall && refs.waterfallIndex)
     ? `
-RULE 5 - MANDATORY STAINLESS STEEL COBRA WATERFALL
-- YOU MUST ADD A STAINLESS STEEL COBRA WATERFALL BLADE feature.
-- LOCATION: Mount it on one of the LONG STRAIGHT SIDE EDGES of the Roman pool (NOT on top of the internal entry steps).
-- Water must actively pour out from the metallic spout into the pool.
-- THIS IS A MANDATORY ELEMENT. DO NOT OMIT.
+WATERFALL FEATURE:
+- Place a stainless steel cobra waterfall feature (from Image ${refs.waterfallIndex}) on one of the side edges pouring water into the pool.
 `
     : "";
 
   return `
-You are a elite architectural visualization AI specialized in precise fiberglass pool installation renders.
+Photorealistic architectural edit: Install an in-ground fiberglass pool into the garden of Image ${refs.gardenIndex}.
 
-TASK: Embed the selected in-ground pool model into the clear central lawn area of Image ${refs.gardenIndex}.
-
-REFERENCE MAPPING:
+INPUT REFERENCES:
 ${referenceGuide.map((line) => `- ${line}`).join("\n")}
 
----
+STRICT INSTRUCTIONS:
 
-CRITICAL RULE 1 - STRICT POOL MODEL GEOMETRY (${modelName.toUpperCase()})
-- ${shapeDesc}
-- POOL DIMENSIONS: ${size} meters.
-- IF MODEL IS ROMA: YOU MUST FORCEFULLY DRAW A CAPSULE / STADIUM SHAPE WITH SEMICIRCULAR ENDS AND INTEGRATED INTERNAL ENTRY STEPS. DO NOT DRAW A RECTANGLE.
+1. POOL MODEL & SHAPE (${modelName.toUpperCase()}):
+- MUST EXACTLY COPY the pool shell shape, outer curves, and internal built-in entry steps from Image ${refs.poolPrimaryIndex}.
+- DO NOT draw a generic rectangle! Render the exact ${modelName} model design, including all internal seating/steps beneath the water surface.
+- Ignore outer black fiberglass casings; render only the submerged blue pool shell.
+- Dimensions: ${size} meters.
 
-CRITICAL RULE 2 - 100% IN-GROUND FLUSH INSTALLATION
-- The pool is fully EXCAVATED into the earth.
-- Water level, pool rim, and surround tiles are completely FLUSH with the grass height.
-- ABSOLUTELY ZERO ABOVE-GROUND FIBERGLASS WALLS, NO ELEVATED BOXES, NO FLOATING PLATFORMS.
+2. GARDEN POSITIONING & PERSPECTIVE:
+- Embed the pool naturally into the CENTER/MIDDLE OF THE LAWN area in Image ${refs.gardenIndex}.
+- DO NOT place the pool right at the bottom edge or foreground of the frame.
+- Align the pool parallel/perpendicular to the main garden landscape (no weird diagonal skews).
+
+3. IN-GROUND INTEGRATION:
+- 100% in-ground installation. Water and top rim are completely flush with the grass plane. Zero raised walls or platforms.
 
 ${surroundRule}
-
 ${waterfallRule}
 
-CRITICAL RULE 6 - ALIGNMENT & ORIENTATION
-- Align pool long axis strictly PARALLEL (0°) or PERPENDICULAR (90°) to the house in Image ${refs.gardenIndex}.
-- STRICTLY FORBIDDEN: ABSOLUTELY NO SLANTED OR DIAGONAL TILTS (No 15°, 30°, 45°, 60° angles).
-
-PHOTOREALISM & RENDERING STANDARDS:
-- Crystal-clear blue water showing the submerged Roman internal steps clearly beneath the surface.
-- Sharp ceramic tile grid textures with accurate 1.2m surround dimensions.
-- Natural lighting and daylight reflections matching Image ${refs.gardenIndex}.
+OUTPUT QUALITY:
+- Ultra-realistic lighting, natural water transparency showing the built-in steps clearly, seamless grass-to-tile blending.
 `.trim();
 }
