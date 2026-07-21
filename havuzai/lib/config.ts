@@ -33,6 +33,12 @@ function normalizeColor(c: Record<string, unknown>): ColorOption {
     id: String(c.id ?? ""),
     name: String(c.name ?? ""),
     hex: String(c.hex ?? ""),
+    reference_image_url:
+      c.reference_image_url != null
+        ? String(c.reference_image_url)
+        : c.reference_image != null
+          ? String(c.reference_image)
+          : undefined,
   };
 }
 

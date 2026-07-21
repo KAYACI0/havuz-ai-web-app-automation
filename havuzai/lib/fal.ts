@@ -6,11 +6,6 @@ fal.config({ credentials: process.env.FAL_KEY! });
 
 const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
 
-// Bu görsel sadece 33x66 dikdörtgen karo formu, sıra düzeni ve derzler içindir.
-// Rengi ASLA kopyalanmaz; prompt içindeki seçili seramik rengi kullanılır.
-const CERAMIC_REFERENCE =
-  "https://havuz-ai-web-app-automation.vercel.app/pools/Seramik-turkuaz-perspektif.png";
-
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
   config: PoolConfig,
@@ -25,22 +20,26 @@ export async function generatePoolVisualization(
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  
+  // Turkuaz seramik görseli gibi, reference_image_url olan İLK seramik
+  // yalnızca 33x66 form/döşeme/derz referansı olur.
+  // Kullanıcının seçtiği renk prompt tarafından uygulanır.
+  const ceramicLayoutRef = clientConfig.ceramic_colors.find(
+    (color) => color.reference_image_url
+  )?.reference_image_url;
 
   const imageUrls: string[] = [
-    customerPhotoUrl, // Image 1: Bahçe fotoğrafı
-    poolRef, // Image 2: Birincil havuz referansı
+    customerPhotoUrl, // Image 1: müşteri bahçesi
+    poolRef, // Image 2: seçilen Roma / Relax ana referansı
   ];
 
-  // Roma / Relax modelinin ikinci açıdan referansını da gönder.
+  // Roma veya Relax ikinci açı referansı.
   if (model?.reference_image_url_2) {
     imageUrls.push(model.reference_image_url_2);
   }
 
-  // Seçilen renkten bağımsız olarak turkuaz seramik görseli,
-  // sadece dikdörtgen karo biçimi ve döşeme düzeni için gönderilir.
-  if (config.ceramic && CERAMIC_REFERENCE) {
-    imageUrls.push(CERAMIC_REFERENCE);
+  // Seramik seçilmişse, tek genel seramik form referansını gönder.
+  if (config.ceramic && ceramicLayoutRef) {
+    imageUrls.push(ceramicLayoutRef);
   }
 
   if (config.hasWaterfall && WATERFALL_REF) {
@@ -53,9 +52,9 @@ export async function generatePoolVisualization(
   }
 
   console.log("=== FAL.AI DEBUG ===");
-  console.log("Model:", config.model);
-  console.log("Prompt uzunluğu:", prompt.length);
-  console.log("Image URLs:", JSON.stringify(imageUrls, null, 2));
+  console.log("Seçilen model:", config.model);
+  console.log("Seramik referansı:", ceramicLayoutRef || "YOK");
+  console.log("Gönderilen görseller:", JSON.stringify(imageUrls, null, 2));
   console.log("====================");
 
   try {
@@ -74,17 +73,13 @@ export async function generatePoolVisualization(
       },
     });
 
-    console.log("✅ BAŞARILI:", result.data.images[0].url);
-
     return {
       aiImageUrl: result.data.images[0].url,
       prompt,
     };
   } catch (error: any) {
-    console.error("❌ FAL.AI HATASI - tam detay:");
-    console.error("Status:", error?.status);
+    console.error("❌ FAL.AI HATASI:", error?.message);
     console.error("Body:", JSON.stringify(error?.body, null, 2));
-    console.error("Message:", error?.message);
     throw error;
   }
 }
