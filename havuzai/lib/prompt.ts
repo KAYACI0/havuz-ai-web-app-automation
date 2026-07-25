@@ -30,6 +30,16 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
+===================================================
+🚫 CRITICAL — READ THIS FIRST — MOST COMMON MISTAKE
+===================================================
+POOL TOO LARGE / TOO CLOSE TO CAMERA — this is by far the most common error.
+- The pool must occupy NO MORE than 10-12% of the total photo frame area.
+- The pool's long side must NOT be wider than the visible width of the house/building — it should look noticeably SMALLER, never equal or larger.
+- Do NOT place the pool in the extreme foreground closest to the camera. There must be clearly visible open lawn BETWEEN the near edge of the frame and the near edge of the pool — the pool sits at a comfortable middle-distance in the garden, not filling the front of the shot.
+- If unsure whether the pool looks too big or too close — make it smaller and move it further back. Small and correctly placed beats big and dominant.
+===================================================
+
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
 - Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
@@ -70,10 +80,11 @@ RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
-The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
+The pool must be SMALL relative to the garden — roughly 10-12% of the total photo frame area (see CRITICAL section above).
 The pool must be clearly SMALLER than the house/building.
+The pool must sit at a middle-distance in the garden, NOT in the extreme foreground — leave visible open lawn between the near edge of the frame and the near edge of the pool.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
-DO NOT fill the garden with the pool.
+DO NOT fill the garden with the pool. DO NOT let the pool loom large due to close camera perspective.
 
 ---
 
@@ -154,6 +165,7 @@ RULE 7 — PHOTOREALISTIC QUALITY
 ---
 
 ABSOLUTE PROHIBITIONS:
+❌ Pool larger than 12% of the frame, wider than the house, or placed too close to the camera
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
