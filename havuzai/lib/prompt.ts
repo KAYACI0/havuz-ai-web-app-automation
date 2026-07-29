@@ -96,17 +96,21 @@ The pool interior goes visibly deep into the ground.
 ---
 
 ${ceramicColor ? `
-RULE 4 — CERAMIC TILE SURROUND (MANDATORY, STRICT SIZE LIMIT)
-Add a ceramic tile walkway around ALL 4 sides of the pool — but this must be a NARROW border, not a large patio.
-- Exactly 2 rows of rectangular ceramic tiles on each side
-- Each tile: 33cm (short side) x 66cm (long side) — a 2:1 ratio, twice as long as wide. NEVER square, NEVER 60x60.
-- The LONG side (66cm) runs parallel to the pool edge — so each row extends only 33cm outward from the pool
-- HARD LIMIT: total surround width across both rows combined = 66cm (2 rows x 33cm). This is a thin walkway, roughly the width of one adult step — NOT a wide patio or deck area.
+RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
+Add a ceramic tile walkway around ALL 4 sides of the pool.
+- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
+- Tile size: RECTANGULAR — width 33cm, length 66cm (2:1 ratio, twice as long as wide)
+- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio.
+- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
+- Each tile is TWICE as long as it is wide — like a brick shape
+- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
+- Visible grout lines between all tiles
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
-- The ceramic surround replaces the grass directly around the pool, and grass resumes immediately after the 66cm border
-DO NOT let the ceramic area grow larger than 66cm wide. DO NOT let the tiled area dominate the garden or approach the size of the pool itself.
+- Clean, professional, realistic tile finish
+- The ceramic surround replaces the grass directly around the pool
+DO NOT skip the ceramic tiles — they are MANDATORY when selected.
 ` : deckColor ? `
 RULE 4 — DECK SURROUND (MANDATORY)
 Add a composite wood deck around ALL 4 sides of the pool.
