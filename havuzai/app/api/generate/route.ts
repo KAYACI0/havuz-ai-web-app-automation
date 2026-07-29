@@ -102,7 +102,7 @@ export async function POST(request: Request) {
           phone: normalizedPhone, ip: clientIp,
         });
         return Response.json(
-          { success: false, error: "Bu telefon numarası veya IP adresiyle daha önce bir görsel oluşturuldu." },
+          { success: false, error: "Daha önce görsel oluşturduğunuz  havuz görseli için telefon numaramızdan iletişime geçiniz" },
           { status: 429 }
         );
       }
