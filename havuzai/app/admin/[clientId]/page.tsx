@@ -297,7 +297,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                 const next = NEXT[order.status];
                 return (
                   <div key={order.id}
-                    className="flex items-center gap-5 p-5 rounded-2xl cursor-pointer transition-all"
+                    className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 p-5 rounded-2xl cursor-pointer transition-all"
                     style={{
                       background: "var(--white)",
                       border: "1px solid var(--border-soft)",
@@ -373,7 +373,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                     {/* Action */}
                     {next && (
                       <button
-                        className="shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+                        className="w-full lg:w-auto lg:shrink-0 px-4 py-2.5 lg:py-2 rounded-xl text-sm font-semibold transition-all"
                         style={{ background: "var(--navy)", color: "white" }}
                         onClick={e => { e.stopPropagation(); advance(order.id, next.status); }}
                         onMouseEnter={e => (e.currentTarget.style.background = "var(--navy-mid)")}
