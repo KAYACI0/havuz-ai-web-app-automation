@@ -84,6 +84,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
   const [filter, setFilter]       = useState<string>("all");
   const [selected, setSelected]   = useState<Order | null>(null);
   const [loading, setLoading]     = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Resolve params then immediately verify auth — nothing renders until both done
   useEffect(() => {
@@ -164,10 +165,22 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--sand)", fontFamily: "var(--font-jakarta), sans-serif" }}>
+    <div className="min-h-screen flex relative" style={{ background: "var(--sand)", fontFamily: "var(--font-jakarta), sans-serif" }}>
+
+      {/* Mobil karartma overlay — sidebar açıkken arkaya tıklayınca kapatır */}
+      {mobileNavOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40"
+          style={{ background: "rgba(12,31,63,0.5)" }}
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 flex flex-col"
+      <aside
+        className={`w-64 shrink-0 flex flex-col fixed lg:static inset-y-0 left-0 z-50 transition-transform duration-300 lg:translate-x-0 ${
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ background: "var(--navy)", minHeight: "100vh" }}>
 
         {/* Brand */}
@@ -195,7 +208,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
             const active = filter === f;
             const info = f !== "all" ? s(f) : null;
             return (
-              <button key={f} onClick={() => setFilter(f)}
+              <button key={f} onClick={() => { setFilter(f); setMobileNavOpen(false); }}
                 className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all"
                 style={{
                   background: active ? "rgba(255,255,255,0.1)" : "transparent",
@@ -240,13 +253,23 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
         {/* Top bar */}
         <header className="px-8 py-5 flex items-center justify-between"
           style={{ background: "var(--white)", borderBottom: "1px solid var(--border-soft)" }}>
-          <div>
-            <h1 className="font-display text-xl font-bold" style={{ color: "var(--navy)" }}>
-              {filter === "all" ? "Tüm Siparişler" : STATUS[filter as keyof typeof STATUS]?.label}
-            </h1>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              {orders.length} sipariş
-            </p>
+          <div className="flex items-center gap-3">
+            {/* Mobilde hamburger buton — sadece lg altında görünür */}
+            <button
+              onClick={() => setMobileNavOpen(true)}
+              className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: "var(--sand)", color: "var(--navy)" }}
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="font-display text-xl font-bold" style={{ color: "var(--navy)" }}>
+                {filter === "all" ? "Tüm Siparişler" : STATUS[filter as keyof typeof STATUS]?.label}
+              </h1>
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                {orders.length} sipariş
+              </p>
+            </div>
           </div>
           <button onClick={load}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
