@@ -21,6 +21,11 @@ export interface PoolModel {
   prompt_description?: string;
   /** Kart rozeti. Örn: "En Popüler" */
   tag?: string;
+  /**
+   * Malzeme kategorisi — model seçim ekranında önce bu bazda bölünür (Fiber / Beton Serpme).
+   * Belirtilmezse "fiber" varsayılır (mevcut Roma/Relax kayıtları için geriye dönük uyumlu).
+   */
+  category?: "fiber" | "beton";
   /** fal.ai'ye gönderilen referans görsel (public URL). */
   /** fal.ai'ye gönderilen referans görsel (public URL). */
 reference_image_url: string;
