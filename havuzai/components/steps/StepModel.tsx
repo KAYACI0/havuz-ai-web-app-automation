@@ -25,10 +25,10 @@ export default function StepModel({ form, update, config }: Props) {
 
   // Seçili modelin kategorisiyle başla; hiçbir model seçili değilse "fiber"tan başla.
   const initialCategory =
-    (allModels.find((m) => m.id === form.poolModel)?.category ?? "fiber");
-  const [category, setCategory] = useState<string>(initialCategory);
+  allModels.find((m) => m.id === form.poolModel)?.category ?? "";
+const [category, setCategory] = useState<string>(initialCategory);
 
-  const models = modelsByCategory(category);
+const models = category ? modelsByCategory(category) : [];
 
   return (
     <div>
@@ -69,7 +69,7 @@ export default function StepModel({ form, update, config }: Props) {
         })}
       </div>
 
-      {models.length === 0 ? (
+      {category === "" ? null : models.length === 0 ? (
         <div style={{
           padding: "32px 16px",
           textAlign: "center",
