@@ -44,11 +44,29 @@ const STEPS = [
   { n: 5, label: "İletişim", icon: "👤" },
 ];
 
+/** İletişim alanlarını gerçekten anlamlı mı diye kontrol eder — sadece "boş değil" yetmez. */
+function isContactValid(form: FormData): boolean {
+  const name = form.customerName.trim();
+  const phoneDigits = form.customerPhone.replace(/\D/g, "");
+  const address = form.customerAddress.trim();
+
+  // İsim: en az 2 karakter, sadece rakamlardan oluşmasın
+  const nameOk = name.length >= 2 && /[a-zA-ZçğıöşüÇĞİÖŞÜ]/.test(name);
+
+  // Telefon: Türkiye cep numarası — 10 hane (5xx...) veya 11 hane (başında 0 ile) olmalı
+  const phoneOk = phoneDigits.length === 10 || phoneDigits.length === 11;
+
+  // Adres: en az 10 karakter olsun ("W" gibi tek harfleri eler)
+  const addressOk = address.length >= 10;
+
+  return nameOk && phoneOk && addressOk;
+}
+
 function canProceed(step: number, form: FormData): boolean {
   if (step === 1) return !!form.photo;
   if (step === 2) return !!form.poolModel;
   if (step === 3) return !!form.poolSize;
-  if (step === 5) return !!(form.customerName && form.customerPhone && form.customerAddress);
+  if (step === 5) return isContactValid(form);
   return true;
 }
 
@@ -180,7 +198,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   }, [clientId]);
 
   const handleSubmit = async () => {
-    if (!canProceed(5, form)) { toast.error("Lütfen tüm alanları doldurun."); return; }
+    if (!canProceed(5, form)) { toast.error("Lütfen geçerli bir isim, telefon numarası ve adres girin."); return; }
     setLoading(true);
     try {
       const fd = new FormData();
