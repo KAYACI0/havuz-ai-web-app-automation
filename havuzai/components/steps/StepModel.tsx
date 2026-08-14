@@ -11,8 +11,9 @@ interface Props {
 }
 
 const CATEGORIES = [
-  { id: "fiber", label: "Fiber Havuz",       icon: "🏊" },
+  { id: "fiber", label: "Fiber Havuz",        icon: "🏊" },
   { id: "beton", label: "Beton Serpme Havuz", icon: "🧱" },
+  { id: "sus",   label: "Süs Havuzu",         icon: "🪷" },
 ] as const;
 
 export default function StepModel({ form, update, config }: Props) {
@@ -41,7 +42,7 @@ export default function StepModel({ form, update, config }: Props) {
       </p>
 
       {/* Kategori seçimi */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         {CATEGORIES.map((c) => {
           const activeCat = category === c.id;
           return (
