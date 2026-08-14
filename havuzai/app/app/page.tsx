@@ -54,7 +54,7 @@ function isContactValid(form: FormData): boolean {
   const nameOk = name.length >= 2 && /[a-zA-ZçğıöşüÇĞİÖŞÜ]/.test(name);
 
   // Telefon: Türkiye cep numarası — 10 hane (5xx...) veya 11 hane (başında 0 ile) olmalı
-  const phoneOk = phoneDigits.length === 10 || phoneDigits.length === 11;
+  const phoneOk = phoneDigits.length === 10 || phoneDigits.length === 11 || phoneDigits.length === 12;
 
   // Adres: en az 10 karakter olsun ("W" gibi tek harfleri eler)
   const addressOk = address.length >= 10;
