@@ -64,7 +64,7 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
             ...c,
             pool_models: [
               ...c.pool_models,
-              { id: `MODEL_${Date.now()}`, name: "Yeni Model", description: "", reference_image_url: "", sizes: [] },
+              { id: `MODEL_${Date.now()}`, name: "Yeni Model", description: "", category: "fiber", reference_image_url: "", sizes: [] },
             ],
           }
         : c
@@ -155,6 +155,15 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                         </div>
                         {/* Alanlar */}
                         <div className="flex-1 flex flex-col gap-2">
+                          <div>
+                            <label className={labelCls}>Kategori</label>
+                            <select className={inputCls} value={m.category || "fiber"}
+                              onChange={(e) => updateModel(i, { category: e.target.value as "fiber" | "beton" | "sus" })}>
+                              <option value="fiber">🏊 Fiber Havuz</option>
+                              <option value="beton">🧱 Beton Serpme Havuz</option>
+                              <option value="sus">🎨 Süs Havuzu</option>
+                            </select>
+                          </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
                               <label className={labelCls}>ID (kararlı — değiştirmeyin)</label>
