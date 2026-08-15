@@ -60,7 +60,7 @@ if (poolRef2) {
   }
 
   try {
-    const result = await fal.subscribe("fal-ai/nano-banana-pro/edit", {
+    const result = await fal.subscribe("fal-ai/nano-banana/edit", {
       input: {
         prompt,
         image_urls: imageUrls,
