@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { FormData } from "@/app/app/page";
 
 interface Props { form: FormData; update: (d: Partial<FormData>) => void; }
@@ -44,7 +45,75 @@ function Field({ label, value, onChange, placeholder, type = "text", hint }: Fie
   );
 }
 
+interface Place { id: number; name: string; }
+
 export default function StepContact({ form, update }: Props) {
+  const [provinces, setProvinces]   = useState<Place[]>([]);
+  const [districts, setDistricts]   = useState<Place[]>([]);
+  const [provinceId, setProvinceId] = useState<string>("");
+  const [districtId, setDistrictId] = useState<string>("");
+  const [loadingProv, setLoadingProv] = useState(true);
+  const [loadingDist, setLoadingDist] = useState(false);
+
+  // İlleri bir kez yükle (TurkiyeAPI — ücretsiz, anahtar gerektirmiyor)
+  useEffect(() => {
+    fetch("https://api.turkiyeapi.dev/v2/provinces?fields=id,name&sort=name")
+      .then((r) => r.json())
+      .then((d) => setProvinces(d.data || []))
+      .catch(() => setProvinces([]))
+      .finally(() => setLoadingProv(false));
+  }, []);
+
+  // Geri gelindiğinde (form.customerCity zaten "İlçe, İl" içeriyorsa) seçimleri geri kur
+  useEffect(() => {
+    if (!provinces.length || !form.customerCity) return;
+    const parts = form.customerCity.split(",").map((s) => s.trim());
+    const provinceName = parts[parts.length - 1];
+    const match = provinces.find((p) => p.name === provinceName);
+    if (match && String(match.id) !== provinceId) {
+      setProvinceId(String(match.id));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinces]);
+
+  // İl seçilince o ile ait ilçeleri yükle
+  useEffect(() => {
+    if (!provinceId) { setDistricts([]); return; }
+    setLoadingDist(true);
+    fetch(`https://api.turkiyeapi.dev/v2/districts?provinceId=${provinceId}&fields=id,name&sort=name&limit=100`)
+      .then((r) => r.json())
+      .then((d) => {
+        const list: Place[] = d.data || [];
+        setDistricts(list);
+        // Geri gelindiyse ilçeyi de eşleştirip seç
+        if (form.customerCity) {
+          const parts = form.customerCity.split(",").map((s) => s.trim());
+          const districtName = parts[0];
+          const match = list.find((x) => x.name === districtName);
+          if (match) setDistrictId(String(match.id));
+        }
+      })
+      .catch(() => setDistricts([]))
+      .finally(() => setLoadingDist(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinceId]);
+
+  const handleProvinceChange = (id: string) => {
+    setProvinceId(id);
+    setDistrictId("");
+    const p = provinces.find((x) => String(x.id) === id);
+    update({ customerCity: p ? p.name : "" });
+  };
+
+  const handleDistrictChange = (id: string) => {
+    setDistrictId(id);
+    const p = provinces.find((x) => String(x.id) === provinceId);
+    const d = districts.find((x) => String(x.id) === id);
+    if (p && d) update({ customerCity: `${d.name}, ${p.name}` });
+  };
+
+  const selectCls = "input-base";
+
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-widest mb-1"
@@ -71,11 +140,49 @@ export default function StepContact({ form, update }: Props) {
           type="tel"
           hint="Sizi bu numaradan arayacağız."
         />
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-semibold mb-1.5" style={{ color: "var(--navy)" }}>
+              İl *
+            </label>
+            <select
+              className={selectCls}
+              value={provinceId}
+              disabled={loadingProv}
+              onChange={(e) => handleProvinceChange(e.target.value)}
+            >
+              <option value="">{loadingProv ? "Yükleniyor..." : "İl seçin"}</option>
+              {provinces.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold mb-1.5" style={{ color: "var(--navy)" }}>
+              İlçe *
+            </label>
+            <select
+              className={selectCls}
+              value={districtId}
+              disabled={!provinceId || loadingDist}
+              onChange={(e) => handleDistrictChange(e.target.value)}
+            >
+              <option value="">
+                {!provinceId ? "Önce il seçin" : loadingDist ? "Yükleniyor..." : "İlçe seçin"}
+              </option>
+              {districts.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <Field
-          label="Adres / Konum *"
+          label="Sokak / Cadde, Bina No *"
           value={form.customerAddress}
           onChange={(v) => update({ customerAddress: v })}
-          placeholder="İl, ilçe, mahalle..."
+          placeholder="Örn: Küçüksu Caddesi, No:6/8"
           type="textarea"
         />
       </div>

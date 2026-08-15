@@ -30,6 +30,7 @@ export interface FormData {
   ceramicType:     string;
   customerName:    string;
   customerPhone:   string;
+  customerCity:    string;
   customerAddress: string;
   hasWaterfall:    boolean;
   hasStairs:       boolean;
@@ -48,18 +49,22 @@ const STEPS = [
 function isContactValid(form: FormData): boolean {
   const name = form.customerName.trim();
   const phoneDigits = form.customerPhone.replace(/\D/g, "");
+  const city = form.customerCity.trim();
   const address = form.customerAddress.trim();
 
   // İsim: en az 2 karakter, sadece rakamlardan oluşmasın
   const nameOk = name.length >= 2 && /[a-zA-ZçğıöşüÇĞİÖŞÜ]/.test(name);
 
-  // Telefon: Türkiye cep numarası — 10 hane (5xx...) veya 11 hane (başında 0 ile) olmalı
+  // Telefon: Türkiye cep numarası — 10, 11 veya 12 hane (ülke kodu dahil) olabilir
   const phoneOk = phoneDigits.length === 10 || phoneDigits.length === 11 || phoneDigits.length === 12;
 
-  // Adres: en az 10 karakter olsun ("W" gibi tek harfleri eler)
-  const addressOk = address.length >= 10;
+  // İl + İlçe seçilmiş olmalı (StepContact bu alanı "İlçe, İl" formatında dolduruyor)
+  const cityOk = city.length > 0;
 
-  return nameOk && phoneOk && addressOk;
+  // Adres artık sadece sokak/cadde/bina no — il/ilçe ayrı seçildiği için eşik düşürüldü
+  const addressOk = address.length >= 5;
+
+  return nameOk && phoneOk && cityOk && addressOk;
 }
 
 function canProceed(step: number, form: FormData): boolean {
@@ -175,7 +180,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     photo: null, poolModel: "", poolSize: "",
     gardenLength: "", gardenWidth: "",
     deckType: "", ceramicType: "",
-    customerName: "", customerPhone: "", customerAddress: "",
+    customerName: "", customerPhone: "", customerCity: "", customerAddress: "",
     hasWaterfall: false, hasStairs: false, stairType: "corner",
   });
 
@@ -198,7 +203,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   }, [clientId]);
 
   const handleSubmit = async () => {
-    if (!canProceed(5, form)) { toast.error("Lütfen geçerli bir isim, telefon numarası ve adres girin."); return; }
+    if (!canProceed(5, form)) { toast.error("Lütfen geçerli bir isim, telefon numarası, il/ilçe ve adres girin."); return; }
     setLoading(true);
     try {
       const fd = new FormData();
@@ -210,6 +215,7 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("ceramicType",     form.ceramicType);
       fd.append("customerName",    form.customerName);
       fd.append("customerPhone",   form.customerPhone);
+      fd.append("customerCity",    form.customerCity);
       fd.append("customerAddress", form.customerAddress);
       fd.append("hasWaterfall",    String(form.hasWaterfall));
       fd.append("hasStairs",       String(form.hasStairs));
