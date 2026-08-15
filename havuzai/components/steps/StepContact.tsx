@@ -55,11 +55,11 @@ export default function StepContact({ form, update }: Props) {
   const [loadingProv, setLoadingProv] = useState(true);
   const [loadingDist, setLoadingDist] = useState(false);
 
-  // İlleri bir kez yükle (TurkiyeAPI — ücretsiz, anahtar gerektirmiyor)
+  // İlleri bir kez yükle — kendi sunucumuzdaki proxy route'u üzerinden (CORS/ağ riskini bertaraf eder)
   useEffect(() => {
-    fetch("https://api.turkiyeapi.dev/v2/provinces?fields=id,name&sort=name")
+    fetch("/api/geo/provinces")
       .then((r) => r.json())
-      .then((d) => setProvinces(d.data || []))
+      .then((d) => setProvinces(d.provinces || []))
       .catch(() => setProvinces([]))
       .finally(() => setLoadingProv(false));
   }, []);
@@ -76,14 +76,14 @@ export default function StepContact({ form, update }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provinces]);
 
-  // İl seçilince o ile ait ilçeleri yükle
+  // İl seçilince o ile ait ilçeleri yükle — kendi sunucumuzdaki proxy route'u üzerinden
   useEffect(() => {
     if (!provinceId) { setDistricts([]); return; }
     setLoadingDist(true);
-    fetch(`https://api.turkiyeapi.dev/v2/districts?provinceId=${provinceId}&fields=id,name&sort=name&limit=100`)
+    fetch(`/api/geo/districts?provinceId=${provinceId}`)
       .then((r) => r.json())
       .then((d) => {
-        const list: Place[] = d.data || [];
+        const list: Place[] = d.districts || [];
         setDistricts(list);
         // Geri gelindiyse ilçeyi de eşleştirip seç
         if (form.customerCity) {
