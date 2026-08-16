@@ -110,27 +110,23 @@ The pool interior goes visibly deep into the ground.
 ---
 
 ${ceramicColor ? `
-RULE 4 — CERAMIC TILE SURROUND (MANDATORY, STRICT SIZE LIMIT)
-Add a ceramic tile walkway around ALL 4 sides of the pool — a NARROW border, not a large patio.
-- Exactly 2 rows of rectangular ceramic tiles on each side
-- Each tile: 33cm (short side) x 66cm (long side) — a 2:1 ratio. NEVER square, NEVER 60x60.
-- The LONG side (66cm) runs parallel to the pool edge — each row extends only 33cm outward
-- HARD LIMIT: total surround width across both rows = 66cm (2 rows x 33cm) — like one adult step wide, NOT a wide patio
-- Visible grout lines between all tiles (2-3mm wide)
-- Tile color: ${ceramicColor.name} colored ceramic tiles
+RULE 4 — CERAMIC TILE SURROUND (MANDATORY, VERY NARROW)
+Add a ceramic tile walkway around the pool — this must look like a single narrow footpath, NOT a patio or terrace.
+- Visual size reference: the tiled strip should be roughly as wide as ONE of the pool's own entry steps — thin enough that a person could stand on it with both feet together and nothing more
+- The tiles must stop well short of the lawn edges, fence, or hedge — there must be a LARGE, OBVIOUS band of plain grass visible between the tiled strip and any garden boundary on all sides
+- If the tiled area touches, nears, or extends toward the fence/hedge/property line, that is WRONG — it must look like a small ring hugging only the pool itself
+- Tile color: ${ceramicColor.name} colored ceramic tiles, rectangular (not square), with visible grout lines
 - Tiles sit flush at ground level — NOT raised
-- The ceramic surround replaces the grass directly around the pool, grass resumes right after the 66cm border
-DO NOT let the ceramic area grow larger than 66cm wide or dominate the garden.
+DO NOT let the tiled area cover a large portion of the lawn. DO NOT let it look like a patio, terrace, or deck area. It is a thin trim around the pool only.
 ` : deckColor ? `
-RULE 4 — DECK SURROUND (MANDATORY)
-Add a composite wood deck around ALL 4 sides of the pool.
-- Exactly 3 deck boards on each side — total width 60cm
-- Each board is 20cm wide, laid parallel to the nearest pool edge
-- Deck color: ${deckColor.name} colored composite wood deck
+RULE 4 — DECK SURROUND (MANDATORY, VERY NARROW)
+Add a composite wood deck around the pool — this must look like a single narrow walking strip, NOT a patio or terrace.
+- Visual size reference: the deck strip should be roughly as wide as ONE of the pool's own entry steps — thin enough that a person could stand on it with both feet together and nothing more
+- The deck must stop well short of the lawn edges, fence, or hedge — there must be a LARGE, OBVIOUS band of plain grass visible between the deck and any garden boundary on all sides
+- If the deck touches, nears, or extends toward the fence/hedge/property line, that is WRONG — it must look like a small ring hugging only the pool itself
+- Deck color: ${deckColor.name} colored composite wood deck, clean modern finish with tight gaps between boards
 - Deck sits flush at ground level — NOT raised
-- Clean modern finish with tight gaps between boards
-- The deck surround replaces the grass directly around the pool
-DO NOT skip the deck — it is MANDATORY when selected.
+DO NOT let the deck cover a large portion of the lawn. DO NOT let it look like a patio, terrace, or large deck area. It is a thin trim around the pool only.
 ` : `
 RULE 4 — POOL SURROUND (NO DECK OR CERAMIC SELECTED)
 No deck or ceramic walkway was selected — do NOT add any tiles, wood boards, stone pavers, or walkway material.
@@ -185,6 +181,8 @@ ABSOLUTE PROHIBITIONS:
 ${ceramicColor ? "❌ Missing ceramic tile surround, or oversized ceramic area — MANDATORY size limit applies" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
 ${!ceramicColor && !deckColor ? "❌ Bright white or plastic-looking coping, thick raised rim, or decorative walkway" : ""}
+${ceramicColor ? "❌ Ceramic area covering a large portion of the lawn, touching the fence/hedge, or looking like a patio instead of a thin trim" : ""}
+${deckColor ? "❌ Deck area covering a large portion of the lawn, touching the fence/hedge, or looking like a patio instead of a thin trim" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim();
