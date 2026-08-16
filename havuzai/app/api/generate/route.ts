@@ -82,13 +82,7 @@ export async function POST(request: Request) {
 
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
 
-    let aiPhotoUrl: string;
-    try {
-      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
-    } catch {
-      log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
-      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
-    }
+    const { aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig);
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
     const { data: clientRow, error: clientError } = await supabaseAdmin

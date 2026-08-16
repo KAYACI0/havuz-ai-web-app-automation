@@ -13,12 +13,10 @@ export interface PoolConfig {
 export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig): string {
   const { model, size, ceramic, deck } = config;
 
-  // Firma config'inden model bilgisini bul
   const poolModel     = clientConfig.pool_models.find((m) => m.id === model);
   const modelName     = poolModel?.name || model;
   const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
 
-  // Deck ve seramik renk bilgilerini bul
   const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
   const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
 
@@ -29,6 +27,23 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
+
+===================================================
+🚫 CRITICAL — READ THIS FIRST — MOST COMMON MISTAKES
+===================================================
+1. POOL TOO LARGE / TOO CLOSE TO CAMERA
+   - The pool must occupy NO MORE than 10-12% of the total photo frame area.
+   - The pool's long side must NOT be wider than the visible width of the house/building.
+   - Do NOT place the pool in the extreme foreground. Leave visible open lawn between the near edge of the frame and the near edge of the pool.
+
+2. CROOKED / MISALIGNED PLACEMENT
+   - The pool's edges MUST align with the perspective lines already present in the photo (fence lines, house walls, patio edges, path lines).
+   - The pool's long sides must run parallel to the dominant straight lines of the scene.
+   - Do NOT rotate the pool at a random diagonal angle relative to the camera or the house.
+   - The pool should look like it was laid out by a surveyor using the property's existing lines as reference.
+
+If unsure — make the pool smaller, move it further back, and align it with the scene's existing lines.
+===================================================
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
@@ -70,10 +85,20 @@ RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
-The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
+The pool must be SMALL relative to the garden — roughly 10-12% of the total photo frame area (see CRITICAL section above).
 The pool must be clearly SMALLER than the house/building.
+The pool must sit at a middle-distance in the garden, NOT in the extreme foreground.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
 DO NOT fill the garden with the pool.
+
+---
+
+RULE 2b — OPTIMAL PLACEMENT & ALIGNMENT (MANDATORY)
+Choose the placement a professional real-estate photographer would choose:
+- Place the pool in the clearest, most unobstructed open lawn area with a good sightline to the house
+- Do NOT overlap, block, or crowd existing objects — swing sets, furniture, hot tubs, trees, paths
+- CRITICAL: Align the pool's edges with the perspective lines already in the photo (fence lines, house walls, patio edges) — do NOT rotate it to a random diagonal angle
+- Prefer the spot closest to the house's main outdoor-facing side (patio, terrace, garden doors)
 
 ---
 
@@ -85,21 +110,17 @@ The pool interior goes visibly deep into the ground.
 ---
 
 ${ceramicColor ? `
-RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
-Add a ceramic tile walkway around ALL 4 sides of the pool.
-- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
-- Tile size: RECTANGULAR — width 33cm, length 66cm (2:1 ratio, twice as long as wide)
-- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio.
-- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
-- Each tile is TWICE as long as it is wide — like a brick shape
-- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
-- Visible grout lines between all tiles
+RULE 4 — CERAMIC TILE SURROUND (MANDATORY, STRICT SIZE LIMIT)
+Add a ceramic tile walkway around ALL 4 sides of the pool — a NARROW border, not a large patio.
+- Exactly 2 rows of rectangular ceramic tiles on each side
+- Each tile: 33cm (short side) x 66cm (long side) — a 2:1 ratio. NEVER square, NEVER 60x60.
+- The LONG side (66cm) runs parallel to the pool edge — each row extends only 33cm outward
+- HARD LIMIT: total surround width across both rows = 66cm (2 rows x 33cm) — like one adult step wide, NOT a wide patio
 - Visible grout lines between all tiles (2-3mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
-- Clean, professional, realistic tile finish
-- The ceramic surround replaces the grass directly around the pool
-DO NOT skip the ceramic tiles — they are MANDATORY when selected.
+- The ceramic surround replaces the grass directly around the pool, grass resumes right after the 66cm border
+DO NOT let the ceramic area grow larger than 66cm wide or dominate the garden.
 ` : deckColor ? `
 RULE 4 — DECK SURROUND (MANDATORY)
 Add a composite wood deck around ALL 4 sides of the pool.
@@ -111,14 +132,15 @@ Add a composite wood deck around ALL 4 sides of the pool.
 - The deck surround replaces the grass directly around the pool
 DO NOT skip the deck — it is MANDATORY when selected.
 ` : `
-RULE 4 — POOL SURROUND
-The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
-DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
-DO NOT add any walkway or border around the pool.
-The original ground material continues right up to the pool water edge.
-DO NOT add any white border, coping, or rim around the pool.
-The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
-Only the water surface and thin rim are visible — everything else is underground.
+RULE 4 — POOL SURROUND (NO DECK OR CERAMIC SELECTED)
+No deck or ceramic walkway was selected — do NOT add any tiles, wood boards, stone pavers, or walkway material.
+The existing ground (grass, soil) comes right up to the pool's coping edge — no wide border.
+
+The pool DOES have a normal, thin, in-ground pool coping (5-10cm wide):
+- Coping material: matte natural stone-grey or light beige concrete — NEVER bright white, NEVER plastic-looking
+- The coping sits FLUSH with the surrounding ground — grass touches the outer edge directly
+- Keep the coping subtle and realistic — a normal residential in-ground pool edge
+DO NOT add a decorative walkway, deck, or tile border — only the narrow, natural-toned coping.
 `}
 
 ---
@@ -154,13 +176,15 @@ RULE 7 — PHOTOREALISTIC QUALITY
 ---
 
 ABSOLUTE PROHIBITIONS:
+❌ Pool larger than 12% of the frame, wider than the house, or placed too close to the camera
 ❌ Pool above ground level in any way
-❌ Pool walls or sides visible above the surrounding surface
+❌ Crooked/diagonal placement not aligned with the scene
 ❌ Wrong pool shape — must match Image 2 exactly
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
+${ceramicColor ? "❌ Missing ceramic tile surround, or oversized ceramic area — MANDATORY size limit applies" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
+${!ceramicColor && !deckColor ? "❌ Bright white or plastic-looking coping, thick raised rim, or decorative walkway" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim();
