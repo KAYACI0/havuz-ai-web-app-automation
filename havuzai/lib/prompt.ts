@@ -24,9 +24,8 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
-    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
-    : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
-
+  ? "ASYMMETRIC shape with TWO DIFFERENT ends: one end is WIDE and fully ROUNDED (a smooth semicircle curve); the other end is NARROWER with a CHAMFERED POINT — not a sharp knife-tip and not a rounded curve, but two flat angled facets meeting at a shallow, blunt angle, like the bow of a boat. The two long sides are NOT parallel — they curve and taper gently from the wide rounded end toward the narrow chamfered end. NOT a symmetric oval, NOT a rectangle, NOT a rounded rectangle, NOT a stadium/pill shape. The two ends must look clearly different from each other."
+  : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
@@ -105,7 +104,7 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Each tile is TWICE as long as it is wide — like a brick shape
 - Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
 - Visible grout lines between all tiles
-- Visible grout lines between all tiles (2-3mm wide)
+- Visible grout lines between all tiles (1-1.5mm wide)
 - Tile color: ${ceramicColor.name} colored ceramic tiles
 - Tiles sit flush at ground level — NOT raised
 - Clean, professional, realistic tile finish
