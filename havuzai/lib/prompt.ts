@@ -26,6 +26,7 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const shapeRule = isRoma
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
+    "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved."
 
   // ─────────────────────────────────────────────────────────────
   // GÖRSEL SIRASI HESAPLAMA
