@@ -49,12 +49,17 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     : "";
 
   const shapeLine = isRoma
-    ? `Pool shape — the ROMA model: copy the reference pool's outline EXACTLY. Both ends of the pool have SOFTLY ROUNDED corners — NEITHER end is a sharp 90-degree corner or a flat straight end, and NEITHER end is a full semicircle either. One long side flows with a gentle wave, curving slightly inward then back out; the opposite long side is straighter. The whole outline is smooth and organic, matching the reference silhouette point for point. Copy its molded interior too: wide steps spanning one end, and a bench ledge running along one side, molded from the same material and color as the shell, clearly visible underwater with soft light and shadow on each edge.`
+    ? `Pool shape — the ROMA model: copy the reference pool's outline EXACTLY. It has TWO DIFFERENT ends:
+- ONE end is WIDE and fully ROUNDED — a smooth, soft semicircle curve.
+- The OTHER end is NARROWER with a CHAMFERED POINT — not a sharp knife-tip, not a rounded curve, but two flat angled facets meeting at a shallow, blunt angle (like the bow of a boat, or a stretched hexagon corner).
+- The two long sides connecting these ends are NOT straight and NOT parallel — they curve and taper gently from the wide rounded end toward the narrower chamfered end. One of the two long sides has an extra gentle wave partway along it.
+- This is an ASYMMETRIC shape: the two ends look clearly different from each other. It is NOT a symmetric oval, NOT a rectangle, NOT a rounded rectangle, NOT a stadium/pill shape.
+Copy its molded interior too: wide steps built into the NARROW chamfered end, visible underwater with soft light and shadow on each step edge.`
     : `Pool shape — the RELAX model: copy the reference pool's outline EXACTLY — a clean rectangle, straight sides, square 90-degree corners, no curves anywhere. Copy its molded interior too: built-in steps in the SAME corner/position as shown in the reference, molded from the same material and color as the shell, clearly visible underwater with soft light and shadow on each step edge.`;
 
   const guideLines = hasSurround
     ? `Image 1 has magenta construction marks placed at the best open spot of the lawn: a SOLID magenta rectangle covering the pool's exact footprint, a THIN outer rectangle marking the outer edge of the paving, and a dashed line showing the pool's long axis.
-Build the water exactly over the solid rectangle; align the pool's long axis with the dashed line. Paving fills ONLY the ring between the two rectangles — its outer edge is straight and rectangular, and the lawn begins immediately at the thin line. Absolutely nothing is built or paved beyond that thin line.
+Build the water exactly over the solid rectangle; align the pool's long axis with the dashed line. Paving fills ONLY the ring between the two rectangles — its outer edge is straight and rectangular, and the lawn begins immediately at the thin line. Absolutely nothing is built or paved beyond that thin line. The gap between the two rectangles is already the CORRECT paving width — do not widen it, do not add any extra patio beyond the thin line.
 PAINT OVER ALL MAGENTA COMPLETELY — zero magenta pixels may remain in the final image.`
     : `Image 1 has magenta construction marks placed at the best open spot of the lawn: a SOLID magenta rectangle covering the pool's exact footprint, and a dashed line showing the pool's long axis.
 Build the pool exactly over the solid rectangle, its long axis aligned with the dashed line. The lawn continues immediately at the rectangle's edge — nothing else is built.

@@ -66,7 +66,7 @@ async function createPlacementGuide(
   const strokeWidth = Math.max(8, Math.round(Math.min(width, height) * 0.012));
   const dashStroke = Math.max(4, Math.round(strokeWidth / 2));
 
-  const offset = Math.round(0.2 * Math.min(guideWidth, guideHeight));
+  const offset = Math.round(0.12 * Math.min(guideWidth, guideHeight));
   const outerRect = withWalkwayBoundary
     ? `<rect x="${x - offset}" y="${y - offset}" width="${guideWidth + offset * 2}" height="${guideHeight + offset * 2}" fill="none" stroke="#ff00ff" stroke-width="${Math.max(3, Math.round(strokeWidth / 2))}" />`
     : "";
