@@ -5,6 +5,26 @@ import { getClientConfig } from "@/lib/config";
 import { log } from "@/lib/logger";
 import type { PoolConfig } from "@/lib/prompt";
 
+// Bu numaralar limit kontrolünden tamamen muaf — sınırsız üretim.
+// Vercel env: ADMIN_PHONE_WHITELIST=905xxxxxxxxx,905yyyyyyyyy (virgülle ayrılmış, boşluksuz)
+const ADMIN_PHONE_WHITELIST = (process.env.ADMIN_PHONE_WHITELIST || "")
+  .split(",")
+  .map((p) => p.trim())
+  .filter(Boolean);
+
+/** Telefon numarasını sadece rakamlara indirger — "+90 555 123 45 67" ile
+ *  "05551234567" gibi farklı yazımların aynı numara sayılması için. */
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
+}
+
+/** İstek başlıklarından gerçek client IP'sini çıkarır (Vercel/proxy arkasında). */
+function getClientIp(request: Request): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return request.headers.get("x-real-ip") || "unknown";
+}
+
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID().slice(0, 8);
 
@@ -45,12 +65,55 @@ export async function POST(request: Request) {
       return Response.json({ success: false, error: `Eksik alan: ${missing.join(", ")}` }, { status: 400 });
     }
 
-    const photoBuffer = await photo.arrayBuffer();
-
     if (!supabaseAdmin) {
       log("error", `[${requestId}] 2-UPLOAD`, "Supabase bağlantısı yok");
       return Response.json({ success: false, error: "Veritabanı bağlantısı kurulamadı" }, { status: 500 });
     }
+
+    // === LİMİT KONTROLÜ ===
+    // Whitelist'teki numaralar (biz/admin) tamamen muaf — direkt geç.
+    const normalizedPhone = normalizePhone(customerPhone);
+    const isWhitelisted = ADMIN_PHONE_WHITELIST.some(
+      (wp) => normalizePhone(wp) === normalizedPhone
+    );
+
+    if (!isWhitelisted) {
+      const clientIp = getClientIp(request);
+
+      log("info", `[${requestId}] 1b-LIMIT`, "Limit kontrolü yapılıyor...", {
+        phone: normalizedPhone, ip: clientIp,
+      });
+
+      const { data: existingOrders, error: limitCheckError } = await supabaseAdmin
+        .from("orders")
+        .select("id, customer_phone, customer_ip")
+        .or(`customer_phone.eq.${customerPhone},customer_ip.eq.${clientIp}`)
+        .limit(1);
+
+      if (limitCheckError) {
+        // DB kontrolü başarısız olursa, güvenli tarafta kalmak için isteği reddetmek yerine
+        // sadece logluyoruz ve devam ediyoruz — bir yanlış pozitifle gerçek müşteriyi
+        // engellememek için. İstersen bunu daha katı hale getirip request'i durdurabiliriz.
+        log("error", `[${requestId}] 1b-LIMIT`, "Limit kontrolü sorgusu başarısız", {
+          msg: limitCheckError.message,
+        });
+      } else if (existingOrders && existingOrders.length > 0) {
+        log("info", `[${requestId}] 1b-LIMIT`, "Limit doldu — reddedildi", {
+          phone: normalizedPhone, ip: clientIp,
+        });
+        return Response.json(
+          { success: false, error: "Daha önce görsel oluşturduğunuz  havuz görseli için telefon numaramızdan iletişime geçiniz" },
+          { status: 429 }
+        );
+      }
+    } else {
+      log("info", `[${requestId}] 1b-LIMIT`, "Whitelist numarası — limit atlandı", {
+        phone: normalizedPhone,
+      });
+    }
+    // === LİMİT KONTROLÜ SONU ===
+
+    const photoBuffer = await photo.arrayBuffer();
 
     log("info", `[${requestId}] 2-UPLOAD`, "Supabase Storage'a yükleniyor...");
     const fileName = `${clientId}/${Date.now()}-original.jpg`;
@@ -82,7 +145,13 @@ export async function POST(request: Request) {
 
     log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
 
-    const { aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig);
+    let aiPhotoUrl: string;
+    try {
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
+    } catch {
+      log("info", `[${requestId}] 4-FAL`, "İlk deneme başarısız, yeniden deneniyor...");
+      ({ aiImageUrl: aiPhotoUrl } = await generatePoolVisualization(originalPhotoUrl, poolConfig, clientConfig));
+    }
     log("success", `[${requestId}] 4-FAL`, "Görsel üretildi", { aiPhotoUrl });
 
     const { data: clientRow, error: clientError } = await supabaseAdmin
@@ -100,6 +169,7 @@ export async function POST(request: Request) {
         client_id:        clientId,
         customer_name:    customerName,
         customer_phone:   customerPhone,
+        customer_ip:      getClientIp(request),
         customer_address: customerAddr,
         customer_city:    customerCity,
         pool_model:       poolModel,
