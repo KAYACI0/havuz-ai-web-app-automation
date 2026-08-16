@@ -27,13 +27,42 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
+  // ─────────────────────────────────────────────────────────────
+  // GÖRSEL SIRASI HESAPLAMA
+  // Bu blok, fal.ts'teki imageUrls dizisine EKLENME SIRASIYLA birebir
+  // aynı olmalı: [müşteri fotoğrafı, havuz ref 1, havuz ref 2?, şelale?, merdiven?]
+  // fal.ts'e yeni bir referans eklersen buraya da aynı sırayla ekle.
+  // ─────────────────────────────────────────────────────────────
+  const hasSecondRef = !!poolModel?.reference_image_url_2;
+  const stairRef      = clientConfig.features?.stair_reference_url;
+  const hasStairRef   = config.hasStairs && !!stairRef;
+
+  let idx = 2; // Image 1 = müşteri fotoğrafı, Image 2 = havuz ana referansı
+  const guideLines: string[] = [
+    "- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT",
+    `- Image 2: ${modelName} pool model (primary reference) — USE THIS EXACT POOL SHAPE`,
+  ];
+
+  if (hasSecondRef) {
+    idx++;
+    guideLines.push(`- Image ${idx}: ${modelName} pool model (secondary reference — additional angle/detail) — USE THIS ALONGSIDE IMAGE 2 FOR THE SAME POOL SHAPE`);
+  }
+  if (config.hasWaterfall) {
+    idx++;
+    guideLines.push(`- Image ${idx}: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE`);
+  }
+  if (hasStairRef) {
+    idx++;
+    guideLines.push(`- Image ${idx}: Pool ladder style reference — USE THIS LADDER STYLE`);
+  }
+
+  const referenceGuide = guideLines.join("\n");
+
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
 REFERENCE IMAGES GUIDE:
-- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
-- Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
-${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE" : ""}
+${referenceGuide}
 
 ---
 
@@ -123,7 +152,14 @@ Only the water surface and thin rim are visible — everything else is undergrou
 
 ---
 
-${config.hasStairs ? `
+${hasStairRef ? `
+RULE 5 — POOL LADDER (MANDATORY)
+A stainless steel pool ladder MUST be visible in the final image, matching the style shown in the ladder reference image.
+- Type: 3-step stainless steel pool entry ladder
+- Material: polished chrome stainless steel, shiny and realistic
+- Position: mounted on one SHORT END of the pool edge, steps going DOWN INTO the water
+OMITTING THE LADDER = INVALID OUTPUT.
+` : config.hasStairs ? `
 RULE 5 — POOL LADDER (MANDATORY)
 A stainless steel pool ladder MUST be visible in the final image.
 - Type: 3-step stainless steel pool entry ladder

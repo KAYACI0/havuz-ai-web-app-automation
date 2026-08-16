@@ -21,17 +21,17 @@ export async function generatePoolVisualization(
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  // Referans görselleri topla
-  const imageUrls: string[] = [
-  customerPhotoUrl,
-  poolRef,
-];
+  // Referans görselleri topla — SIRALAMA prompt.ts'teki REFERENCE IMAGES GUIDE
+  // ile birebir aynı mantıkla eşleşmeli. Buraya yeni bir referans eklersen
+  // prompt.ts'teki hesaplamayı da güncellemeyi unutma.
+  const imageUrls: string[] = [customerPhotoUrl, poolRef];
 
-// İkinci referans görsel varsa ekle
-const poolRef2 = model?.reference_image_url_2;
-if (poolRef2) {
-  imageUrls.push(poolRef2);
-}
+  // İkinci referans görsel varsa ekle
+  const poolRef2 = model?.reference_image_url_2;
+  if (poolRef2) {
+    imageUrls.push(poolRef2);
+  }
+
   // Şelale seçildiyse referansı ekle
   if (config.hasWaterfall && WATERFALL_REF) {
     imageUrls.push(WATERFALL_REF);
