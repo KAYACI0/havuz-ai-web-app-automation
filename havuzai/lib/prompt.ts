@@ -17,6 +17,7 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const poolModel     = clientConfig.pool_models.find((m) => m.id === model);
   const modelName     = poolModel?.name || model;
   const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
+  const isRoma         = model.toUpperCase() === "ROMA" || modelName.toUpperCase() === "ROMA";
 
   // Deck ve seramik renk bilgilerini bul
   const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
