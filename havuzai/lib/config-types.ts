@@ -21,6 +21,8 @@ export interface PoolModel {
   prompt_description?: string;
   /** Kart rozeti. Örn: "En Popüler" */
   tag?: string;
+  /** Kategori. Örn: "fiber" | "beton" | "sus" */
+  category?: "fiber" | "beton" | "sus";
   /** fal.ai'ye gönderilen referans görsel (public URL). */
   /** fal.ai'ye gönderilen referans görsel (public URL). */
 reference_image_url: string;
