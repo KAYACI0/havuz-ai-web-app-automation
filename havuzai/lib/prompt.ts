@@ -33,7 +33,10 @@ const shapeRule = isRoma
 - Explicitly FORBIDDEN: pure oval, ellipse, eye-shape, pointed ends, kidney shape, or any continuous curve along the long axis.
 - The pool is a single continuous fiberglass shell with subtle horizontal ribbing texture on the vertical walls.
 - INTEGRATED STEPS: wide, built-in entry steps located only inside ONE of the semicircular short ends, descending into the water as part of the shell.
-- The entire pool is strictly in-ground.`
+- The entire pool is strictly in-ground.
+- negative: kidney shaped pool, irregular ends, bulging steps, steps outside the pool outline, eye shaped, pointed ends, curved long sides, oval pool, elliptical pool, freeform pool`
+
+
   : "SHAPE: STRICTLY RECTANGULAR. Straight sides, 90-degree sharp corners. Perfect geometric rectangle.";    
     return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
