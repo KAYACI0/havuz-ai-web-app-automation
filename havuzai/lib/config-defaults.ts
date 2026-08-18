@@ -29,15 +29,26 @@ function poolAsset(filename: string): string {
 const RELAX_SHAPE = `STRICTLY RECTANGULAR fiberglass pool.
 Perfectly straight parallel long sides with sharp 90-degree corners.
 Clean boxy rectangular silhouette embedded completely in-ground.
-Integrated entry steps and relaxation bench along interior walls.
+Integrated entry steps molded into ONE corner of the pool, exactly matching the reference images — the steps stay in that same corner, not centered on an end.
 MUST BE PLACED FLAT AND FLUSH AT 0CM ELEVATION WITH THE LAWN.
 DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.`;
 
-const ROMA_SHAPE = `Fiberglass pool shaped like a classic Roman pill shape with two semicircle ends and straight parallel long sides.
-It features WIDE INTEGRATED UNDERWATER ENTRY STEPS molded directly inside one rounded end of the pool shell, exactly matching the primary reference image.
-The surround consists of high-end 33x66 cm rectangular ceramic tiles or real wood deck laid seamlessly around the pool edge.
-The pool and surround are completely buried flush with the lawn level (0cm height, zero vertical side-walls).
-No external ladders, no slanted diagonal angles, no raised platform sides.`;
+// DİKKAT — bu metin daha önce "two semicircle ends" (simetrik pill/stadyum
+// şekli) diyordu. Bu YANLIŞTI ve Roma'nın günlerce simetrik oval/stadyum
+// çıkmasının doğrudan sebebiydi — model burada yazana uyuyordu.
+// Gerçek ürün fotoğraflarıyla doğrulanan doğru geometri: iki uç birbirinden
+// FARKLI. Bir uç geniş ve tam yuvarlak; diğer uç daha dar ve YUVARLAK
+// DEĞİL, iki düz yüzeyin künt bir açıyla birleştiği kesik bir uç (tekne
+// pruvası gibi). ASİMETRİK bir şekil — simetrik oval/pill değil.
+const ROMA_SHAPE = `Fiberglass pool with an ASYMMETRIC shape — the two ends look clearly DIFFERENT from each other:
+- ONE end is WIDE and fully ROUNDED (a smooth semicircle curve).
+- The OTHER end is NARROWER with a CHAMFERED POINT — not a sharp knife-tip, not a round curve, but two flat angled facets meeting at a shallow, blunt angle (like the bow of a boat).
+- The two long sides connecting the ends are NOT straight and NOT parallel — they curve and taper gently from the wide rounded end toward the narrow chamfered end.
+This is NOT a symmetric oval, NOT a pill/stadium shape, NOT a rectangle, NOT a rounded rectangle. Match the reference images' silhouette exactly — including the asymmetry.
+It features WIDE INTEGRATED UNDERWATER ENTRY STEPS molded directly inside the NARROW chamfered end of the pool shell, exactly matching the reference images.
+The surround consists of high-end 33x66 cm rectangular ceramic tiles (running-bond brick pattern, never mosaic) or real wood deck laid seamlessly around the pool edge, sunk flush with the lawn.
+The pool and surround are completely buried flush with the lawn level (0cm height, zero vertical side-walls visible from outside).
+No external ladders on this model unless separately selected, no slanted diagonal angles, no raised platform sides.`;
 
 export const DEFAULT_POOL_MODELS: PoolModel[] = [
   {
@@ -48,10 +59,11 @@ export const DEFAULT_POOL_MODELS: PoolModel[] = [
       "dikdörtgen yapısıyla işlevsel ve sade bir tasarım sunan, her bahçeye kolaylıkla uyum sağlayan havuz modelidir.",
     prompt_description: RELAX_SHAPE,
     tag: "En Popüler",
+    // Stüdyo çekimi, temiz arka plan, köşe basamağı net görünür.
     reference_image_url:
-      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL || poolAsset("buyuk-relax-model.jpg"),
+      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL || poolAsset("relax-referans-1.jpeg"),
     reference_image_url_2:
-      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL_2 || poolAsset("kucuk-relax-model-3.jpg"),
+      process.env.NEXT_PUBLIC_RELAX_REFERENCE_URL_2 || poolAsset("relax-referans-2.jpeg"),
     sizes: ["2.25x4.45x1.5", "3x5x1.5", "3x6x1.5", "3x7x1.5", "3x8x1.5"],
   },
   {
@@ -62,12 +74,12 @@ export const DEFAULT_POOL_MODELS: PoolModel[] = [
       "Yumuşak oval hatlarıyla doğal ve şık görünüm. Modern bahcelere mükemmel uyum sağlanması.",
     prompt_description: ROMA_SHAPE,
     tag: "Premium",
-    // DÜZELTME: Birincil resim YAKIN PLAN (Düz basamaklar, kavisler ve net hatlar için)
+    // Birincil: havuzun TAM silüetini gösteren, "Roma Model" etiketli görsel.
     reference_image_url:
-      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL || poolAsset("roma-model-yakin-plan.jpg"),
-    // DÜZELTME: İkincil resim YANDAN (Derinlik desteği için)
+      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL || poolAsset("roma-referans-1.jpeg"),
+    // İkincil: basamakların net göründüğü yakın/geniş açı.
     reference_image_url_2:
-      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL_2 || poolAsset("roma-model-yandan.jpg"),
+      process.env.NEXT_PUBLIC_ROMA_REFERENCE_URL_2 || poolAsset("roma-referans-2.jpeg"),
     sizes: ["3x6x1.5"],
   },
 ];
