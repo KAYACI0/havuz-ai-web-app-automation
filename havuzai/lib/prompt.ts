@@ -37,6 +37,15 @@ ${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATER
 
 ---
 
+⚠️ MANDATORY — ENTRY STEPS
+If the shape description in RULE 2 below mentions integrated/built-in entry steps, they are NOT optional — they MUST be clearly visible in the final output:
+- 3-4 distinct wide platforms/ledges, descending from the pool edge down into the water
+- At the exact position described (e.g. one short end, one corner)
+- NOT smoothed over, NOT omitted, NOT replaced with a plain stepless edge
+A pool with a smooth, stepless edge where steps were specified in the shape description is an INVALID output.
+
+---
+
 MOST IMPORTANT RULE — IN-GROUND POOL INSTALLATION:
 This is a PROFESSIONAL IN-GROUND swimming pool, built INTO the ground.
 
@@ -157,6 +166,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
+❌ Missing integrated entry steps when the shape description specifies them
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
