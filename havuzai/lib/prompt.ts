@@ -23,10 +23,10 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
 
   const isRoma = model.toUpperCase() === "ROMA";
-  const shapeRule = isRoma
-    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
-    : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
+const shapeRule = isRoma
+  ? "STADIUM / CAPSULE SHAPED — Perfectly symmetrical pool with TWO LONG STRAIGHT PARALLEL SIDES and TWO SEMICIRCULAR ROUNDED ENDS. ABSOLUTELY NOT teardrop, NOT asymmetrical, NOT a plain featureless oval."
+  : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
@@ -174,4 +174,4 @@ ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim(); 
-}
+} 
