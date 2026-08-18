@@ -99,10 +99,12 @@ Add a ceramic tile walkway around ALL 4 sides of the pool.
 - Tiles sit flush at ground level — NOT raised
 - Clean, professional, realistic tile finish
 - The ceramic surround replaces the grass directly around the pool
+- DO NOT add any white border, coping, or rim around the pool.
 DO NOT skip the ceramic tiles — they are MANDATORY when selected.
 ` : deckColor ? `
 RULE 4 — DECK SURROUND (MANDATORY)
 Add a composite wood deck around ALL 4 sides of the pool.
+- DO NOT add any white border, coping, or rim around the pool.
 - Exactly 3 deck boards on each side — total width 60cm
 - Each board is 20cm wide, laid parallel to the nearest pool edge
 - Deck color: ${deckColor.name} colored composite wood deck
