@@ -24,11 +24,20 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
 
   const isRoma = model.toUpperCase() === "ROMA";
   
-  const shapeRule = isRoma
-    ? "SHAPE: PERFECT CAPSULE / PILL SHAPED. This is a ROUNDED RECTANGLE. The two long sides are perfectly straight, parallel, and symmetrical. The two short ends are large, fully rounded semicircles. Width is exactly half of the length. Smooth, seamless transitions. The inner walls have a horizontal ribbing texture. INTEGRATED STEPS: There are wide, built-in entry steps located exclusively inside one of the short semicircular ends, seamlessly descending down into the water. The entire pool structure is strictly IN-GROUND."
-    : "SHAPE: STRICTLY RECTANGULAR. Straight sides, 90-degree sharp corners. Perfect geometric rectangle.";
-  return `
+const shapeRule = isRoma
+  ? `SHAPE: STRICT ROUNDED RECTANGLE / CAPSULE WITH STRAIGHT SIDES.
+- The two LONG sides must be PERFECTLY STRAIGHT, parallel to each other, and of equal length.
+- The two SHORT ends must be large, full semicircles (180° arcs).
+- Overall proportions: length ≈ 2× width (classic capsule / stadium / racetrack shape).
+- Transitions between the straight sides and the semicircular ends must be smooth but the long sides themselves must remain flat and linear — NOT bowed, NOT curved, NOT elliptical.
+- Explicitly FORBIDDEN: pure oval, ellipse, eye-shape, pointed ends, kidney shape, or any continuous curve along the long axis.
+- The pool is a single continuous fiberglass shell with subtle horizontal ribbing texture on the vertical walls.
+- INTEGRATED STEPS: wide, built-in entry steps located only inside ONE of the semicircular short ends, descending into the water as part of the shell.
+- The entire pool is strictly in-ground.`
+  : "SHAPE: STRICTLY RECTANGULAR. Straight sides, 90-degree sharp corners. Perfect geometric rectangle.";    
+    return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
+
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
