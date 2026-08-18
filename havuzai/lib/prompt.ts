@@ -23,38 +23,17 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
 
   const isRoma = model.toUpperCase() === "ROMA";
-  
-const shapeRule = isRoma
-  ? `SHAPE: STRICT ROUNDED RECTANGLE / CAPSULE WITH STRAIGHT SIDES.
-- The two LONG sides must be PERFECTLY STRAIGHT, parallel to each other, and of equal length.
-- The two SHORT ends must be large, full semicircles (180° arcs).
-- Overall proportions: length ≈ 2× width (classic capsule / stadium / racetrack shape).
-- Transitions between the straight sides and the semicircular ends must be smooth but the long sides themselves must remain flat and linear — NOT bowed, NOT curved, NOT elliptical.
-- Explicitly FORBIDDEN: pure oval, ellipse, eye-shape, pointed ends, kidney shape, or any continuous curve along the long axis.
-- The pool is a single continuous fiberglass shell with subtle horizontal ribbing texture on the vertical walls.
-- INTEGRATED STEPS: wide, built-in entry steps located only inside ONE of the semicircular short ends, descending into the water as part of the shell.
-- The entire pool is strictly in-ground.
-- negative: kidney shaped pool, irregular ends, bulging steps, steps outside the pool outline, eye shaped, pointed ends, curved long sides, oval pool, elliptical pool, freeform pool`
+  const shapeRule = isRoma
+    ? "OVAL/TEARDROP shaped — asymmetric, curved sides, one wide rounded end, one narrow tapered end. ABSOLUTELY NOT rectangular."
+    : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
-
-  : "SHAPE: STRICTLY RECTANGULAR. Straight sides, 90-degree sharp corners. Perfect geometric rectangle.";    
-    return `
+  return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
-
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
 - Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
 ${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE" : ""}
-
----
-
-⚠️ MANDATORY — ENTRY STEPS
-If the shape description in RULE 2 below mentions integrated/built-in entry steps, they are NOT optional — they MUST be clearly visible in the final output:
-- 3-4 distinct wide platforms/ledges, descending from the pool edge down into the water
-- At the exact position described (e.g. one short end, one corner)
-- NOT smoothed over, NOT omitted, NOT replaced with a plain stepless edge
-A pool with a smooth, stepless edge where steps were specified in the shape description is an INVALID output.
 
 ---
 
@@ -178,12 +157,12 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
-❌ Missing integrated entry steps when the shape description specifies them
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
+❌ Missing integrated entry steps when the shape description specifies them
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim(); 
-} 
+}
