@@ -68,7 +68,7 @@ Keep EVERYTHING in the original photo exactly as it is:
 
 RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
-Shape rule: ${shapeRule}
+If the shape description above mentions built-in/integrated entry steps, they MUST be clearly visible in the output — correct step count, correct position, not smoothed over or omitted.
 Size: ${size} meters — maintain exact proportions.
 The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
 The pool must be clearly SMALLER than the house/building.
@@ -163,5 +163,5 @@ ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected"
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
-  `.trim();
+  `.trim(); 
 }
