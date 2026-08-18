@@ -30,16 +30,6 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   return `
 You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
-===================================================
-🚫 CRITICAL — READ THIS FIRST — MOST COMMON MISTAKE
-===================================================
-POOL TOO LARGE / TOO CLOSE TO CAMERA — this is by far the most common error.
-- The pool must occupy NO MORE than 10-12% of the total photo frame area.
-- The pool's long side must NOT be wider than the visible width of the house/building — it should look noticeably SMALLER, never equal or larger.
-- Do NOT place the pool in the extreme foreground closest to the camera. There must be clearly visible open lawn BETWEEN the near edge of the frame and the near edge of the pool — the pool sits at a comfortable middle-distance in the garden, not filling the front of the shot.
-- If unsure whether the pool looks too big or too close — make it smaller and move it further back. Small and correctly placed beats big and dominant.
-===================================================
-
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
 - Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
@@ -80,11 +70,10 @@ RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
 Size: ${size} meters — maintain exact proportions.
-The pool must be SMALL relative to the garden — roughly 10-12% of the total photo frame area (see CRITICAL section above).
+The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
 The pool must be clearly SMALLER than the house/building.
-The pool must sit at a middle-distance in the garden, NOT in the extreme foreground — leave visible open lawn between the near edge of the frame and the near edge of the pool.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
-DO NOT fill the garden with the pool. DO NOT let the pool loom large due to close camera perspective.
+DO NOT fill the garden with the pool.
 
 ---
 
@@ -122,15 +111,14 @@ Add a composite wood deck around ALL 4 sides of the pool.
 - The deck surround replaces the grass directly around the pool
 DO NOT skip the deck — it is MANDATORY when selected.
 ` : `
-RULE 4 — POOL SURROUND (NO DECK OR CERAMIC SELECTED)
-No deck or ceramic walkway was selected — do NOT add any tiles, wood boards, stone pavers, or walkway material around the pool.
-The existing ground (grass, soil, or whatever is in the original photo) comes right up to the pool's coping edge — no wide border, no walkway strip.
-
-The pool DOES have a normal, thin, in-ground pool coping (5-10cm wide) — this is a real physical necessity for a real pool and must look natural:
-- Coping material: matte natural stone-grey or light beige concrete coping — NEVER bright white, NEVER plastic-looking, NEVER a thick raised lip
-- The coping sits FLUSH with the surrounding ground — grass touches the outer edge of the coping directly, no gap, no visible pool wall above ground
-- Keep the coping subtle and realistic — it should look like a normal residential in-ground pool edge, not a decorative border and not an above-ground pool rim
-DO NOT add a decorative walkway, deck, or tile border — only the narrow, natural-toned structural coping described above.
+RULE 4 — POOL SURROUND
+The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
+DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
+DO NOT add any walkway or border around the pool.
+The original ground material continues right up to the pool water edge.
+DO NOT add any white border, coping, or rim around the pool.
+The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
+Only the water surface and thin rim are visible — everything else is underground.
 `}
 
 ---
@@ -166,7 +154,6 @@ RULE 7 — PHOTOREALISTIC QUALITY
 ---
 
 ABSOLUTE PROHIBITIONS:
-❌ Pool larger than 12% of the frame, wider than the house, or placed too close to the camera
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
@@ -174,7 +161,6 @@ ABSOLUTE PROHIBITIONS:
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
 ${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
 ${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
-${!ceramicColor && !deckColor ? "❌ Bright white or plastic-looking coping, thick raised rim, or decorative walkway when no deck/ceramic was selected — coping must be thin, natural-toned, and flush with the ground" : ""}
 ${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
 ${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim();
