@@ -35,25 +35,31 @@ function checkFits(poolSize: string, gardenLength: string, gardenWidth: string):
 }
 
 export default function StepEnvironment({ form, update, config }: Props) {
-  const decks = config.deck_colors;
-  const ceramics = config.ceramic_colors;
+  const showDeck = (config.deck_colors?.length ?? 0) > 0;
+  const showCeramic = (config.ceramic_colors?.length ?? 0) > 0;
   const showWaterfall = config.features?.waterfall;
   const showStairs = config.features?.stairs;
-  const showExtras = showWaterfall || showStairs;
 
   const [showModal, setShowModal] = useState(false);
   const [tempLength, setTempLength] = useState(form.gardenLength || "");
   const [tempWidth, setTempWidth]   = useState(form.gardenWidth  || "");
   const [fitError, setFitError]     = useState(false);
 
-  function handleSurroundSelect(type: "deck" | "ceramic", id: string) {
-    if (type === "deck") {
-      update({ deckType: id, ceramicType: "" });
-    } else {
-      update({ ceramicType: id, deckType: "" });
+  function handleSurroundToggle(type: "deck" | "ceramic") {
+    const selected = type === "deck" ? !!form.deckType : !!form.ceramicType;
+
+    // Zaten işaretliyse kaldır
+    if (selected) {
+      update({ deckType: "", ceramicType: "" });
+      return;
     }
+
+    // Deck ve seramik birbirini dışlar
+    if (type === "deck") update({ deckType: "default", ceramicType: "" });
+    else update({ ceramicType: "default", deckType: "" });
+
     setTempLength(form.gardenLength || "");
-    setTempWidth(form.gardenWidth   || "");
+    setTempWidth(form.gardenWidth || "");
     setFitError(false);
     setShowModal(true);
   }
@@ -71,11 +77,12 @@ export default function StepEnvironment({ form, update, config }: Props) {
     setFitError(false);
   }
 
+  // Atla: ölçü girmeden devam et, kart seçimi korunur
   function handleModalSkip() {
-  update({ gardenLength: "", gardenWidth: "", deckType: "", ceramicType: "" });
-  setShowModal(false);
-  setFitError(false);
-}
+    update({ gardenLength: "", gardenWidth: "" });
+    setShowModal(false);
+    setFitError(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -223,163 +230,98 @@ export default function StepEnvironment({ form, update, config }: Props) {
         </div>
       )}
 
-      {/* DECK */}
-      {decks.length > 0 && (
-        <div>
-          <div
-            className="inline-block text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-2"
-            style={{ background: "#1a1a2e", color: "#ffffff" }}
-          >
-            DECK
-          </div>
-          <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
-            style={{ color: "var(--navy)" }}
-          >
-            HAVUZ ÇEVRESİ SEÇENEKLERİ
-          </h3>
-          <div className="flex flex-wrap gap-4">
-            {decks.map((d) => {
-              const sel = form.deckType === d.id;
-              return (
-                <button
-                  key={d.id}
-                  onClick={() => handleSurroundSelect("deck", d.id)}
-                  className="flex flex-col items-center gap-1"
-                >
-                  <div
-                    className="w-10 h-10 rounded-full"
-                    style={{
-                      background: d.hex,
-                      outline: sel ? "3px solid var(--pool)" : "3px solid transparent",
-                      outlineOffset: "2px",
-                      transition: "outline 0.15s",
-                    }}
-                  />
-                  <span
-                    className="text-[11px] font-medium text-center leading-tight max-w-[52px]"
-                    style={{ color: sel ? "var(--pool)" : "#374151" }}
-                  >
-                    {d.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* BAŞLIK */}
+      <div className="text-center">
+        <h2 className="text-xl font-extrabold uppercase tracking-wide" style={{ color: "#BFA58A" }}>
+          Havuz Etrafı İçin
+        </h2>
+        <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#C4A24E" }}>
+          İstediğiniz özellikleri işaretleyin
+        </p>
+      </div>
 
-      {/* SERAMİK */}
-      {ceramics.length > 0 && (
-        <div>
-          <div
-            className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3"
-            style={{ background: "#1a1a2e", color: "#ffffff", display: "inline-block" }}
-          >
-            SERAMİK SEÇENEKLERİ
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {ceramics.map((c) => {
-              const sel = form.ceramicType === c.id;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => handleSurroundSelect("ceramic", c.id)}
-                  className="flex flex-col items-center gap-1"
-                >
-                  <div
-                    className="w-16 h-16 rounded-xl border-4 transition-all"
-                    style={{
-                      background: c.hex,
-                      borderColor: sel ? "var(--pool)" : "transparent",
-                      transform: sel ? "scale(1.1)" : "scale(1)",
-                    }}
-                  />
-                  <p className="text-xs text-center mt-1" style={{ color: sel ? "var(--pool)" : "#374151" }}>
-                    {c.name}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* EKSTRA ÖZELLİKLER */}
-      {showExtras && (
-        <div>
-          <div
-            className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3"
-            style={{ background: "#1a1a2e", color: "#ffffff", display: "inline-block" }}
-          >
-            EKSTRA ÖZELLİKLER
-          </div>
-
-          {showWaterfall && (
-            <button
-              onClick={() => update({ hasWaterfall: !form.hasWaterfall })}
-              className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all"
-              style={{
-                borderColor: form.hasWaterfall ? "var(--pool)" : "#E5E7EB",
-                background: form.hasWaterfall ? "#EFF6FF" : "#F9FAFB",
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🌊</span>
-                <div className="text-left">
-                  <div className="text-sm font-semibold" style={{ color: form.hasWaterfall ? "var(--pool)" : "#374151" }}>
-                    Havuz Şelalesi
-                  </div>
-                  <div className="text-[11px]" style={{ color: "#9CA3AF" }}>
-                    Kısa kenara su perdesi eklenir
-                  </div>
-                </div>
-              </div>
-              <div
-                className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-                style={{ background: form.hasWaterfall ? "var(--pool)" : "#D1D5DB" }}
-              >
-                <div
-                  className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
-                  style={{ transform: form.hasWaterfall ? "translateX(20px)" : "translateX(2px)" }}
-                />
-              </div>
-            </button>
-          )}
-
-          {showStairs && (
-            <button
-              onClick={() => update({ hasStairs: !form.hasStairs })}
-              className="flex items-center justify-between w-full px-4 py-3 rounded-xl border-2 transition-all mt-3"
-              style={{
-                borderColor: form.hasStairs ? "var(--pool)" : "#E5E7EB",
-                background: form.hasStairs ? "#EFF6FF" : "#F9FAFB",
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🪜</span>
-                <div className="text-left">
-                  <div className="text-sm font-semibold" style={{ color: form.hasStairs ? "var(--pool)" : "#374151" }}>
-                    Havuz Merdiveni
-                  </div>
-                  <div className="text-[11px]" style={{ color: "#9CA3AF" }}>
-                    Paslanmaz çelik giriş merdiveni eklenir
-                  </div>
-                </div>
-              </div>
-              <div
-                className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-                style={{ background: form.hasStairs ? "var(--pool)" : "#D1D5DB" }}
-              >
-                <div
-                  className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
-                  style={{ transform: form.hasStairs ? "translateX(20px)" : "translateX(2px)" }}
-                />
-              </div>
-            </button>
-          )}
-        </div>
-      )}
+      {/* 4 KART */}
+      <div className="grid grid-cols-2 gap-3">
+        {showDeck && (
+          <FeatureCard
+            title="HAVUZ ETRAFI"
+            subtitle="DECK KAPLAMA"
+            image="/ozellikler/deck.jpg"
+            checked={!!form.deckType}
+            onToggle={() => handleSurroundToggle("deck")}
+          />
+        )}
+        {showCeramic && (
+          <FeatureCard
+            title="HAVUZ ETRAFI"
+            subtitle="SERAMİK KAPLAMA"
+            image="/ozellikler/seramik.jpg"
+            checked={!!form.ceramicType}
+            onToggle={() => handleSurroundToggle("ceramic")}
+          />
+        )}
+        {showWaterfall && (
+          <FeatureCard
+            title="PASLANMAZ"
+            subtitle="HAVUZ ŞELALESİ"
+            image="/ozellikler/selale.jpg"
+            checked={!!form.hasWaterfall}
+            onToggle={() => update({ hasWaterfall: !form.hasWaterfall })}
+          />
+        )}
+        {showStairs && (
+          <FeatureCard
+            title="PASLANMAZ"
+            subtitle="HAVUZ MERDİVENİ"
+            image="/ozellikler/merdiven.jpg"
+            checked={!!form.hasStairs}
+            onToggle={() => update({ hasStairs: !form.hasStairs })}
+          />
+        )}
+      </div>
     </div>
+  );
+}
+
+function FeatureCard({
+  title, subtitle, image, checked, onToggle,
+}: {
+  title: string;
+  subtitle: string;
+  image: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="text-left p-2 transition-all"
+      style={{
+        background: "#F5EFE6",
+        border: `2px solid ${checked ? "var(--pool)" : "#E8DFD0"}`,
+        borderRadius: "6px",
+      }}
+    >
+      <div className="flex items-start gap-2 mb-2">
+        <div
+          className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
+          style={{
+            background: checked ? "var(--pool)" : "#F5EFE6",
+            border: `2px solid ${checked ? "var(--pool)" : "#D9CBB5"}`,
+            borderRadius: "3px",
+          }}
+        >
+          {checked ? "✓" : ""}
+        </div>
+        <div className="text-[11px] font-bold leading-tight" style={{ color: "var(--navy)" }}>
+          {title}
+          <br />
+          {subtitle}
+        </div>
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={image} alt={subtitle} className="w-full aspect-[4/3] object-cover" />
+    </button>
   );
 }

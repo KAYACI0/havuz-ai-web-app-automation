@@ -18,9 +18,13 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   const modelName     = poolModel?.name || model;
   const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
 
-  // Deck ve seramik renk bilgilerini bul
-  const deckColor     = deck    ? clientConfig.deck_colors.find((d)    => d.id === deck)    : null;
-  const ceramicColor  = ceramic ? clientConfig.ceramic_colors.find((c) => c.id === ceramic) : null;
+  // Deck ve seramik: renk seçimi artık yok (id = "default"). Config'te eşleşme yoksa varsayılan renk kullanılır.
+  const deckColor     = deck
+    ? (clientConfig.deck_colors.find((d) => d.id === deck) ?? { name: "natural warm brown" })
+    : null;
+  const ceramicColor  = ceramic
+    ? (clientConfig.ceramic_colors.find((c) => c.id === ceramic) ?? { name: "light cream / beige travertine" })
+    : null;
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
