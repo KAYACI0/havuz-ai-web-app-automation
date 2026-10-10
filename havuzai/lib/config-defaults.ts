@@ -105,9 +105,20 @@ export const DEFAULT_CERAMIC_COLORS: ColorOption[] = [
   { id: "krem", name: "Krem", hex: "linear-gradient(135deg, #FEF3C7, #D4A853)" },
 ];
 
+/** Tarayıcıda gösterilen kart görselleri için göreli yol (public/pools/ altı). */
+function publicPoolImage(filename: string): string {
+  return `/pools/${encodeURIComponent(filename)}`;
+}
+
 export const DEFAULT_FEATURES: Features = {
   waterfall: true,
   stairs: true,
+  // Müşteri formundaki 4 kartın varsayılan görselleri.
+  // deck-kaplama.jpg henüz klasörde yok — public/pools/ içine ekle (veya panelden yükle).
+  deck_image_url:      publicPoolImage("deck-kaplama.jpg"),
+  ceramic_image_url:   publicPoolImage("Seramik-turkuaz-Perspektif.png"),
+  waterfall_image_url: publicPoolImage("kobra-tip-selale.png"),
+  stairs_image_url:    publicPoolImage("Merdiven-Perspektif-2.png"),
 };
 
 export const DEFAULT_BRAND: Brand = {

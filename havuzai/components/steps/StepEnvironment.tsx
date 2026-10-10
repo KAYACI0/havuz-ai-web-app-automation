@@ -246,7 +246,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
           <FeatureCard
             title="HAVUZ ETRAFI"
             subtitle="DECK KAPLAMA"
-            image="/ozellikler/deck.jpg"
+            image={config.features?.deck_image_url || ""}
             checked={!!form.deckType}
             onToggle={() => handleSurroundToggle("deck")}
           />
@@ -255,7 +255,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
           <FeatureCard
             title="HAVUZ ETRAFI"
             subtitle="SERAMİK KAPLAMA"
-            image="/ozellikler/seramik.jpg"
+            image={config.features?.ceramic_image_url || ""}
             checked={!!form.ceramicType}
             onToggle={() => handleSurroundToggle("ceramic")}
           />
@@ -264,7 +264,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
           <FeatureCard
             title="PASLANMAZ"
             subtitle="HAVUZ ŞELALESİ"
-            image="/ozellikler/selale.jpg"
+            image={config.features?.waterfall_image_url || ""}
             checked={!!form.hasWaterfall}
             onToggle={() => update({ hasWaterfall: !form.hasWaterfall })}
           />
@@ -273,7 +273,7 @@ export default function StepEnvironment({ form, update, config }: Props) {
           <FeatureCard
             title="PASLANMAZ"
             subtitle="HAVUZ MERDİVENİ"
-            image="/ozellikler/merdiven.jpg"
+            image={config.features?.stairs_image_url || ""}
             checked={!!form.hasStairs}
             onToggle={() => update({ hasStairs: !form.hasStairs })}
           />
@@ -320,8 +320,15 @@ function FeatureCard({
           {subtitle}
         </div>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image} alt={subtitle} className="w-full aspect-[4/3] object-cover" />
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt={subtitle}
+          className="w-full aspect-[4/3] object-cover"
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+        />
+      )}
     </button>
   );
 }

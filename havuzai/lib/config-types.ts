@@ -12,6 +12,8 @@ export interface PoolModel {
   name: string;
   /** İsteğe bağlı alt başlık. Örn: "Organik & Aile" */
   sub?: string;
+  /** Model kategorisi (super-admin panelinde seçilir). */
+  category?: "fiber" | "beton" | "sus";
   /** Kart açıklaması (müşteriye gösterilir). */
   description: string;
   /**
@@ -22,10 +24,9 @@ export interface PoolModel {
   /** Kart rozeti. Örn: "En Popüler" */
   tag?: string;
   /** fal.ai'ye gönderilen referans görsel (public URL). */
-  /** fal.ai'ye gönderilen referans görsel (public URL). */
-reference_image_url: string;
-/** fal.ai'ye gönderilen ikinci referans görsel (isteğe bağlı, public URL). */
-reference_image_url_2?: string;
+  reference_image_url: string;
+  /** fal.ai'ye gönderilen ikinci referans görsel (isteğe bağlı, public URL). */
+  reference_image_url_2?: string;
   /** Bu modele uygun ölçüler. Örn: ["3x5x1.5", "3x6x1.5"] */
   sizes: string[];
 }
@@ -40,12 +41,20 @@ export interface ColorOption {
   hex: string;
 }
 
-/** Formda gösterilen/gizlenen ekstra özellikler. */
+/** Formda gösterilen/gizlenen ekstra özellikler + kart görselleri. */
 export interface Features {
   waterfall: boolean;
   stairs: boolean;
-  /** Merdiven seçildiğinde fal.ai'ye gönderilen ladder stil referansı (public URL). */
+  /**
+   * @deprecated Artık fal.ai'ye gönderilmiyor (ekstralar üretilen görsele yansımıyor).
+   * Eski kayıtlar bozulmasın diye tipte duruyor.
+   */
   stair_reference_url?: string;
+  /** Müşteri formundaki kart görselleri (public URL veya /pools/... yolu). */
+  deck_image_url?: string;
+  ceramic_image_url?: string;
+  waterfall_image_url?: string;
+  stairs_image_url?: string;
 }
 
 /** Marka görünümü. */

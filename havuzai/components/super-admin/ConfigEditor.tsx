@@ -14,6 +14,13 @@ const inputCls =
   "focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500";
 const labelCls = "block text-xs text-gray-400 mb-1";
 
+const FEATURE_IMAGES = [
+  { key: "deck_image_url",      label: "Deck kaplama" },
+  { key: "ceramic_image_url",   label: "Seramik kaplama" },
+  { key: "waterfall_image_url", label: "Şelale" },
+  { key: "stairs_image_url",    label: "Merdiven" },
+] as const;
+
 export default function ConfigEditor({ client, adminPass, onClose }: Props) {
   const [config, setConfig] = useState<ClientConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,16 +29,19 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
   const [savedOk, setSavedOk] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     fetch(`/api/super-admin/config?clientId=${encodeURIComponent(client.id)}`, {
       headers: { "x-super-admin-password": adminPass },
     })
       .then((r) => r.json())
       .then((d) => {
+        if (cancelled) return;
         if (d.success) setConfig(d.config);
         else setError(d.error || "Yüklenemedi.");
       })
-      .catch(() => setError("Bağlantı hatası."))
-      .finally(() => setLoading(false));
+      .catch(() => { if (!cancelled) setError("Bağlantı hatası."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [client.id, adminPass]);
 
   // ─── Görsel yükleme ───────────────────────────────────────────
@@ -87,17 +97,38 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
     setSaving(true);
     setError("");
     setSavedOk(false);
-    const res = await fetch("/api/super-admin/config", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "x-super-admin-password": adminPass },
-      body: JSON.stringify({ clientId: client.id, config }),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (!res.ok) { setError(data.error || "Kaydedilemedi."); return; }
-    setSavedOk(true);
-    setTimeout(() => setSavedOk(false), 2500);
+    try {
+      const res = await fetch("/api/super-admin/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-super-admin-password": adminPass },
+        body: JSON.stringify({ clientId: client.id, config }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Kaydedilemedi."); return; }
+      setSavedOk(true);
+      setTimeout(() => setSavedOk(false), 2500);
+    } catch {
+      setError("Bağlantı hatası — kaydedilemedi.");
+    } finally {
+      setSaving(false);
+    }
   };
+
+  // Görsel input'u: aynı dosya tekrar seçilebilsin diye değer sıfırlanır
+  const handleImagePick =
+    (kind: string, onUrl: (url: string) => void) =>
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const input = e.target;
+      const f = input.files?.[0];
+      if (!f) return;
+      try {
+        onUrl(await uploadAsset(f, kind));
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        input.value = "";
+      }
+    };
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-stretch justify-center p-0 sm:p-4">
@@ -110,7 +141,7 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
           </div>
           <div className="flex items-center gap-2">
             {savedOk && <span className="text-green-400 text-sm">✓ Kaydedildi</span>}
-            <button onClick={handleSave} disabled={saving || loading}
+            <button onClick={handleSave} disabled={saving || loading || !config}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl text-sm font-bold">
               {saving ? "Kaydediliyor..." : "💾 Kaydet"}
             </button>
@@ -135,23 +166,29 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                   {config.pool_models.map((m, i) => (
                     <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col gap-3">
                       <div className="flex gap-4">
-                        {/* Görsel */}
-                        <div className="shrink-0">
-                          <div className="w-28 h-28 rounded-lg bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center">
-                            {m.reference_image_url
-                              ? <img src={m.reference_image_url} alt={m.name} className="w-full h-full object-cover" />
-                              : <span className="text-gray-600 text-xs text-center px-2">Referans görsel yok</span>}
-                          </div>
-                          <label className="mt-2 block text-center px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs cursor-pointer">
-                            Görsel Yükle
-                            <input type="file" accept="image/*" className="hidden"
-                              onChange={async (e) => {
-                                const f = e.target.files?.[0];
-                                if (!f) return;
-                                try { const url = await uploadAsset(f, "model"); updateModel(i, { reference_image_url: url }); }
-                                catch (err) { setError((err as Error).message); }
-                              }} />
-                          </label>
+                        {/* Görseller (1. ve 2. referans) */}
+                        <div className="shrink-0 flex flex-col gap-3">
+                          {([
+                            { field: "reference_image_url", label: "Referans 1", kind: "model" },
+                            { field: "reference_image_url_2", label: "Referans 2", kind: "model2" },
+                          ] as const).map((slot) => {
+                            const url = (m[slot.field] as string | undefined) || "";
+                            return (
+                              <div key={slot.field}>
+                                <div className="w-28 h-24 rounded-lg bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center">
+                                  {url
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    ? <img src={url} alt={`${m.name} ${slot.label}`} className="w-full h-full object-cover" />
+                                    : <span className="text-gray-600 text-xs text-center px-2">{slot.label} yok</span>}
+                                </div>
+                                <label className="mt-1.5 block text-center px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs cursor-pointer">
+                                  {slot.label} Yükle
+                                  <input type="file" accept="image/*" className="hidden"
+                                    onChange={handleImagePick(slot.kind, (u) => updateModel(i, { [slot.field]: u }))} />
+                                </label>
+                              </div>
+                            );
+                          })}
                         </div>
                         {/* Alanlar */}
                         <div className="flex-1 flex flex-col gap-2">
@@ -190,8 +227,10 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                           </div>
                           <div>
                             <label className={labelCls}>Ölçüler (virgülle: 3x5x1.5, 3x6x1.5)</label>
-                            <input className={inputCls} value={(m.sizes || []).join(", ")}
-                              onChange={(e) => updateModel(i, { sizes: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })} />
+                            <SizesInput
+                              sizes={m.sizes || []}
+                              onCommit={(sizes) => updateModel(i, { sizes })}
+                            />
                           </div>
                         </div>
                       </div>
@@ -236,7 +275,7 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
               {/* ── ÖZELLİKLER ── */}
               <section>
                 <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-3">✨ Ekstra Özellikler</h3>
-                <div className="flex gap-6">
+                <div className="flex gap-6 mb-4">
                   <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                     <input type="checkbox" className="w-4 h-4 accent-blue-500" checked={!!config.features.waterfall}
                       onChange={(e) => patch({ features: { ...config.features, waterfall: e.target.checked } })} />
@@ -247,6 +286,31 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                       onChange={(e) => patch({ features: { ...config.features, stairs: e.target.checked } })} />
                     🪜 Merdiven
                   </label>
+                </div>
+
+                <label className={labelCls}>Müşteri formundaki kart görselleri</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {FEATURE_IMAGES.map((f) => {
+                    const url = config.features[f.key] || "";
+                    return (
+                      <div key={f.key}>
+                        <div className="w-full aspect-[4/3] rounded-lg bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center">
+                          {url
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={url} alt={f.label} className="w-full h-full object-cover" />
+                            : <span className="text-gray-600 text-xs text-center px-2">Görsel yok</span>}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1 text-center">{f.label}</div>
+                        <label className="mt-1 block text-center px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs cursor-pointer">
+                          Görsel Yükle
+                          <input type="file" accept="image/*" className="hidden"
+                            onChange={handleImagePick("feature", (u) =>
+                              patch({ features: { ...config.features, [f.key]: u } })
+                            )} />
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 
@@ -264,7 +328,7 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                       <label className={labelCls}>Ana renk</label>
                       <div className="flex gap-2 items-center">
                         <input type="color" className="w-10 h-9 bg-gray-800 border border-gray-700 rounded-lg"
-                          value={config.brand.primary_color || "#1D7BBF"}
+                          value={/^#[0-9a-fA-F]{6}$/.test(config.brand.primary_color || "") ? (config.brand.primary_color as string) : "#1D7BBF"}
                           onChange={(e) => patch({ brand: { ...config.brand, primary_color: e.target.value } })} />
                         <input className={inputCls + " font-mono"} value={config.brand.primary_color || ""}
                           onChange={(e) => patch({ brand: { ...config.brand, primary_color: e.target.value } })} />
@@ -274,18 +338,14 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
                   <div className="flex items-center gap-3">
                     <div className="w-20 h-16 rounded-lg bg-white border border-gray-700 overflow-hidden flex items-center justify-center shrink-0">
                       {config.brand.logo_url
+                        // eslint-disable-next-line @next/next/no-img-element
                         ? <img src={config.brand.logo_url} alt="logo" className="w-full h-full object-contain" />
                         : <span className="text-gray-400 text-[10px]">Logo yok</span>}
                     </div>
                     <label className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs cursor-pointer">
                       Logo Yükle
                       <input type="file" accept="image/*" className="hidden"
-                        onChange={async (e) => {
-                          const f = e.target.files?.[0];
-                          if (!f) return;
-                          try { const url = await uploadAsset(f, "logo"); patch({ brand: { ...config.brand, logo_url: url } }); }
-                          catch (err) { setError((err as Error).message); }
-                        }} />
+                        onChange={handleImagePick("logo", (u) => patch({ brand: { ...config.brand, logo_url: u } }))} />
                     </label>
                   </div>
                 </div>
@@ -317,6 +377,25 @@ export default function ConfigEditor({ client, adminPass, onClose }: Props) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ─── Ölçüler girişi ──────────────────────────────────────────
+ * Yazarken virgül/boşluk silinmesin diye yerel metin tutar;
+ * alan odağı kaybedince diziye çevirip kaydeder. */
+function SizesInput({ sizes, onCommit }: { sizes: string[]; onCommit: (s: string[]) => void }) {
+  const [text, setText] = useState(sizes.join(", "));
+  return (
+    <input
+      className={inputCls}
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => {
+        const parsed = text.split(",").map((s) => s.trim()).filter(Boolean);
+        onCommit(parsed);
+        setText(parsed.join(", "));
+      }}
+    />
   );
 }
 

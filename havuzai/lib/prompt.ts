@@ -31,7 +31,7 @@ You are a professional architectural visualization AI. Your task is to place a l
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
-- Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
+- Image 2 (and Image 3 if provided): ${modelName} pool model reference photos — USE THIS EXACT POOL SHAPE
 
 ---
 

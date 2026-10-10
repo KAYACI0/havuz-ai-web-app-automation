@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
-      clientId, poolModel, poolSize, deckType, ceramicType,
+      clientId, poolModel, poolSize, deckType, ceramicType, hasWaterfall, hasStairs,
       customerName, customerPhone, photoName: photo?.name, photoSize: photo?.size,
     });
 
@@ -131,14 +131,11 @@ export async function POST(request: Request) {
     const originalPhotoUrl = urlData.publicUrl;
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
+    // AI'a SADECE model ve ölçü gider. Deck/seramik/şelale/merdiven seçimleri
+    // görsele yansımaz; aşağıda siparişe yazılır ve yönetim panelinde gösterilir.
     const poolConfig: PoolConfig = {
-      model:        poolModel,
-      size:         poolSize,
-      deck:         deckType,
-      ceramic:      ceramicType,
-      hasWaterfall,
-      hasStairs,
-      stairType,
+      model: poolModel,
+      size:  poolSize,
     };
 
     const clientConfig = await getClientConfig(clientId);

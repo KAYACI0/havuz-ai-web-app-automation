@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabase";
-import type { ClientConfig, PoolModel, ColorOption } from "./config-types";
+import type { ClientConfig, PoolModel, ColorOption, Features } from "./config-types";
 import {
   defaultConfig,
   DEFAULT_POOL_MODELS,
@@ -8,6 +8,8 @@ import {
   DEFAULT_FEATURES,
   DEFAULT_BRAND,
 } from "./config-defaults";
+
+const CATEGORIES = ["fiber", "beton", "sus"] as const;
 
 /**
  * DB'den gelen ham veriyi güvenli hale getirir: eksik alanlar (özellikle sizes) tüketicileri
@@ -18,6 +20,7 @@ function normalizeModel(m: Record<string, unknown>): PoolModel {
     id: String(m.id ?? ""),
     name: String(m.name ?? m.id ?? ""),
     sub: m.sub != null ? String(m.sub) : undefined,
+    category: CATEGORIES.find((c) => c === m.category) ?? "fiber",
     description: String(m.description ?? ""),
     prompt_description: m.prompt_description != null ? String(m.prompt_description) : undefined,
     tag: m.tag != null ? String(m.tag) : undefined,
@@ -27,12 +30,28 @@ function normalizeModel(m: Record<string, unknown>): PoolModel {
   };
 }
 
-
 function normalizeColor(c: Record<string, unknown>): ColorOption {
   return {
     id: String(c.id ?? ""),
     name: String(c.name ?? ""),
     hex: String(c.hex ?? ""),
+  };
+}
+
+/** Boş/eksik görsel alanı varsayılana düşsün (DB'de "" kalmışsa kart görseli kaybolmasın). */
+function imageOrDefault(value: unknown, fallback?: string): string | undefined {
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+function normalizeFeatures(raw: unknown): Features {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  return {
+    ...DEFAULT_FEATURES,
+    ...(r as Partial<Features>),
+    deck_image_url:      imageOrDefault(r.deck_image_url,      DEFAULT_FEATURES.deck_image_url),
+    ceramic_image_url:   imageOrDefault(r.ceramic_image_url,   DEFAULT_FEATURES.ceramic_image_url),
+    waterfall_image_url: imageOrDefault(r.waterfall_image_url, DEFAULT_FEATURES.waterfall_image_url),
+    stairs_image_url:    imageOrDefault(r.stairs_image_url,    DEFAULT_FEATURES.stairs_image_url),
   };
 }
 
@@ -69,7 +88,7 @@ export async function getClientConfig(clientId: string): Promise<ClientConfig> {
     pool_models: models.length > 0 ? models : DEFAULT_POOL_MODELS,
     deck_colors: decks.length > 0 ? decks : DEFAULT_DECK_COLORS,
     ceramic_colors: ceramics.length > 0 ? ceramics : DEFAULT_CERAMIC_COLORS,
-    features: { ...DEFAULT_FEATURES, ...(data.features || {}) },
+    features: normalizeFeatures(data.features),
     brand: { ...DEFAULT_BRAND, ...(data.brand || {}) },
     contact: { ...(data.contact || {}) },
   };

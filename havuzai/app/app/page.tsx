@@ -16,7 +16,7 @@ const FORM_GUIDE = [
   { icon: "📷", title: "Fotoğraf Yükleyin", desc: "Bahçenizi veya arka bahçenizi net şekilde gösteren bir fotoğraf seçin." },
   { icon: "🏊", title: "Havuz Modelini Seçin", desc: "Bahçenize en uygun havuz modelini seçin." },
   { icon: "📐", title: "Ölçü Belirleyin", desc: "Bahçenizin büyüklüğüne uygun havuz boyutunu seçin." },
-  { icon: "🌿", title: "Çevre Tasarımını Ayarlayın", desc: "Deck veya seramik rengini seçin." },
+  { icon: "🌿", title: "Özellikleri İşaretleyin", desc: "Havuz etrafı kaplama, şelale ve merdiven gibi istediğiniz özellikleri işaretleyin." },
   { icon: "👤", title: "Bilgilerinizi Girin", desc: "Ad, telefon ve adres bilgilerinizi girerek görselimi oluştur butonuna tıklayın." },
 ];
 
@@ -41,7 +41,7 @@ const STEPS = [
   { n: 1, label: "Fotoğraf", icon: "📷" },
   { n: 2, label: "Model",    icon: "🏊" },
   { n: 3, label: "Ölçü",     icon: "📐" },
-  { n: 4, label: "Çevre",    icon: "🌿" },
+  { n: 4, label: "Özellik",  icon: "🌿" },
   { n: 5, label: "İletişim", icon: "👤" },
 ];
 
@@ -72,7 +72,7 @@ function canProceed(step: number, form: FormData): boolean {
   if (step === 2) return !!form.poolModel;
   if (step === 3) return !!form.poolSize;
   if (step === 5) return isContactValid(form);
-  return true;
+  return true; // Adım 4 (özellikler) tamamen isteğe bağlı
 }
 
 interface Props { clientId?: string; isEmbed?: boolean; }
@@ -84,7 +84,7 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
     "Hayalinizdeki havuzu evinizde görün.",
     "Hangi model size uygun?",
     "Doğru ölçü, mükemmel uyum.",
-    "Çevre tasarımınızı kişiselleştirin.",
+    "İstediğiniz özellikleri işaretleyin.",
     "Son adım — teklif hemen hazır.",
   ];
 

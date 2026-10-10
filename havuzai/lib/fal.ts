@@ -4,9 +4,6 @@ import type { ClientConfig } from "./config-types";
 
 fal.config({ credentials: process.env.FAL_KEY! });
 
-// Şelale referansı henüz config'te tutulmuyor; global env fallback kullanılır.
-const WATERFALL_REF = process.env.NEXT_PUBLIC_SELALE_REFERENCE_URL!;
-
 export async function generatePoolVisualization(
   customerPhotoUrl: string,
   config: PoolConfig,
@@ -21,26 +18,15 @@ export async function generatePoolVisualization(
     throw new Error(`Model referans görseli bulunamadı: ${config.model}`);
   }
 
-  // Referans görselleri topla
-  const imageUrls: string[] = [
-  customerPhotoUrl,
-  poolRef,
-];
+  // fal'e SADECE bahçe fotoğrafı + havuz modeli referansları gider.
+  // Şelale / merdiven / deck / seramik referansları artık gönderilmiyor:
+  // bu seçimler görsele yansımaz, sadece sipariş kaydına ve yönetim paneline gider.
+  const imageUrls: string[] = [customerPhotoUrl, poolRef];
 
-// İkinci referans görsel varsa ekle
-const poolRef2 = model?.reference_image_url_2;
-if (poolRef2) {
-  imageUrls.push(poolRef2);
-}
-  // Şelale seçildiyse referansı ekle
-  if (config.hasWaterfall && WATERFALL_REF) {
-    imageUrls.push(WATERFALL_REF);
-  }
-
-  // Merdiven seçildiyse ladder stil referansını ekle
-  const stairRef = clientConfig.features?.stair_reference_url;
-  if (config.hasStairs && stairRef) {
-    imageUrls.push(stairRef);
+  // İkinci referans görsel varsa ekle
+  const poolRef2 = model?.reference_image_url_2;
+  if (poolRef2) {
+    imageUrls.push(poolRef2);
   }
 
   console.log("=== FAL.AI DEBUG ===");
