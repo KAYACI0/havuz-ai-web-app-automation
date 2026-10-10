@@ -54,11 +54,6 @@ interface Order {
   created_at: string;
 }
 
-// Müşterinin seçtiği değerlerin (id) okunabilir karşılıkları — firma config'inden çözülür
-const STAIR_LABELS: Record<string, string> = {
-  corner: "Köşe merdiven", wide: "Geniş merdiven",
-};
-
 const STATUS = {
   new:       { label: "Yeni",           bg: "#EFF6FF", text: "#1D4ED8", dot: "#3B82F6" },
   contacted: { label: "Arandı",         bg: "#FFFBEB", text: "#92400E", dot: "#F59E0B" },
@@ -124,7 +119,7 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
 
   useEffect(() => { if (authOk) load(); }, [authOk, clientId, filter]);
 
-  // Firma config'i (deck/seramik id → ad çözümü için)
+  // Firma config'i (eski siparişlerdeki deck/seramik renk id → ad çözümü için)
   useEffect(() => {
     if (!authOk || !clientId) return;
     fetch(`/api/config?clientId=${encodeURIComponent(clientId)}`)
@@ -133,8 +128,15 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
       .catch(() => {});
   }, [authOk, clientId]);
 
-  const deckLabel    = (v?: string) => (v ? (config?.deck_colors.find(d => d.id === v)?.name ?? v) : null);
-  const ceramicLabel = (v?: string) => (v ? (config?.ceramic_colors.find(c => c.id === v)?.name ?? v) : null);
+  // Yeni menü "default" kaydediyor → "Deck kaplama" / "Seramik kaplama".
+  // Eski siparişlerdeki gerçek renk id'leri config'ten çözülmeye devam eder.
+  const deckLabel = (v?: string) =>
+    !v ? null : v === "default" ? "Deck kaplama"
+    : (config?.deck_colors?.find(d => d.id === v)?.name ?? v);
+
+  const ceramicLabel = (v?: string) =>
+    !v ? null : v === "default" ? "Seramik kaplama"
+    : (config?.ceramic_colors?.find(c => c.id === v)?.name ?? v);
 
   const advance = async (orderId: string, status: string) => {
     await fetch(`/api/orders/${orderId}`, {
@@ -437,12 +439,10 @@ export default function AdminPanel({ params }: { params: Promise<{ clientId: str
                 selected.customer_city ? { label: "Şehir", value: selected.customer_city } : null,
                 { label: "Havuz Modeli", value: selected.pool_model },
                 { label: "Ölçü",         value: selected.pool_size },
-                deckLabel(selected.deck_type)       ? { label: "Deck (Çevre Rengi)", value: deckLabel(selected.deck_type)! } : null,
-                ceramicLabel(selected.ceramic_type) ? { label: "Seramik Rengi",      value: ceramicLabel(selected.ceramic_type)! } : null,
-                { label: "Havuz Şelalesi", value: selected.has_waterfall ? "🌊 Var" : "Yok" },
-                { label: "Havuz Merdiveni", value: selected.has_stairs
-                    ? `🪜 Var${selected.stair_type ? ` (${STAIR_LABELS[selected.stair_type] ?? selected.stair_type})` : ""}`
-                    : "Yok" },
+                deckLabel(selected.deck_type)       ? { label: "Havuz Etrafı", value: deckLabel(selected.deck_type)! } : null,
+                ceramicLabel(selected.ceramic_type) ? { label: "Havuz Etrafı", value: ceramicLabel(selected.ceramic_type)! } : null,
+                { label: "Havuz Şelalesi",  value: selected.has_waterfall ? "🌊 Var" : "Yok" },
+                { label: "Havuz Merdiveni", value: selected.has_stairs ? "🪜 Var" : "Yok" },
                 selected.source ? { label: "Kaynak", value: selected.source === "widget" ? "Widget (iframe)" : "Doğrudan" } : null,
                 { label: "Tarih",  value: new Date(selected.created_at).toLocaleString("tr-TR") },
                 { label: "Durum",  value: s(selected.status).label },
