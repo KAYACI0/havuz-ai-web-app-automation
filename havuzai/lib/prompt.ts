@@ -3,28 +3,23 @@ import type { ClientConfig } from "./config-types";
 export interface PoolConfig {
   model:        string;
   size:         string;
-  deck:         string;
-  ceramic:      string;
-  hasWaterfall: boolean;
-  hasStairs:    boolean;
-  stairType:    "corner" | "wide";
+  // Aşağıdaki alanlar ARTIK PROMPT'A GİRMİYOR (yapay zekayı karıştırmasın diye).
+  // Çağıran kodlar bozulmasın diye tipte duruyorlar; seçimler sipariş kaydına
+  // ve yönetim paneline bilgi olarak gider.
+  deck?:         string;
+  ceramic?:      string;
+  hasWaterfall?: boolean;
+  hasStairs?:    boolean;
+  stairType?:    "corner" | "wide";
 }
 
 export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig): string {
-  const { model, size, ceramic, deck } = config;
+  const { model, size } = config;
 
   // Firma config'inden model bilgisini bul
-  const poolModel     = clientConfig.pool_models.find((m) => m.id === model);
-  const modelName     = poolModel?.name || model;
-  const shapeDesc     = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
-
-  // Deck ve seramik: renk seçimi artık yok (id = "default"). Config'te eşleşme yoksa varsayılan renk kullanılır.
-  const deckColor     = deck
-    ? (clientConfig.deck_colors.find((d) => d.id === deck) ?? { name: "natural warm brown" })
-    : null;
-  const ceramicColor  = ceramic
-    ? (clientConfig.ceramic_colors.find((c) => c.id === ceramic) ?? { name: "light cream / beige travertine" })
-    : null;
+  const poolModel = clientConfig.pool_models.find((m) => m.id === model);
+  const modelName = poolModel?.name || model;
+  const shapeDesc = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
@@ -37,7 +32,6 @@ You are a professional architectural visualization AI. Your task is to place a l
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
 - Image 2: ${modelName} pool model — USE THIS EXACT POOL SHAPE
-${config.hasWaterfall ? "- Image 3: Waterfall style reference — ADD THIS WATERFALL TO POOL EDGE" : ""}
 
 ---
 
@@ -88,67 +82,19 @@ The pool interior goes visibly deep into the ground.
 
 ---
 
-${ceramicColor ? `
-RULE 4 — CERAMIC TILE SURROUND (MANDATORY)
-Add a ceramic tile walkway around ALL 4 sides of the pool.
-- Exactly 2 rows of ceramic tiles on each side — total width 120cm (60cm per row)
-- Tile size: RECTANGULAR — width 33cm, length 66cm (2:1 ratio, twice as long as wide)
-- DO NOT use square tiles. Tiles MUST be rectangular with 2:1 ratio.
-- Tile size: RECTANGULAR tiles, 33cm wide x 66cm long — NOT square, NOT 60x60
-- Each tile is TWICE as long as it is wide — like a brick shape
-- Tiles laid in straight rows, with the LONG side (66cm) running parallel to the pool edge
-- Visible grout lines between all tiles
-- Visible grout lines between all tiles (2-3mm wide)
-- Tile color: ${ceramicColor.name} colored ceramic tiles
-- Tiles sit flush at ground level — NOT raised
-- Clean, professional, realistic tile finish
-- The ceramic surround replaces the grass directly around the pool
-DO NOT skip the ceramic tiles — they are MANDATORY when selected.
-` : deckColor ? `
-RULE 4 — DECK SURROUND (MANDATORY)
-Add a composite wood deck around ALL 4 sides of the pool.
-- Exactly 3 deck boards on each side — total width 60cm
-- Each board is 20cm wide, laid parallel to the nearest pool edge
-- Deck color: ${deckColor.name} colored composite wood deck
-- Deck sits flush at ground level — NOT raised
-- Clean modern finish with tight gaps between boards
-- The deck surround replaces the grass directly around the pool
-DO NOT skip the deck — it is MANDATORY when selected.
-` : `
-RULE 4 — POOL SURROUND
+RULE 4 — POOL SURROUND (KEEP IT PLAIN)
 The existing ground (grass, soil, or whatever is in the original photo) meets the pool edge directly.
-DO NOT add any deck, ceramic tiles, stone, pavers, or any surround material.
-DO NOT add any walkway or border around the pool.
-The original ground material continues right up to the pool water edge.
-DO NOT add any white border, coping, or rim around the pool.
+Add ONLY the pool itself. Do not add any extra accessories or landscaping elements:
+- no deck or wooden flooring
+- no ceramic tiles, stone, pavers, or walkway around the pool
+- no waterfall or water feature
+- no external ladder or handrail
 The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
 Only the water surface and thin rim are visible — everything else is underground.
-`}
 
 ---
 
-${config.hasStairs ? `
-RULE 5 — POOL LADDER (MANDATORY)
-A stainless steel pool ladder MUST be visible in the final image.
-- Type: 3-step stainless steel pool entry ladder
-- Material: polished chrome stainless steel, shiny and realistic
-- Position: mounted on one SHORT END of the pool edge, steps going DOWN INTO the water
-OMITTING THE LADDER = INVALID OUTPUT.
-` : ""}
-
-${config.hasWaterfall ? `
-RULE 6 — WATERFALL BLADE (MANDATORY)
-A stainless steel cobra waterfall blade MUST be visible in the final image.
-- Size: small and elegant — approximately 35cm wide, 40cm tall
-- Material: polished brushed stainless steel, chrome finish
-- Position: mounted DIRECTLY ON THE POOL COPING EDGE on one LONG side
-- Water flows in a smooth sheet from the blade DOWN INTO the pool
-OMITTING THE WATERFALL = INVALID OUTPUT.
-` : ""}
-
----
-
-RULE 7 — PHOTOREALISTIC QUALITY
+RULE 5 — PHOTOREALISTIC QUALITY
 - Output must look like a real professional photograph
 - Match the exact camera angle and perspective of the original photo
 - Match the lighting, shadows, and time of day of the original photo
@@ -162,10 +108,7 @@ ABSOLUTE PROHIBITIONS:
 ❌ Pool walls or sides visible above the surrounding surface
 ❌ Wrong pool shape — must match Image 2 exactly
 ❌ Changing existing buildings, trees, or landscaping
+❌ Adding deck, tiles, waterfall, or ladder — the pool only
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
-${ceramicColor ? "❌ Missing ceramic tile surround — MANDATORY when selected" : ""}
-${deckColor ? "❌ Missing deck surround — MANDATORY when selected" : ""}
-${config.hasStairs ? "❌ Missing pool ladder — MANDATORY when selected" : ""}
-${config.hasWaterfall ? "❌ Missing waterfall — MANDATORY when selected" : ""}
   `.trim();
 }

@@ -40,15 +40,18 @@ DO NOT make it oval. DO NOT curve the sides. MUST be rectangular.`;
 // FARKLI. Bir uç geniş ve tam yuvarlak; diğer uç daha dar ve YUVARLAK
 // DEĞİL, iki düz yüzeyin künt bir açıyla birleştiği kesik bir uç (tekne
 // pruvası gibi). ASİMETRİK bir şekil — simetrik oval/pill değil.
+//
+// NOT: Önceki sürümde burada "ceramic tile / wood deck surround" ifadesi vardı.
+// Deck/seramik artık AI'a gitmediği için o cümle KALDIRILDI — yoksa prompt'taki
+// "kaplama ekleme" kuralıyla çelişip modeli karıştırıyordu.
 const ROMA_SHAPE = `Fiberglass pool with an ASYMMETRIC shape — the two ends look clearly DIFFERENT from each other:
 - ONE end is WIDE and fully ROUNDED (a smooth semicircle curve).
 - The OTHER end is NARROWER with a CHAMFERED POINT — not a sharp knife-tip, not a round curve, but two flat angled facets meeting at a shallow, blunt angle (like the bow of a boat).
 - The two long sides connecting the ends are NOT straight and NOT parallel — they curve and taper gently from the wide rounded end toward the narrow chamfered end.
 This is NOT a symmetric oval, NOT a pill/stadium shape, NOT a rectangle, NOT a rounded rectangle. Match the reference images' silhouette exactly — including the asymmetry.
 It features WIDE INTEGRATED UNDERWATER ENTRY STEPS molded directly inside the NARROW chamfered end of the pool shell, exactly matching the reference images.
-The surround consists of high-end 33x66 cm rectangular ceramic tiles (running-bond brick pattern, never mosaic) or real wood deck laid seamlessly around the pool edge, sunk flush with the lawn.
-The pool and surround are completely buried flush with the lawn level (0cm height, zero vertical side-walls visible from outside).
-No external ladders on this model unless separately selected, no slanted diagonal angles, no raised platform sides.`;
+The pool is completely buried flush with the lawn level (0cm height, zero vertical side-walls visible from outside).
+No external ladders, no slanted diagonal angles, no raised platform sides.`;
 
 export const DEFAULT_POOL_MODELS: PoolModel[] = [
   {
