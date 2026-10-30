@@ -34,28 +34,30 @@ export async function POST(request: Request) {
     const clientId     = formData.get("clientId") as string;
     const photo        = formData.get("photo") as File;
     const poolModel    = formData.get("poolModel") as string;
-    const poolSize     = formData.get("poolSize") as string;
-    const deckType     = formData.get("deckType") as string;
-    const ceramicType  = formData.get("ceramicType") as string;
+    const poolSizeRaw  = (formData.get("poolSize") as string) || "";
+    const deckTypeRaw    = (formData.get("deckType") as string) || "";
+    const ceramicTypeRaw = (formData.get("ceramicType") as string) || "";
     const customerName = formData.get("customerName") as string;
     const customerPhone = formData.get("customerPhone") as string;
     const customerAddr  = formData.get("customerAddress") as string;
     const customerCity  = formData.get("customerCity") as string;
     const source        = (formData.get("source") as string) || "direct";
-    const hasWaterfall  = formData.get("hasWaterfall") === "true";
-    const hasStairs     = formData.get("hasStairs") === "true";
+    const hasWaterfallRaw = formData.get("hasWaterfall") === "true";
+    const hasStairsRaw    = formData.get("hasStairs") === "true";
     const stairType     = (formData.get("stairType") as "corner" | "wide") || "corner";
 
     log("info", `[${requestId}] 1-FORM`, "Form alındı", {
-      clientId, poolModel, poolSize, deckType, ceramicType, hasWaterfall, hasStairs,
+      clientId, poolModel, poolSize: poolSizeRaw, deckType: deckTypeRaw, ceramicType: ceramicTypeRaw,
+      hasWaterfall: hasWaterfallRaw, hasStairs: hasStairsRaw,
       customerName, customerPhone, photoName: photo?.name, photoSize: photo?.size,
     });
 
+    // poolSize burada zorunlu değil: süs havuzunda ölçü adımı yok.
+    // Süs havuzu olup olmadığı model bilgisinden aşağıda sunucu tarafında belirlenir.
     const missing = [
       !clientId      && "clientId",
       !photo         && "photo",
       !poolModel     && "poolModel",
-      !poolSize      && "poolSize",
       !customerName  && "customerName",
       !customerPhone && "customerPhone",
     ].filter(Boolean);
@@ -68,6 +70,29 @@ export async function POST(request: Request) {
     if (!supabaseAdmin) {
       log("error", `[${requestId}] 2-UPLOAD`, "Supabase bağlantısı yok");
       return Response.json({ success: false, error: "Veritabanı bağlantısı kurulamadı" }, { status: 500 });
+    }
+
+    // Firma config'i ve seçilen model — kategoriye göre akış sunucuda doğrulanır.
+    const clientConfig = await getClientConfig(clientId);
+    const modelDef = clientConfig.pool_models.find((m) => m.id === poolModel);
+
+    if (!modelDef) {
+      log("error", `[${requestId}] 1-FORM`, "Geçersiz model", { poolModel });
+      return Response.json({ success: false, error: `Geçersiz model: ${poolModel}` }, { status: 400 });
+    }
+
+    const isOrnamental = modelDef.category === "sus";
+
+    // Süs havuzunda ölçü/deck/seramik/şelale/merdiven bilgisi tutulmaz.
+    const poolSize     = isOrnamental ? "" : poolSizeRaw;
+    const deckType     = isOrnamental ? "" : deckTypeRaw;
+    const ceramicType  = isOrnamental ? "" : ceramicTypeRaw;
+    const hasWaterfall = isOrnamental ? false : hasWaterfallRaw;
+    const hasStairs    = isOrnamental ? false : hasStairsRaw;
+
+    if (!isOrnamental && !poolSize) {
+      log("error", `[${requestId}] 1-FORM`, "Eksik alan", { missing: ["poolSize"] });
+      return Response.json({ success: false, error: "Eksik alan: poolSize" }, { status: 400 });
     }
 
     // === LİMİT KONTROLÜ ===
@@ -131,16 +156,15 @@ export async function POST(request: Request) {
     const originalPhotoUrl = urlData.publicUrl;
     log("success", `[${requestId}] 2-UPLOAD`, "Yükleme tamam", { url: originalPhotoUrl });
 
-    // AI'a SADECE model ve ölçü gider. Deck/seramik/şelale/merdiven seçimleri
+    // AI'a SADECE model (ve fiber/betonda ölçü) gider. Deck/seramik/şelale/merdiven seçimleri
     // görsele yansımaz; aşağıda siparişe yazılır ve yönetim panelinde gösterilir.
+    // Süs havuzunda ölçü gönderilmez; ürün boyutu prompt_description'dan okunur.
     const poolConfig: PoolConfig = {
       model: poolModel,
-      size:  poolSize,
+      size:  isOrnamental ? undefined : poolSize,
     };
 
-    const clientConfig = await getClientConfig(clientId);
-
-    log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...");
+    log("info", `[${requestId}] 4-FAL`, "fal.ai isteği gönderiliyor...", { isOrnamental });
 
     let aiPhotoUrl: string;
     try {
@@ -170,7 +194,7 @@ export async function POST(request: Request) {
         customer_address: customerAddr,
         customer_city:    customerCity,
         pool_model:       poolModel,
-        pool_size:        poolSize,
+        pool_size:        poolSize, // süs havuzunda boş string
         deck_type:        deckType || null,
         ceramic_type:     ceramicType || null,
         stair_type:       stairType,
