@@ -37,13 +37,30 @@ export interface FormData {
   stairType:       "corner" | "wide";
 }
 
-const STEPS = [
-  { n: 1, label: "Fotoğraf", icon: "📷" },
-  { n: 2, label: "Model",    icon: "🏊" },
-  { n: 3, label: "Ölçü",     icon: "📐" },
-  { n: 4, label: "Özellik",  icon: "🌿" },
-  { n: 5, label: "İletişim", icon: "👤" },
+/**
+ * Adımların mantıksal kimlikleri (id) sabittir: 1 Fotoğraf, 2 Model, 3 Ölçü, 4 Özellik, 5 İletişim.
+ * Ekranda görünen numara, o akışta kaç adım olduğuna göre hesaplanır.
+ */
+const ALL_STEPS = [
+  { id: 1, label: "Fotoğraf", icon: "📷" },
+  { id: 2, label: "Model",    icon: "🏊" },
+  { id: 3, label: "Ölçü",     icon: "📐" },
+  { id: 4, label: "Özellik",  icon: "🌿" },
+  { id: 5, label: "İletişim", icon: "👤" },
 ];
+
+type StepDef = (typeof ALL_STEPS)[number];
+
+/** Süs havuzu akışı: Fotoğraf -> Model -> İletişim */
+const ORNAMENTAL_STEP_IDS = [1, 2, 5];
+
+const HEADLINES: Record<number, string> = {
+  1: "Hayalinizdeki havuzu evinizde görün.",
+  2: "Hangi model size uygun?",
+  3: "Doğru ölçü, mükemmel uyum.",
+  4: "İstediğiniz özellikleri işaretleyin.",
+  5: "Son adım — teklif hemen hazır.",
+};
 
 /** İletişim alanlarını gerçekten anlamlı mı diye kontrol eder — sadece "boş değil" yetmez. */
 function isContactValid(form: FormData): boolean {
@@ -77,16 +94,10 @@ function canProceed(step: number, form: FormData): boolean {
 
 interface Props { clientId?: string; isEmbed?: boolean; }
 
-function BrandPanel({ step, config }: { step: number; config: ClientConfig | null }) {
+function BrandPanel({ step, steps, config }: { step: number; steps: StepDef[]; config: ClientConfig | null }) {
   const logoUrl = config?.brand?.logo_url || "/pools/havuzai-logo-şeffaf.png";
   const companyName = config?.brand?.company_name;
-  const headlines = [
-    "Hayalinizdeki havuzu evinizde görün.",
-    "Hangi model size uygun?",
-    "Doğru ölçü, mükemmel uyum.",
-    "İstediğiniz özellikleri işaretleyin.",
-    "Son adım — teklif hemen hazır.",
-  ];
+  const stepIndex = Math.max(0, steps.findIndex((s) => s.id === step));
 
   return (
     <div className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden"
@@ -110,26 +121,26 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
         <div className="mb-6">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4"
             style={{ background: "rgba(184,147,90,0.2)", color: "#D4AF7A", border: "1px solid rgba(184,147,90,0.3)" }}>
-            Adım {step} / 5
+            Adım {stepIndex + 1} / {steps.length}
           </span>
         </div>
         <h2 className="font-display text-4xl font-bold leading-tight mb-6" style={{ color: "#FFFFFF" }}>
-          {headlines[step - 1]}
+          {HEADLINES[step]}
         </h2>
         <div className="flex flex-col gap-3">
-          {STEPS.map((s) => (
-            <div key={s.n} className="flex items-center gap-3 transition-all duration-300"
-              style={{ opacity: step === s.n ? 1 : step > s.n ? 0.5 : 0.3 }}>
+          {steps.map((s, i) => (
+            <div key={s.id} className="flex items-center gap-3 transition-all duration-300"
+              style={{ opacity: stepIndex === i ? 1 : stepIndex > i ? 0.5 : 0.3 }}>
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 transition-all"
                 style={{
-                  background: step > s.n ? "rgba(5,150,105,0.2)" : step === s.n ? "rgba(184,147,90,0.2)" : "rgba(255,255,255,0.05)",
-                  border: step > s.n ? "1px solid rgba(5,150,105,0.5)" : step === s.n ? "1px solid rgba(184,147,90,0.5)" : "1px solid rgba(255,255,255,0.1)",
+                  background: stepIndex > i ? "rgba(5,150,105,0.2)" : stepIndex === i ? "rgba(184,147,90,0.2)" : "rgba(255,255,255,0.05)",
+                  border: stepIndex > i ? "1px solid rgba(5,150,105,0.5)" : stepIndex === i ? "1px solid rgba(184,147,90,0.5)" : "1px solid rgba(255,255,255,0.1)",
                 }}>
-                {step > s.n
+                {stepIndex > i
                   ? <span style={{ color: "#10B981", fontSize: "11px" }}>✓</span>
-                  : <span style={{ color: step === s.n ? "#D4AF7A" : "rgba(255,255,255,0.3)", fontSize: "11px" }}>{s.n}</span>}
+                  : <span style={{ color: stepIndex === i ? "#D4AF7A" : "rgba(255,255,255,0.3)", fontSize: "11px" }}>{i + 1}</span>}
               </div>
-              <span className="text-sm font-medium" style={{ color: step === s.n ? "#FFFFFF" : "rgba(255,255,255,0.45)" }}>
+              <span className="text-sm font-medium" style={{ color: stepIndex === i ? "#FFFFFF" : "rgba(255,255,255,0.45)" }}>
                 {s.label}
               </span>
             </div>
@@ -138,7 +149,7 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
       </div>
 
       <div className="relative z-10 flex flex-col gap-3">
-        {[{ icon: "⚡", text: "~15 saniyede sonuç" }, { icon: "🔒", text: "Fotoğraflarınız güvende" }, { icon: "📞", text: "Ücretsiz teklif" }].map((b) => (
+        {[{ icon: "🔒", text: "Fotoğraflarınız güvende" }, { icon: "📞", text: "Ücretsiz teklif" }].map((b) => (
           <div key={b.text} className="flex items-center gap-2">
             <span className="text-sm">{b.icon}</span>
             <span className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{b.text}</span>
@@ -149,18 +160,19 @@ function BrandPanel({ step, config }: { step: number; config: ClientConfig | nul
   );
 }
 
-function MobileProgress({ step, config }: { step: number; config: ClientConfig | null }) {
+function MobileProgress({ step, steps, config }: { step: number; steps: StepDef[]; config: ClientConfig | null }) {
   const logoUrl = config?.brand?.logo_url || "/pools/favicon-logo-havuzai.png";
+  const stepIndex = Math.max(0, steps.findIndex((s) => s.id === step));
   return (
     <div className="lg:hidden px-6 pt-6 pb-0">
       <div className="flex items-center justify-between mb-3">
         <img src={logoUrl} alt={config?.brand?.company_name || "HavuzAI"}
           style={{ height: "60px", width: "auto", objectFit: "contain", background: "white", borderRadius: "10px", padding: "6px 10px" }} />
-        <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{step} / 5</span>
+        <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{stepIndex + 1} / {steps.length}</span>
       </div>
       <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
         <div className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${(step / 5) * 100}%`, background: "var(--gold)" }} />
+          style={{ width: `${((stepIndex + 1) / steps.length) * 100}%`, background: "var(--gold)" }} />
       </div>
     </div>
   );
@@ -202,6 +214,25 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     return () => { cancelled = true; };
   }, [clientId]);
 
+  // Seçili modelin kategorisine göre akış belirlenir.
+  // Süs havuzu ("sus") ise: Fotoğraf -> Model -> İletişim (ölçü/özellik adımları yok).
+  const selectedModel = config?.pool_models.find((m) => m.id === form.poolModel);
+  const isOrnamental  = selectedModel?.category === "sus";
+  const visibleSteps  = isOrnamental
+    ? ALL_STEPS.filter((s) => ORNAMENTAL_STEP_IDS.includes(s.id))
+    : ALL_STEPS;
+  const stepIndex     = visibleSteps.findIndex((s) => s.id === step);
+
+  const goNext = () => {
+    const next = visibleSteps[stepIndex + 1];
+    if (next) setStep(next.id);
+  };
+
+  const goBack = () => {
+    const prev = visibleSteps[stepIndex - 1];
+    if (prev) setStep(prev.id);
+  };
+
   const handleSubmit = async () => {
     if (!canProceed(5, form)) { toast.error("Lütfen geçerli bir isim, telefon numarası, il/ilçe ve adres girin."); return; }
     setLoading(true);
@@ -210,17 +241,20 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("clientId",        clientId!);
       fd.append("photo",           form.photo!);
       fd.append("poolModel",       form.poolModel);
-      fd.append("poolSize",        form.poolSize);
-      fd.append("deckType",        form.deckType);
-      fd.append("ceramicType",     form.ceramicType);
       fd.append("customerName",    form.customerName);
       fd.append("customerPhone",   form.customerPhone);
       fd.append("customerCity",    form.customerCity);
       fd.append("customerAddress", form.customerAddress);
-      fd.append("hasWaterfall",    String(form.hasWaterfall));
-      fd.append("hasStairs",       String(form.hasStairs));
-      fd.append("stairType",       form.stairType);
       fd.append("source",          isEmbed ? "widget" : "direct");
+
+      // Süs havuzunda ölçü/deck/seramik/şelale/merdiven adımları yok:
+      // önceki seçimlerden kalmış olabilecek değerler gönderilmez, boş/false gider.
+      fd.append("poolSize",    isOrnamental ? "" : form.poolSize);
+      fd.append("deckType",    isOrnamental ? "" : form.deckType);
+      fd.append("ceramicType", isOrnamental ? "" : form.ceramicType);
+      fd.append("hasWaterfall", String(isOrnamental ? false : form.hasWaterfall));
+      fd.append("hasStairs",    String(isOrnamental ? false : form.hasStairs));
+      fd.append("stairType",    form.stairType);
 
       const res  = await fetch("/api/generate", { method: "POST", body: fd });
       const data = await res.json();
@@ -255,16 +289,17 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   if (loading || !config) return <LoadingScreen />;
 
   const brandColor = config.brand?.primary_color || "#1D7BBF";
+  const isLastStep = step === 5;
 
   return (
     <div className="min-h-screen lg:grid"
       style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)", ["--pool" as string]: brandColor }}>
       <Toaster position="top-center" toastOptions={{ style: { fontFamily: "var(--font-jakarta), sans-serif", fontSize: "14px", borderRadius: "10px", background: "var(--navy)", color: "#fff" } }} />
 
-      <BrandPanel step={step} config={config} />
+      <BrandPanel step={step} steps={visibleSteps} config={config} />
 
       <div className="flex flex-col min-h-screen" style={{ background: "var(--sand)" }}>
-        <MobileProgress step={step} config={config} />
+        <MobileProgress step={step} steps={visibleSteps} config={config} />
 
         <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full" style={{ maxWidth: "520px" }}>
@@ -280,17 +315,17 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
               </div>
 
               <div className="px-8 pb-8 flex items-center justify-between gap-4">
-                {step > 1 ? (
-                  <button className="btn-secondary" onClick={() => setStep((s) => s - 1)}>← Geri</button>
+                {stepIndex > 0 ? (
+                  <button className="btn-secondary" onClick={goBack}>← Geri</button>
                 ) : <div />}
 
-                {step < 5 ? (
+                {!isLastStep ? (
                   <button className="btn-primary" onClick={() => {
                     if (!canProceed(step, form)) {
                       toast.error(step === 1 ? "Lütfen bir fotoğraf yükleyin." : "Lütfen bir seçim yapın.");
                       return;
                     }
-                    setStep((s) => s + 1);
+                    goNext();
                   }}>İleri →</button>
                 ) : (
                   <button className="btn-gold" onClick={handleSubmit}>✨ Görselimi Oluştur</button>
@@ -299,9 +334,9 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
             </div>
 
             <div className="hidden lg:flex justify-center gap-2 mt-6">
-              {STEPS.map((s) => (
-                <div key={s.n} className="rounded-full transition-all duration-300"
-                  style={{ width: step === s.n ? "24px" : "8px", height: "8px", background: step === s.n ? "var(--gold)" : step > s.n ? "var(--gold-pale)" : "var(--border)" }} />
+              {visibleSteps.map((s, i) => (
+                <div key={s.id} className="rounded-full transition-all duration-300"
+                  style={{ width: stepIndex === i ? "24px" : "8px", height: "8px", background: stepIndex === i ? "var(--gold)" : stepIndex > i ? "var(--gold-pale)" : "var(--border)" }} />
               ))}
             </div>
           </div>

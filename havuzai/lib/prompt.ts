@@ -2,7 +2,7 @@ import type { ClientConfig } from "./config-types";
 
 export interface PoolConfig {
   model:        string;
-  size:         string;
+  size?:        string;   // Süs havuzunda ölçü seçimi yok, boş gelir.
   // Aşağıdaki alanlar ARTIK PROMPT'A GİRMİYOR (yapay zekayı karıştırmasın diye).
   // Çağıran kodlar bozulmasın diye tipte duruyorlar; seçimler sipariş kaydına
   // ve yönetim paneline bilgi olarak gider.
@@ -19,6 +19,15 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   // Firma config'inden model bilgisini bul
   const poolModel = clientConfig.pool_models.find((m) => m.id === model);
   const modelName = poolModel?.name || model;
+
+  // Süs havuzu / şelale ürünleri için ayrı prompt
+  if (poolModel?.category === "sus") {
+    return buildOrnamentalPrompt(
+      modelName,
+      poolModel.prompt_description || poolModel.description || modelName
+    );
+  }
+
   const shapeDesc = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
 
   const isRoma = model.toUpperCase() === "ROMA";
@@ -110,5 +119,69 @@ ABSOLUTE PROHIBITIONS:
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Adding deck, tiles, waterfall, or ladder — the pool only
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
+  `.trim();
+}
+
+/**
+ * Süs havuzu / dekoratif şelale ürünleri (category: "sus").
+ * Bunlar zemine GÖMÜLMEZ; bağımsız bir ürün olarak zeminin ÜSTÜNE yerleştirilir.
+ * Ürünün gerçek ölçüsü, firma config'indeki prompt_description alanından okunur
+ * (örn. "140 cm wide", "59.5 cm high") — bu yüzden o alana boyut yazılmalı.
+ */
+function buildOrnamentalPrompt(productName: string, productDesc: string): string {
+  return `
+You are a professional photo-editing AI. Your task is to place a decorative garden water feature into the provided outdoor photo. The result must look exactly like a real photograph taken after the product was delivered and installed.
+
+REFERENCE IMAGES GUIDE:
+- Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
+- Image 2 (and Image 3 if provided): "${productName}" product reference photos — REPRODUCE THIS EXACT PRODUCT
+
+---
+
+THE PRODUCT: ${productName.toUpperCase()}
+${productDesc}
+Reproduce the product exactly as in the reference: same shape, tiers, material, color, texture and details. Do not redesign, simplify or restyle it.
+The water feature is running: water flows, sprays or cascades naturally, with realistic ripples and light reflections.
+
+---
+
+PLACEMENT — YOU CHOOSE THE BEST SPOT
+Analyze the garden photo and place the product in the most suitable open area:
+- Flat, open ground (lawn, pavers or gravel) with enough free space around it
+- Clearly visible from the camera's point of view, in the mid-ground of the garden, not hidden at the far edge
+- Not blocking doors, windows, entrances, driveways or main walkways
+- Not directly under tree branches, not touching walls or fences (leave at least about 1 meter of free space)
+- Never on top of furniture, plants, or the building itself
+
+This is a FREESTANDING product. It sits ON the ground surface, it is NOT built into the ground. Its base is in firm, stable contact with the surface, perfectly level, with a soft contact shadow underneath.
+
+---
+
+SCALE — VERY IMPORTANT
+Use the real size stated in the product description and compare it with objects in the photo (doors are about 2 m high, fences about 1-1.8 m, chairs about 45 cm seat height, people about 1.7 m) so the product has a believable real-world size.
+This is a garden decoration, NOT a swimming pool. It must stay small relative to the house and the garden. Do not enlarge it.
+
+---
+
+PRESERVE THE SCENE
+Keep EVERYTHING in the original photo exactly as it is: buildings, trees, plants, fences, walls, paths, furniture, sky. Do not remove, move or change anything. Only add the product (and its natural shadow and reflections).
+
+---
+
+PHOTOREALISTIC QUALITY
+- Match the exact camera angle, perspective and lens look of the original photo
+- Match the lighting direction, shadow softness and time of day, so the product's shadow falls the same way as other shadows in the scene
+- Natural color grading, same sharpness and grain as the original photo
+- Looks like a real professional photograph, premium and clean
+
+---
+
+ABSOLUTE PROHIBITIONS:
+❌ Turning it into a swimming pool or adding any large pool
+❌ Product floating, tilted, sunk into the ground or oversized
+❌ Wrong product design — must match Image 2 exactly
+❌ Changing existing buildings, trees or landscaping
+❌ Adding extra decorations, lights, furniture, people or text
+❌ Cartoon, render, 3D or illustration style — PHOTO ONLY
   `.trim();
 }
