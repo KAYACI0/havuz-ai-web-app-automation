@@ -136,6 +136,37 @@ function ResultContent({ orderId }: { orderId: string }) {
     );
   }
 
+  // Süs havuzu: ölçü/deck/seramik/merdiven/şelale seçimi yoktur, bu satırlar gösterilmez.
+  // Kategori config'ten gelir; config yüklenmeden önce de doğru görünsün diye
+  // ölçüsü boş olan siparişler de süs havuzu sayılır (fiber/betonda ölçü her zaman dolu).
+  const modelCategory = config?.pool_models.find(
+    (m) => m.id === order.pool_model
+  )?.category;
+  const isOrnamental = modelCategory === "sus" || !order.pool_size;
+
+  const selections = isOrnamental
+    ? [{ label: "Model", value: order.pool_model || "—" }]
+    : [
+        { label: "Model", value: order.pool_model || "—" },
+        { label: "Ölçü", value: order.pool_size || "—" },
+        {
+          label: "Deck",
+          value: deckName(order.deck_type) || "Yok",
+        },
+        {
+          label: "Seramik",
+          value: ceramicName(order.ceramic_type) || "Yok",
+        },
+        {
+          label: "Merdiven",
+          value: order.has_stairs ? "✅ Var" : "❌ Yok",
+        },
+        {
+          label: "Şelale",
+          value: order.has_waterfall ? "✅ Var" : "❌ Yok",
+        },
+      ];
+
   return (
     <div className="min-h-screen" style={{ background: "var(--sand)" }}>
       <div
@@ -296,9 +327,9 @@ function ResultContent({ orderId }: { orderId: string }) {
               className="text-xs leading-relaxed"
               style={{ color: "var(--text-muted)" }}
             >
-              Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir.
-              Seramik ve deck renkleri talebinize göre üretilir; nihai üründe
-              ton ve doku farklılıkları olabilir.
+              {isOrnamental
+                ? "Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Ürünün bahçedeki konumu, ölçüsü ve görünümü gerçek uygulamada farklılık gösterebilir."
+                : "Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Seramik ve deck renkleri talebinize göre üretilir; nihai üründe ton ve doku farklılıkları olabilir."}
             </p>
           </div>
         </div>
@@ -321,27 +352,14 @@ function ResultContent({ orderId }: { orderId: string }) {
               📋 Seçimleriniz
             </h3>
 
-            <div className="grid grid-cols-2 gap-x-4">
-              {[
-                { label: "Model", value: order.pool_model || "—" },
-                { label: "Ölçü", value: order.pool_size || "—" },
-                {
-                  label: "Deck",
-                  value: deckName(order.deck_type) || "Yok",
-                },
-                {
-                  label: "Seramik",
-                  value: ceramicName(order.ceramic_type) || "Yok",
-                },
-                {
-                  label: "Merdiven",
-                  value: order.has_stairs ? "✅ Var" : "❌ Yok",
-                },
-                {
-                  label: "Şelale",
-                  value: order.has_waterfall ? "✅ Var" : "❌ Yok",
-                },
-              ].map((s) => (
+            <div
+              className={
+                isOrnamental
+                  ? "grid grid-cols-1"
+                  : "grid grid-cols-2 gap-x-4"
+              }
+            >
+              {selections.map((s) => (
                 <div
                   key={s.label}
                   className="flex justify-between py-2 border-b border-gray-100"
