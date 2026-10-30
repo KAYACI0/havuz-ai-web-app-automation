@@ -148,7 +148,8 @@ The water feature is running: water is clearly visible flowing, spraying or casc
 PLACEMENT — YOU CHOOSE THE BEST SPOT
 Analyze the garden photo and place the product in the most suitable open area:
 - Flat, open ground (lawn, pavers or gravel) with enough free space around it
-- Clearly visible from the camera's point of view, in the mid-ground of the garden, not hidden at the far edge
+- Close to the camera: in the foreground-to-mid-ground (the front half of the image), so the product appears large enough in the frame for its details to be clearly seen. Never place it far away near the house or the background trees
+- Prefer a natural spot such as next to the garden path, near the terrace or house entrance, or at the edge of the lawn, rather than alone in the middle of a big empty lawn
 - Not blocking doors, windows, entrances, driveways or main walkways
 - Not directly under tree branches, not touching walls or fences (leave at least about 1 meter of free space)
 - Never on top of furniture, plants, or the building itself
