@@ -141,14 +141,20 @@ REFERENCE IMAGES GUIDE:
 THE PRODUCT: ${productName.toUpperCase()}
 ${productDesc}
 Reproduce the product exactly as in the reference: same shape, tiers, material, color, texture and details. Do not redesign, simplify or restyle it.
-The water feature is running: water is clearly visible flowing, spraying or cascading from tier to tier, with realistic ripples, splashes and light reflections in the basins.
+The water feature is switched ON and running. IMPORTANT: the reference photos may show the product dry or switched off. Do NOT copy the dry look. In your output you must add visible flowing water:
+- thin silver-white streams of water pouring from the lip of every upper bowl or spout into the next one below
+- small splashes, ripples and light reflections in the basins
+- slightly darker, wet stone under each water stream
+- water collected in the lowest basins
+- if the product has a fountain jet, show the jet spraying and falling back into the basin
+The water must be clearly noticeable at normal viewing size, not hidden or barely visible.
 
 ---
 
 PLACEMENT — YOU CHOOSE THE BEST SPOT
 Analyze the garden photo and place the product in the most suitable open area:
 - Flat, open ground (lawn, pavers or gravel) with enough free space around it
-- Close to the camera: in the foreground-to-mid-ground (the front half of the image), so the product appears large enough in the frame for its details to be clearly seen. Never place it far away near the house or the background trees
+- In the mid-ground: roughly one third to one half of the way from the camera to the house, so the product is clearly visible and its details can be seen, but the perspective does not exaggerate its size. Never in the extreme foreground right next to the camera, and never far away beside the house or the background trees
 - Prefer a natural spot such as next to the garden path, near the terrace or house entrance, or at the edge of the lawn, rather than alone in the middle of a big empty lawn
 - Not blocking doors, windows, entrances, driveways or main walkways
 - Not directly under tree branches, not touching walls or fences (leave at least about 1 meter of free space)
@@ -161,7 +167,8 @@ This is a FREESTANDING product. It sits ON the ground surface, it is NOT built i
 SCALE — VERY IMPORTANT
 The product is SMALL. Its real size is stated in the product description above. Convert that size into the photo using real-world references: an adult is about 170 cm tall, a door about 200 cm, a garden chair about 80-90 cm high, an adult's knee is about 50 cm high.
 Example: a product that is 60 cm high only reaches an adult's knee or thigh. It must look clearly much shorter than any door, window, fence or hedge in the photo. A product that is 140 cm wide is about as wide as a small round garden table.
-Before finalizing, check the product's size against nearby objects (house door, windows, steps, hedges). If it looks bigger than its stated size, make it smaller.
+Being closer to the camera must NOT make the product look bigger than its real size. Judge its size against objects at the SAME distance from the camera (grass, path width, steps, shrubs, chairs), not against the distant house.
+Before finalizing, check the product's size against nearby objects (house door, windows, steps, hedges). If it looks bigger than its stated size, make it smaller. When unsure, make it slightly smaller rather than larger.
 This is a garden decoration, NOT a swimming pool. It must stay small relative to the house and the garden. Do not enlarge it.
 
 ---
@@ -181,7 +188,7 @@ PHOTOREALISTIC QUALITY
 
 ABSOLUTE PROHIBITIONS:
 ❌ Turning it into a swimming pool or adding any large pool
-❌ Product floating, tilted, sunk into the ground or oversized
+❌ Product floating, tilted, sunk into the ground, or looking larger than its stated real size
 ❌ Wrong product design — must match Image 2 exactly
 ❌ Changing existing buildings, trees or landscaping
 ❌ Adding pebbles, white stones, gravel, mulch, plants or any decoration around the base — the base sits directly on the existing ground surface (grass stays grass)
