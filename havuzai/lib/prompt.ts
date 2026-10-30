@@ -141,7 +141,7 @@ REFERENCE IMAGES GUIDE:
 THE PRODUCT: ${productName.toUpperCase()}
 ${productDesc}
 Reproduce the product exactly as in the reference: same shape, tiers, material, color, texture and details. Do not redesign, simplify or restyle it.
-The water feature is running: water flows, sprays or cascades naturally, with realistic ripples and light reflections.
+The water feature is running: water is clearly visible flowing, spraying or cascading from tier to tier, with realistic ripples, splashes and light reflections in the basins.
 
 ---
 
@@ -158,7 +158,9 @@ This is a FREESTANDING product. It sits ON the ground surface, it is NOT built i
 ---
 
 SCALE — VERY IMPORTANT
-Use the real size stated in the product description and compare it with objects in the photo (doors are about 2 m high, fences about 1-1.8 m, chairs about 45 cm seat height, people about 1.7 m) so the product has a believable real-world size.
+The product is SMALL. Its real size is stated in the product description above. Convert that size into the photo using real-world references: an adult is about 170 cm tall, a door about 200 cm, a garden chair about 80-90 cm high, an adult's knee is about 50 cm high.
+Example: a product that is 60 cm high only reaches an adult's knee or thigh. It must look clearly much shorter than any door, window, fence or hedge in the photo. A product that is 140 cm wide is about as wide as a small round garden table.
+Before finalizing, check the product's size against nearby objects (house door, windows, steps, hedges). If it looks bigger than its stated size, make it smaller.
 This is a garden decoration, NOT a swimming pool. It must stay small relative to the house and the garden. Do not enlarge it.
 
 ---
@@ -181,7 +183,9 @@ ABSOLUTE PROHIBITIONS:
 ❌ Product floating, tilted, sunk into the ground or oversized
 ❌ Wrong product design — must match Image 2 exactly
 ❌ Changing existing buildings, trees or landscaping
+❌ Adding pebbles, white stones, gravel, mulch, plants or any decoration around the base — the base sits directly on the existing ground surface (grass stays grass)
 ❌ Adding extra decorations, lights, furniture, people or text
+❌ A dry or static-looking product — water must be visibly flowing
 ❌ Cartoon, render, 3D or illustration style — PHOTO ONLY
   `.trim();
 }
