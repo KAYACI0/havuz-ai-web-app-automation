@@ -28,7 +28,13 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     );
   }
 
-  const shapeDesc = poolModel?.prompt_description || poolModel?.description || `${model} shaped fiberglass pool`;
+  // Malzeme etiketi kategoriden gelir: beton serpme modellerde "fiberglass" denmesin.
+  const material = poolModel?.category === "beton" ? "concrete" : "fiberglass";
+
+  const shapeDesc = poolModel?.prompt_description || poolModel?.description || `${model} shaped ${material} pool`;
+
+  // Seçilen ölçüden (örn. "3x10x1.5") en/boy oranı çıkarılır ve prompt'a yazılır.
+  const sizeRule = buildSizeRule(size);
 
   const isRoma = model.toUpperCase() === "ROMA";
   const shapeRule = isRoma
@@ -36,7 +42,7 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
     : "strictly rectangular — straight sides, 90-degree corners. ABSOLUTELY NOT oval or curved.";
 
   return `
-You are a professional architectural visualization AI. Your task is to place a luxury fiberglass swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
+You are a professional architectural visualization AI. Your task is to place a luxury ${material} swimming pool into the provided outdoor photo. The result must look exactly like a real photograph taken after the pool was professionally built and installed.
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
@@ -76,8 +82,7 @@ Keep EVERYTHING in the original photo exactly as it is:
 RULE 2 — POOL SHAPE: ${modelName.toUpperCase()}
 ${shapeDesc}
 Shape rule: ${shapeRule}
-Size: ${size} meters — maintain exact proportions.
-The pool must be SMALL relative to the garden — roughly 20-25% of the visible open garden area.
+${sizeRule}
 The pool must be clearly SMALLER than the house/building.
 There must be visible grass on ALL sides around the pool — at least 2-3 meters of grass between pool edge and garden boundaries.
 DO NOT fill the garden with the pool.
@@ -85,7 +90,7 @@ DO NOT fill the garden with the pool.
 ---
 
 RULE 3 — POOL WATER
-Clear, bright blue fiberglass pool interior.
+Clear, bright blue ${material} pool interior.
 Water is realistic — natural depth, light shimmer, and color variation.
 The pool interior goes visibly deep into the ground.
 
@@ -100,6 +105,7 @@ Add ONLY the pool itself. Do not add any extra accessories or landscaping elemen
 - no external ladder or handrail
 The pool shell must be completely hidden below ground — NO visible pool walls or sides outside.
 Only the water surface and thin rim are visible — everything else is underground.
+Exception: if the POOL SHAPE description above mentions an edge detail that belongs to the pool itself (for example a perimeter drainage grille / overflow channel), reproduce it exactly as described and as shown in the reference images. It is part of the pool, not a surround or walkway.
 
 ---
 
@@ -196,4 +202,35 @@ ABSOLUTE PROHIBITIONS:
 ❌ A dry or static-looking product — water must be visibly flowing
 ❌ Cartoon, render, 3D or illustration style — PHOTO ONLY
   `.trim();
+}
+
+/**
+ * Ölçü metninden (örn. "3x10x1.5", "3×5×1.5", "3,5x7") en/boy oranını çıkarıp
+ * AI'a net bir oran kuralı olarak verir. İlk iki sayı havuzun iki kenarıdır,
+ * üçüncü sayı (varsa) derinliktir. Kısa kenar "en", uzun kenar "boy" sayılır.
+ */
+function buildSizeRule(size?: string): string {
+  const nums =
+    (size || "").replace(/,/g, ".").match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+
+  if (nums.length < 2 || nums[0] <= 0 || nums[1] <= 0) {
+    return "Size: as shown in the reference images — maintain exact proportions.";
+  }
+
+  const short = Math.min(nums[0], nums[1]);
+  const long = Math.max(nums[0], nums[1]);
+  const ratio = long / short;
+  const depth = nums[2] ? `, ${nums[2]} m deep` : "";
+
+  let feel: string;
+  if (ratio < 1.3) feel = "nearly square";
+  else if (ratio < 1.7) feel = "a compact rectangle, only slightly longer than wide";
+  else if (ratio < 2.3) feel = "a clear rectangle, about twice as long as wide";
+  else if (ratio < 3) feel = "a long, clearly elongated rectangle";
+  else feel = "a very long and narrow, lane-style rectangle";
+
+  return `POOL DIMENSIONS: ${short} m wide x ${long} m long${depth}.
+The length-to-width ratio is ${ratio.toFixed(1)} : 1 — ${feel}. Keep exactly this ratio. Do NOT stretch, shorten, widen or square it off: a 3x10 m pool must look long and narrow, while a 3x5 m pool must look compact and stockier.
+Place its long side along the longest open stretch of the garden, parallel to the house or the garden edges, so it looks natural.
+Judge its absolute size from these real dimensions against objects in the photo (door about 2 m high, adult about 1.7 m, steps, fences). Do not make it larger or smaller than the dimensions imply. It must fit in the open area.`;
 }

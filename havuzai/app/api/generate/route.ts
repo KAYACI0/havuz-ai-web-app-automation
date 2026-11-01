@@ -82,17 +82,33 @@ export async function POST(request: Request) {
     }
 
     const isOrnamental = modelDef.category === "sus";
+    const isConcrete   = modelDef.category === "beton";
 
-    // Süs havuzunda ölçü/deck/seramik/şelale/merdiven bilgisi tutulmaz.
-    const poolSize     = isOrnamental ? "" : poolSizeRaw;
-    const deckType     = isOrnamental ? "" : deckTypeRaw;
-    const ceramicType  = isOrnamental ? "" : ceramicTypeRaw;
-    const hasWaterfall = isOrnamental ? false : hasWaterfallRaw;
-    const hasStairs    = isOrnamental ? false : hasStairsRaw;
+    // Süs havuzunda ölçü dahil hiçbir seçim tutulmaz; beton serpmede ölçüyü müşteri kendisi girer,
+    // deck/seramik/şelale/merdiven seçimi yoktur.
+    const poolSize     = isOrnamental ? "" : poolSizeRaw.trim();
+    const deckType     = isOrnamental || isConcrete ? "" : deckTypeRaw;
+    const ceramicType  = isOrnamental || isConcrete ? "" : ceramicTypeRaw;
+    const hasWaterfall = isOrnamental || isConcrete ? false : hasWaterfallRaw;
+    const hasStairs    = isOrnamental || isConcrete ? false : hasStairsRaw;
 
     if (!isOrnamental && !poolSize) {
       log("error", `[${requestId}] 1-FORM`, "Eksik alan", { missing: ["poolSize"] });
       return Response.json({ success: false, error: "Eksik alan: poolSize" }, { status: 400 });
+    }
+
+    // Beton serpmede ölçü serbest girildiği için biçim ve aralık sunucuda doğrulanır
+    // (prompt'a ve veritabanına sadece temiz "enxboy" metni girsin).
+    if (isConcrete) {
+      const m = poolSize.match(/^(\d{1,2}(?:\.\d{1,2})?)x(\d{1,2}(?:\.\d{1,2})?)$/);
+      const a = m ? parseFloat(m[1]) : NaN;
+      const b = m ? parseFloat(m[2]) : NaN;
+      const short = Math.min(a, b);
+      const long = Math.max(a, b);
+      if (!m || short < 2 || short > 12 || long < 2 || long > 30) {
+        log("error", `[${requestId}] 1-FORM`, "Geçersiz ölçü", { poolSize });
+        return Response.json({ success: false, error: "Geçersiz havuz ölçüsü" }, { status: 400 });
+      }
     }
 
     // === LİMİT KONTROLÜ ===

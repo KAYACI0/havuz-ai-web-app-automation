@@ -136,16 +136,28 @@ function ResultContent({ orderId }: { orderId: string }) {
     );
   }
 
-  // Süs havuzu: ölçü/deck/seramik/merdiven/şelale seçimi yoktur, bu satırlar gösterilmez.
-  // Kategori config'ten gelir; config yüklenmeden önce de doğru görünsün diye
-  // ölçüsü boş olan siparişler de süs havuzu sayılır (fiber/betonda ölçü her zaman dolu).
+  // Süs havuzu: sadece model gösterilir. Beton serpme: model ve müşterinin girdiği ölçü gösterilir.
+  // Fiber: tüm seçimler gösterilir. Kategori config'ten gelir; config yüklenmeden önce de
+  // doğru görünsün diye ölçüsü boş olan siparişler de süs havuzu sayılır.
   const modelCategory = config?.pool_models.find(
     (m) => m.id === order.pool_model
   )?.category;
   const isOrnamental = modelCategory === "sus" || !order.pool_size;
+  const isConcrete = !isOrnamental && modelCategory === "beton";
+  const hideExtras = isOrnamental || isConcrete;
 
   const selections = isOrnamental
     ? [{ label: "Model", value: order.pool_model || "—" }]
+    : isConcrete
+    ? [
+        { label: "Model", value: order.pool_model || "—" },
+        {
+          label: "Ölçü",
+          value: order.pool_size
+            ? `${order.pool_size.replace("x", " x ")} m`
+            : "—",
+        },
+      ]
     : [
         { label: "Model", value: order.pool_model || "—" },
         { label: "Ölçü", value: order.pool_size || "—" },
@@ -327,8 +339,8 @@ function ResultContent({ orderId }: { orderId: string }) {
               className="text-xs leading-relaxed"
               style={{ color: "var(--text-muted)" }}
             >
-              {isOrnamental
-                ? "Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Ürünün bahçedeki konumu, ölçüsü ve görünümü gerçek uygulamada farklılık gösterebilir."
+              {hideExtras
+                ? "Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Havuzun veya ürünün bahçedeki konumu, ölçüsü ve görünümü gerçek uygulamada farklılık gösterebilir."
                 : "Bu görsel yapay zeka tarafından oluşturulmuştur ve temsilidir. Seramik ve deck renkleri talebinize göre üretilir; nihai üründe ton ve doku farklılıkları olabilir."}
             </p>
           </div>
@@ -354,7 +366,7 @@ function ResultContent({ orderId }: { orderId: string }) {
 
             <div
               className={
-                isOrnamental
+                hideExtras
                   ? "grid grid-cols-1"
                   : "grid grid-cols-2 gap-x-4"
               }

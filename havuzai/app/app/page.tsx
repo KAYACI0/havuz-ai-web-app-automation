@@ -7,6 +7,7 @@ import type { ClientConfig } from "@/lib/config-types";
 import StepPhoto from "@/components/steps/StepPhoto";
 import StepModel from "@/components/steps/StepModel";
 import StepSize from "@/components/steps/StepSize";
+import StepCustomSize from "@/components/steps/StepCustomSize";
 import StepEnvironment from "@/components/steps/StepEnvironment";
 import StepContact from "@/components/steps/StepContact";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -53,6 +54,9 @@ type StepDef = (typeof ALL_STEPS)[number];
 
 /** Süs havuzu akışı: Fotoğraf -> Model -> İletişim */
 const ORNAMENTAL_STEP_IDS = [1, 2, 5];
+
+/** Beton serpme akışı: Fotoğraf -> Model -> Ölçü (müşteri kendi girer) -> İletişim */
+const CONCRETE_STEP_IDS = [1, 2, 3, 5];
 
 const HEADLINES: Record<number, string> = {
   1: "Hayalinizdeki havuzu evinizde görün.",
@@ -196,7 +200,13 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     hasWaterfall: false, hasStairs: false, stairType: "corner",
   });
 
-  const updateForm = (data: Partial<FormData>) => setForm((prev) => ({ ...prev, ...data }));
+  const updateForm = (data: Partial<FormData>) =>
+    setForm((prev) => ({
+      ...prev,
+      ...data,
+      // Model değişince eski ölçü kalmasın (fiber listesinden seçilmiş ölçü beton girişine sızmasın)
+      ...(data.poolModel !== undefined && data.poolModel !== prev.poolModel ? { poolSize: "" } : {}),
+    }));
 
   useEffect(() => {
     if (!clientId) return;
@@ -218,9 +228,13 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
   // Süs havuzu ("sus") ise: Fotoğraf -> Model -> İletişim (ölçü/özellik adımları yok).
   const selectedModel = config?.pool_models.find((m) => m.id === form.poolModel);
   const isOrnamental  = selectedModel?.category === "sus";
-  const visibleSteps  = isOrnamental
-    ? ALL_STEPS.filter((s) => ORNAMENTAL_STEP_IDS.includes(s.id))
+  const isCustomSize  = selectedModel?.category === "beton";
+  const flowIds       = isOrnamental ? ORNAMENTAL_STEP_IDS : isCustomSize ? CONCRETE_STEP_IDS : null;
+  const visibleSteps  = flowIds
+    ? ALL_STEPS.filter((s) => flowIds.includes(s.id))
     : ALL_STEPS;
+  // Süs havuzu ve beton akışında deck/seramik/şelale/merdiven adımı yok
+  const skipExtras    = isOrnamental || isCustomSize;
   const stepIndex     = visibleSteps.findIndex((s) => s.id === step);
 
   const goNext = () => {
@@ -247,13 +261,13 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
       fd.append("customerAddress", form.customerAddress);
       fd.append("source",          isEmbed ? "widget" : "direct");
 
-      // Süs havuzunda ölçü/deck/seramik/şelale/merdiven adımları yok:
+      // Süs havuzunda ölçü dahil, beton serpmede ise deck/seramik/şelale/merdiven adımları yok:
       // önceki seçimlerden kalmış olabilecek değerler gönderilmez, boş/false gider.
       fd.append("poolSize",    isOrnamental ? "" : form.poolSize);
-      fd.append("deckType",    isOrnamental ? "" : form.deckType);
-      fd.append("ceramicType", isOrnamental ? "" : form.ceramicType);
-      fd.append("hasWaterfall", String(isOrnamental ? false : form.hasWaterfall));
-      fd.append("hasStairs",    String(isOrnamental ? false : form.hasStairs));
+      fd.append("deckType",    skipExtras ? "" : form.deckType);
+      fd.append("ceramicType", skipExtras ? "" : form.ceramicType);
+      fd.append("hasWaterfall", String(skipExtras ? false : form.hasWaterfall));
+      fd.append("hasStairs",    String(skipExtras ? false : form.hasStairs));
       fd.append("stairType",    form.stairType);
 
       const res  = await fetch("/api/generate", { method: "POST", body: fd });
@@ -309,7 +323,9 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
               <div className="p-8">
                 {step === 1 && <StepPhoto       form={form} update={updateForm} />}
                 {step === 2 && <StepModel       form={form} update={updateForm} config={config} />}
-                {step === 3 && <StepSize        form={form} update={updateForm} config={config} />}
+                {step === 3 && (isCustomSize
+                  ? <StepCustomSize form={form} update={updateForm} />
+                  : <StepSize       form={form} update={updateForm} config={config} />)}
                 {step === 4 && <StepEnvironment form={form} update={updateForm} config={config} />}
                 {step === 5 && <StepContact     form={form} update={updateForm} />}
               </div>
