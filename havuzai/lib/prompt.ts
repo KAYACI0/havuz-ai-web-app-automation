@@ -29,7 +29,18 @@ export function buildPoolPrompt(config: PoolConfig, clientConfig: ClientConfig):
   }
 
   // Malzeme etiketi kategoriden gelir: beton serpme modellerde "fiberglass" denmesin.
-  const material = poolModel?.category === "beton" ? "concrete" : "fiberglass";
+  const isConcrete = poolModel?.category === "beton";
+  const material = isConcrete ? "concrete" : "fiberglass";
+
+  // Fiberde havuz kalıbı sabittir: referanstaki şekil aynen kullanılır.
+  // Beton serpmede havuz özel ölçüyle yapılır: referanslar sadece stil içindir
+  // (kenar detayı, iç yüzey, merdiven stili, su rengi), boyut ve en/boy oranı müşterinin ölçüsünden gelir.
+  const referenceUse = isConcrete
+    ? "use them ONLY for the pool's style: edge/coping detail, interior finish, steps style and water color. Do NOT copy their size, length or length-to-width proportions — the proportions come ONLY from POOL DIMENSIONS in RULE 2 below"
+    : "USE THIS EXACT POOL SHAPE";
+  const shapeProhibition = isConcrete
+    ? "❌ Using the reference photos' proportions instead of the given POOL DIMENSIONS, or a different edge/finish style than the references"
+    : "❌ Wrong pool shape — must match Image 2 exactly";
 
   const shapeDesc = poolModel?.prompt_description || poolModel?.description || `${model} shaped ${material} pool`;
 
@@ -46,7 +57,7 @@ You are a professional architectural visualization AI. Your task is to place a l
 
 REFERENCE IMAGES GUIDE:
 - Image 1: Customer garden/property photo — THIS IS THE IMAGE TO EDIT
-- Image 2 (and Image 3 if provided): ${modelName} pool model reference photos — USE THIS EXACT POOL SHAPE
+- Image 2 (and Image 3 if provided): ${modelName} pool model reference photos — ${referenceUse}
 
 ---
 
@@ -121,7 +132,7 @@ RULE 5 — PHOTOREALISTIC QUALITY
 ABSOLUTE PROHIBITIONS:
 ❌ Pool above ground level in any way
 ❌ Pool walls or sides visible above the surrounding surface
-❌ Wrong pool shape — must match Image 2 exactly
+${shapeProhibition}
 ❌ Changing existing buildings, trees, or landscaping
 ❌ Adding deck, tiles, waterfall, or ladder — the pool only
 ❌ Cartoon, render, 3D, or illustration style — PHOTO ONLY
@@ -160,8 +171,10 @@ The water must be clearly noticeable at normal viewing size, not hidden or barel
 PLACEMENT — YOU CHOOSE THE BEST SPOT
 Analyze the garden photo and place the product in the most suitable open area:
 - Flat, open ground (lawn, pavers or gravel) with enough free space around it
-- In the mid-ground: roughly one third to one half of the way from the camera to the house, so the product is clearly visible and its details can be seen, but the perspective does not exaggerate its size. Never in the extreme foreground right next to the camera, and never far away beside the house or the background trees
-- Prefer a natural spot such as next to the garden path, near the terrace or house entrance, or at the edge of the lawn, rather than alone in the middle of a big empty lawn
+- CLOSE-UP PLACEMENT: choose the open spot CLOSEST to the camera that still looks natural (the near edge of the lawn, beside the garden path, or just in front of the terrace/seating area). The product is the subject of the photo, so show it close to the camera, in the lower half of the image, with its height about one fifth of the image height, fully visible and sharp. Never far away beside the house or the background trees
+- HARD POSITION RULE: the BASE of the product (where it touches the ground) must be in the LOWER THIRD of the image, at least 65% of the way down from the top edge, and horizontally within the middle 60% of the image width. Its top must reach roughly 20-25% of the image height above its base. A product placed near the house or in the middle distance is WRONG output
+- The product must appear bigger in the frame ONLY because it is closer to the camera, NOT because it was enlarged. Compare its size with furniture, steps, path width, pots and plants at the SAME distance from the camera and keep its real-world scale correct against them
+- It must not be cut off by the image border and not hidden behind furniture or plants
 - Not blocking doors, windows, entrances, driveways or main walkways
 - Not directly under tree branches, not touching walls or fences (leave at least about 1 meter of free space)
 - Never on top of furniture, plants, or the building itself
