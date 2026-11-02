@@ -12,6 +12,7 @@ import StepEnvironment from "@/components/steps/StepEnvironment";
 import StepContact from "@/components/steps/StepContact";
 import LoadingScreen from "@/components/LoadingScreen";
 import HowToUse from "@/components/HowToUse";
+import PwaInstall from "@/components/PwaInstall";
 
 const FORM_GUIDE = [
   { icon: "📷", title: "Fotoğraf Yükleyin", desc: "Bahçenizi veya arka bahçenizi net şekilde gösteren bir fotoğraf seçin." },
@@ -309,6 +310,9 @@ function AppForm({ clientId: propClientId, isEmbed }: Props) {
     <div className="min-h-screen lg:grid"
       style={{ gridTemplateColumns: "420px 1fr", background: "var(--sand)", ["--pool" as string]: brandColor }}>
       <Toaster position="top-center" toastOptions={{ style: { fontFamily: "var(--font-jakarta), sans-serif", fontSize: "14px", borderRadius: "10px", background: "var(--navy)", color: "#fff" } }} />
+
+      {/* Müşteri formu için "uygulama olarak kur" bandı (sadece /app sayfasında görünür) */}
+      <PwaInstall />
 
       <BrandPanel step={step} steps={visibleSteps} config={config} />
 
