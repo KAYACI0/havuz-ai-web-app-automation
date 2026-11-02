@@ -250,4 +250,4 @@ export async function POST(request: Request) {
     });
     return Response.json({ success: false, error: "Görsel oluşturulamadı", debug: { message: err?.message, http_status: err?.status, body: err?.body } }, { status: 500 });
   }
-}
+} 
