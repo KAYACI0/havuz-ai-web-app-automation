@@ -60,6 +60,16 @@ function ResultContent({ orderId }: { orderId: string }) {
   const searchParams = useSearchParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [config, setConfig] = useState<ClientConfig | null>(null);
+  const [standalone, setStandalone] = useState(false); // kurulu uygulama olarak mı açıldı
+  const [inFrame, setInFrame] = useState(false);       // bayi sitesine gömülü (iframe) mü
+
+  useEffect(() => {
+    setStandalone(
+      window.matchMedia("(display-mode: standalone)").matches ||
+        (navigator as unknown as { standalone?: boolean }).standalone === true
+    );
+    setInFrame(window.self !== window.top);
+  }, []);
 
   const aiParam = searchParams.get("ai");
   const origParam = searchParams.get("orig");
@@ -144,6 +154,8 @@ function ResultContent({ orderId }: { orderId: string }) {
   )?.category;
   const isOrnamental = modelCategory === "sus" || !order.pool_size;
   const isConcrete = !isOrnamental && modelCategory === "beton";
+  // Kurulu uygulamada tarayıcı geri tuşu yoktur; forma dönmek için buton gösterilir.
+  const showBack = standalone && !inFrame && !!order.client_id;
   const hideExtras = isOrnamental || isConcrete;
 
   const selections = isOrnamental
@@ -203,19 +215,36 @@ function ResultContent({ orderId }: { orderId: string }) {
           />
         </div>
 
-        <button
-          onClick={() =>
-            downloadImage(order.ai_photo, "havuzai-gorsel.jpg")
-          }
-          className="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          style={{
-            color: "var(--pool)",
-            border: "1.5px solid var(--pool)",
-            background: "var(--pool-light)",
-          }}
-        >
-          ⬇ İndir
-        </button>
+        <div className="flex items-center gap-2">
+          {showBack && (
+            <a
+              href={`/app?client=${encodeURIComponent(order.client_id)}`}
+              className="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              style={{
+                color: "var(--navy)",
+                border: "1.5px solid var(--border)",
+                background: "var(--white)",
+              }}
+            >
+              ← Başa dön
+            </a>
+          )}
+
+          {/* Telefonda dar olduğu için üstteki İndir gizli; görselin üstünde ve kartta zaten var */}
+          <button
+            onClick={() =>
+              downloadImage(order.ai_photo, "havuzai-gorsel.jpg")
+            }
+            className="hidden sm:inline-block text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            style={{
+              color: "var(--pool)",
+              border: "1.5px solid var(--pool)",
+              background: "var(--pool-light)",
+            }}
+          >
+            ⬇ İndir
+          </button>
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-10">
@@ -251,42 +280,28 @@ function ResultContent({ orderId }: { orderId: string }) {
             animationDelay: "0.1s",
           }}
         >
-          <div
-            className="grid grid-cols-2"
-            style={{ borderBottom: "1px solid var(--border-soft)" }}
-          >
+          {/* Telefonda alt alta (her görsel tam genişlikte), geniş ekranda yan yana */}
+          <div className="grid grid-cols-1 sm:grid-cols-2">
             <div
-              className="px-6 py-3 flex items-center gap-2"
-              style={{ borderRight: "1px solid var(--border-soft)" }}
+              className="sm:border-r"
+              style={{ borderColor: "var(--border-soft)" }}
             >
               <div
-                className="w-2 h-2 rounded-full"
-                style={{ background: "var(--text-faint)" }}
-              />
-              <span
-                className="text-sm font-semibold"
-                style={{ color: "var(--text-muted)" }}
+                className="px-6 py-3 flex items-center gap-2"
+                style={{ borderBottom: "1px solid var(--border-soft)" }}
               >
-                Mevcut
-              </span>
-            </div>
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: "var(--text-faint)" }}
+                />
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Mevcut
+                </span>
+              </div>
 
-            <div className="px-6 py-3 flex items-center gap-2">
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ background: "var(--pool)" }}
-              />
-              <span
-                className="text-sm font-semibold"
-                style={{ color: "var(--pool)" }}
-              >
-                AI Görsel
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2">
-            <div style={{ borderRight: "1px solid var(--border-soft)" }}>
               <img
                 src={order.original_photo}
                 alt="Orijinal"
@@ -295,35 +310,56 @@ function ResultContent({ orderId }: { orderId: string }) {
               />
             </div>
 
-            <div className="relative">
-              <img
-                src={order.ai_photo}
-                alt="AI Görsel"
-                className="w-full object-cover"
-                style={{ aspectRatio: "4/3" }}
-              />
-
+            <div
+              className="border-t sm:border-t-0"
+              style={{ borderColor: "var(--border-soft)" }}
+            >
               <div
-                className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold"
-                style={{ background: "var(--pool)", color: "white" }}
+                className="px-6 py-3 flex items-center gap-2"
+                style={{ borderBottom: "1px solid var(--border-soft)" }}
               >
-                AI
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: "var(--pool)" }}
+                />
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--pool)" }}
+                >
+                  AI Görsel
+                </span>
               </div>
 
-              <button
-                onClick={() =>
-                  downloadImage(order.ai_photo, "havuzai-gorsel.jpg")
-                }
-                className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-                style={{
-                  background: "rgba(0,0,0,0.55)",
-                  color: "white",
-                  backdropFilter: "blur(6px)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                }}
-              >
-                ⬇ İndir
-              </button>
+              <div className="relative">
+                <img
+                  src={order.ai_photo}
+                  alt="AI Görsel"
+                  className="w-full object-cover"
+                  style={{ aspectRatio: "4/3" }}
+                />
+
+                <div
+                  className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold"
+                  style={{ background: "var(--pool)", color: "white" }}
+                >
+                  AI
+                </div>
+
+                <button
+                  onClick={() =>
+                    downloadImage(order.ai_photo, "havuzai-gorsel.jpg")
+                  }
+                  className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={{
+                    background: "rgba(0,0,0,0.55)",
+                    color: "white",
+                    backdropFilter: "blur(6px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                  }}
+                >
+                  ⬇ İndir
+                </button>
+              </div>
             </div>
           </div>
 
